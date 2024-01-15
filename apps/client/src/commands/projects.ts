@@ -64,7 +64,7 @@ const create = new Command()
 
             spinner.start('Creating project...');
 
-            const response = await fetch(`${server}/projects`, {
+            const response = await fetch(`${server}/api/projects`, {
                 method: 'POST',
                 headers: {
                     'auth-token': sessionId,
@@ -134,7 +134,7 @@ const list = new Command()
 
             spinner.start('Listing projects...');
 
-            const response = await fetch(`${server}/projects`, {
+            const response = await fetch(`${server}/api/projects`, {
                 method: 'GET',
                 headers: {
                     'auth-token': sessionId,
@@ -231,7 +231,7 @@ const details = new Command()
                     'Fetching Projects from server',
                 );
 
-                const projectsResponse = await fetch(`${server}/projects`, {
+                const projectsResponse = await fetch(`${server}/api/projects`, {
                     headers: {
                         'auth-token': auth_token,
                     },
@@ -265,11 +265,14 @@ const details = new Command()
 
             spinner.start('Getting project details...');
 
-            const projectResponse = await fetch(`${server}/projects/${id}`, {
-                headers: {
-                    'auth-token': auth_token,
+            const projectResponse = await fetch(
+                `${server}/api/projects/${id}`,
+                {
+                    headers: {
+                        'auth-token': auth_token,
+                    },
                 },
-            });
+            );
 
             const project = await projectResponse.json();
 
@@ -429,9 +432,12 @@ const deploy = new Command()
             //     util.inspect(contentsWithEntrypointFirst, false, null, true),
             // );
 
-            const projectResponse = await fetch(`${server}/projects/${id}`, {
-                headers: { 'auth-token': sessionId },
-            });
+            const projectResponse = await fetch(
+                `${server}/api/projects/${id}`,
+                {
+                    headers: { 'auth-token': sessionId },
+                },
+            );
 
             if (!projectResponse.ok) {
                 if (projectResponse.status === 404) {
@@ -450,7 +456,7 @@ const deploy = new Command()
             }
 
             const newVersionResult = await fetch(
-                `${server}/projects/${id}/versions`,
+                `${server}/api/projects/${id}/versions`,
                 {
                     method: 'POST',
                     headers: {

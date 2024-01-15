@@ -63,7 +63,7 @@ const details = new Command()
 
                 spinner.start('Fetching list of projects.');
 
-                const projectsResponse = await fetch(`${server}/projects`, {
+                const projectsResponse = await fetch(`${server}/api/projects`, {
                     headers: {
                         'auth-token': authToken,
                     },
@@ -96,7 +96,7 @@ const details = new Command()
                 spinner.start('Fetching project details');
 
                 const projectDetailsResponse = await fetch(
-                    `${server}/projects/${id}`,
+                    `${server}/api/projects/${id}`,
                     {
                         headers: {
                             'auth-token': authToken,
@@ -169,7 +169,7 @@ const details = new Command()
             spinner.start('Fetching version details');
 
             const versionDetailRequest = await fetch(
-                `${server}/projects/${id}/versions/find-by-version/${version}`,
+                `${server}/api/projects/${id}/versions/find-by-version/${version}`,
                 {
                     headers: {
                         'auth-token': authToken,
@@ -198,6 +198,9 @@ const details = new Command()
                 const version = versionDetails.version;
 
                 const chunks = [
+                    ``,
+                    `----------------------------------------`,
+                    `Project Details:`,
                     `----------------------------------------`,
                     `Id: ${chalk.bold(id)}`,
                     `Version: ${chalk.bold(version)}`,
@@ -222,7 +225,7 @@ const details = new Command()
                 for (const blob of versionDetails.blobs) {
                     chunks.push(`  ${chalk.bold(blob.filename)}`);
                     chunks.push(`    id: ${chalk(blob.id)}`);
-                    chunks.push(`    chunk-type: ${chalk(blob.type)}`);
+                    chunks.push(`    file-type: ${chalk(blob.type)}`);
                 }
 
                 // console.log(

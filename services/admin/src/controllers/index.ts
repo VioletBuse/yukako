@@ -13,8 +13,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.use('/auth', authRouter);
-app.use('/projects', projectsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/projects', projectsRouter);
 
 app.use((req, res, next) => {
     res.status(404).send({ error: 'Not found' });

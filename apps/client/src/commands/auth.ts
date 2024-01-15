@@ -68,7 +68,7 @@ export const login = new Command()
 
             loginSpinner.start('Logging in...');
 
-            const response = await fetch(`${server}/auth/login`, {
+            const response = await fetch(`${server}/api/auth/login`, {
                 headers: { 'Content-Type': 'application/json' },
                 method: 'POST',
                 body: JSON.stringify({
@@ -187,7 +187,7 @@ const register = new Command()
 
             registerSpinner.start('Registering...');
 
-            const response = await fetch(`${server}/auth/register`, {
+            const response = await fetch(`${server}/api/auth/register`, {
                 headers: { 'Content-Type': 'application/json' },
                 method: 'POST',
                 body: JSON.stringify({
@@ -317,7 +317,7 @@ const generateNewUserToken = new Command()
                 process.exit(1);
             }
 
-            const response = await fetch(`${server}/auth/new-user-token`, {
+            const response = await fetch(`${server}/api/auth/new-user-token`, {
                 method: 'POST',
                 headers: { 'auth-token': sessionId },
             });
@@ -390,7 +390,7 @@ const whoami = new Command()
             process.exit(1);
         }
 
-        const response = await fetch(`${server}/auth/me`, {
+        const response = await fetch(`${server}/api/auth/me`, {
             headers: { 'auth-token': sessionId },
         });
 
