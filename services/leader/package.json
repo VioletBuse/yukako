@@ -1,0 +1,13 @@
+{
+	"name": "@yukako/leader",
+	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"scripts": {},
+	"devDependencies": {
+		"typescript": "latest"
+	},
+	"dependencies": {
+		"@yukako/extensions": "*",
+		"@yukako/settings": "*"
+	}
+}

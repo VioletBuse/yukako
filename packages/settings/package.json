@@ -1,0 +1,9 @@
+{
+	"name": "@yukako/settings",
+	"main": "src/index.ts",
+	"types": "src/index.ts",
+	"scripts": {},
+	"devDependencies": {
+		"typescript": "latest"
+	}
+}

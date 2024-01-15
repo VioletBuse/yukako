@@ -1,0 +1,34 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1704572952308,
+      "tag": "0000_chunky_earthquake",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1704574161173,
+      "tag": "0001_overconfident_vertigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1704574334312,
+      "tag": "0002_closed_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1704574958112,
+      "tag": "0003_gorgeous_thor",
+      "breakpoints": true
+    }
+  ]
+}
