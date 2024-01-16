@@ -13,5 +13,13 @@
 		"start": "node --enable-source-maps dist/index.mjs -c off",
 		"start:watch": "NODE_OPTIONS=\"--enable-source-maps\" nodemon dist/index.mjs -- -c off",
 		"dev": "concurrently -n build,run \"npm run build:watch\" \"npm run start:watch\""
+	},
+	"dependencies": {
+		"@yukako/admin": "*",
+		"@yukako/proxy": "*",
+		"@yukako/engine": "*",
+		"@yukako/leader": "*",
+		"@yukako/cli": "*",
+		"@yukako/state": "*"
 	}
 }

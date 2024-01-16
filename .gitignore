@@ -14,7 +14,10 @@ out/
 build
 dist
 dist.ts
+
+
 .yukako
+.artifacts
 
 # misc
 .DS_Store
