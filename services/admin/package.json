@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@yukako/dashboard": "*",
 		"@yukako/extensions": "*",
+		"@yukako/types": "*",
 		"fs-extra": "^11.2.0"
 	}
 }

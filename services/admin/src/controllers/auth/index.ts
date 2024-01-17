@@ -7,8 +7,18 @@ import * as bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import { authenticate } from '../../lib/authenticate';
 import { respond } from '../../middleware/error-handling/throwable';
+import { buildRequestHandler } from '../../lib/build-handler';
 
 const authRouter = Router();
+
+authRouter.get(
+    '/test',
+    buildRequestHandler<{ hello: 'world' }>({
+        handler: async (req, res) => {
+            res.status(200).send({ hello: 'world' });
+        },
+    }),
+);
 
 authRouter.post('/login', async (req, res) => {
     try {

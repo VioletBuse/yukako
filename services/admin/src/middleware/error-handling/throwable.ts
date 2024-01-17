@@ -60,16 +60,22 @@ const validateThrowableResponse = (
     }
 };
 
-export class respond {
+export class respond<T extends any = any> {
     private _statusCode: number = 200;
     private _headersObject: Record<string, string> = {};
     private _messageObject: any = 'Hello World!';
+    private _res: Response | undefined;
 
     private constructor() {}
 
-    // public static new(): respond {
-    //     return new respond();
-    // }
+    public static new<I extends any>(res?: Response): respond<I> {
+        const respo = new respond<I>();
+        if (res) {
+            respo._res = res;
+        }
+
+        return respo;
+    }
 
     public static rethrow(err: unknown): void {
         const throwableResponse = validateThrowableResponse(err);
@@ -77,8 +83,8 @@ export class respond {
         if (throwableResponse) {
             throw err;
         } else {
-            console.error('Not throwable response');
-            console.error(err);
+            // console.error('Not throwable response');
+            // console.error(err);
         }
     }
 
@@ -165,7 +171,7 @@ export class respond {
         return new respond()._message(message);
     }
 
-    public message(message: any): respond {
+    public message(message: T): respond {
         return this._message(message);
     }
 
@@ -176,6 +182,47 @@ export class respond {
             statusCode: this._statusCode,
             headers: this._headersObject,
         };
+    }
+
+    public send(res?: Response | T): void {
+        if (
+            res &&
+            typeof res === 'object' &&
+            'send' in res &&
+            'status' in res &&
+            'setHeader' in res &&
+            'end' in res
+        ) {
+            for (const [key, value] of Object.entries(this._headersObject)) {
+                res.setHeader(key, value);
+            }
+
+            res.status(this._statusCode).send(this._messageObject);
+        } else if (res) {
+            const _res = this._res;
+
+            if (!_res) {
+                throw new Error('No response object');
+            }
+
+            for (const [key, value] of Object.entries(this._headersObject)) {
+                _res.setHeader(key, value);
+            }
+
+            _res.status(this._statusCode).send(res);
+        } else {
+            const _res = this._res;
+
+            if (!_res) {
+                throw new Error('No response object');
+            }
+
+            for (const [key, value] of Object.entries(this._headersObject)) {
+                _res.setHeader(key, value);
+            }
+
+            _res.status(this._statusCode).send(this._messageObject);
+        }
     }
 }
 
