@@ -36,7 +36,7 @@ import * as fs from 'fs-extra';
 import { produce } from 'immer';
 import { Data } from 'ws';
 
-type BaseBindingData =
+export type BaseBindingData =
     | {
           type: 'text';
           name: string;
