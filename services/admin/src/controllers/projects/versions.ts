@@ -6,8 +6,11 @@ import {
     dataBlobs,
     projects,
     projectVersionBlobs,
+    projectVersionDataBindings,
+    projectVersionJsonBindings,
     projectVersionRoutes,
     projectVersions,
+    projectVersionTextBindings,
 } from '@yukako/state/src/db/schema';
 import { respond } from '../../middleware/error-handling/throwable';
 import { getSql } from '@yukako/state/src/db/init';
@@ -48,6 +51,9 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
                             },
                         },
                         routes: true,
+                        textBindings: true,
+                        jsonBindings: true,
+                        dataBindings: true,
                     },
                 },
             },
@@ -72,12 +78,33 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
                 type: blob.blob.type,
             }));
 
+            const textBindings = projectVersion.textBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const jsonBindings = projectVersion.jsonBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const dataBindings = projectVersion.dataBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                base64: binding.base64,
+            }));
+
             return {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
                 routes,
                 blobs,
+                textBindings,
+                jsonBindings,
+                dataBindings,
             };
         });
 
@@ -120,6 +147,9 @@ versionsRouter.get(
                                 },
                             },
                             routes: true,
+                            textBindings: true,
+                            jsonBindings: true,
+                            dataBindings: true,
                         },
                     },
                 },
@@ -156,12 +186,33 @@ versionsRouter.get(
                 type: blob.blob.type,
             }));
 
+            const textBindings = projectVersion.textBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const jsonBindings = projectVersion.jsonBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const dataBindings = projectVersion.dataBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                base64: binding.base64,
+            }));
+
             const data = {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
                 routes,
                 blobs,
+                textBindings,
+                jsonBindings,
+                dataBindings,
             };
 
             respond.status(200).message(data).throw();
@@ -207,6 +258,30 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
                     }),
                 )
                 .min(1),
+            textBindings: z
+                .array(
+                    z.object({
+                        name: z.string(),
+                        value: z.string(),
+                    }),
+                )
+                .nullish(),
+            jsonBindings: z
+                .array(
+                    z.object({
+                        name: z.string(),
+                        value: z.any(),
+                    }),
+                )
+                .nullish(),
+            dataBindings: z
+                .array(
+                    z.object({
+                        name: z.string(),
+                        base64: z.string(),
+                    }),
+                )
+                .nullish(),
         });
 
         const data = schema.parse(req.body);
@@ -278,6 +353,48 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
                 })),
             );
 
+            const newTextBindings = data.textBindings
+                ? await txn
+                      .insert(projectVersionTextBindings)
+                      .values(
+                          data.textBindings.map((binding) => ({
+                              id: nanoid(),
+                              name: binding.name,
+                              value: binding.value,
+                              projectVersionId: newProjectVersion[0].id,
+                          })),
+                      )
+                      .returning()
+                : [];
+
+            const newJsonBindings = data.jsonBindings
+                ? await txn
+                      .insert(projectVersionJsonBindings)
+                      .values(
+                          data.jsonBindings.map((binding) => ({
+                              id: nanoid(),
+                              name: binding.name,
+                              value: binding.value,
+                              projectVersionId: newProjectVersion[0].id,
+                          })),
+                      )
+                      .returning()
+                : [];
+
+            const newDataBindings = data.dataBindings
+                ? await txn
+                      .insert(projectVersionDataBindings)
+                      .values(
+                          data.dataBindings.map((binding) => ({
+                              id: nanoid(),
+                              name: binding.name,
+                              base64: binding.base64,
+                              projectVersionId: newProjectVersion[0].id,
+                          })),
+                      )
+                      .returning()
+                : [];
+
             const routes = newRoutes.map((route) => ({
                 id: route.id,
                 host: route.host,
@@ -291,6 +408,24 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
                 type: blob.type,
             }));
 
+            const textBindings = newTextBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const jsonBindings = newJsonBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const dataBindings = newDataBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                base64: binding.base64,
+            }));
+
             _sql.notify('project_versions', 'reload');
 
             return {
@@ -299,6 +434,9 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
                 projectId: newProjectVersion[0].projectId,
                 routes,
                 blobs,
+                textBindings,
+                jsonBindings,
+                dataBindings,
             };
         });
 
@@ -346,6 +484,9 @@ versionsRouter.get(
                                 },
                             },
                             routes: true,
+                            textBindings: true,
+                            jsonBindings: true,
+                            dataBindings: true,
                         },
                     },
                 },
@@ -385,12 +526,33 @@ versionsRouter.get(
                 type: blob.blob.type,
             }));
 
+            const textBindings = projectVersion.textBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const jsonBindings = projectVersion.jsonBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                value: binding.value,
+            }));
+
+            const dataBindings = projectVersion.dataBindings.map((binding) => ({
+                id: binding.id,
+                name: binding.name,
+                base64: binding.base64,
+            }));
+
             const data = {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
                 routes,
                 blobs,
+                textBindings,
+                jsonBindings,
+                dataBindings,
             };
 
             respond.status(200).message(data).throw();

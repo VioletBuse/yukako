@@ -25,6 +25,12 @@ type ThrowableResponse = {
     headers: Record<string, string>;
 };
 
+const AbortSchema = z.object({
+    __brand: z.literal('Abort'),
+});
+
+type Abort = {};
+
 const validateThrowableResponse = (
     value: unknown,
 ): ThrowableResponse | null => {
@@ -184,7 +190,12 @@ export class respond<T extends any = any> {
         };
     }
 
-    public send(res?: Response | T): void {
+    public send(
+        res?: Response | T,
+        opts?: {
+            sendAbort?: boolean;
+        },
+    ): void {
         if (
             res &&
             typeof res === 'object' &&
@@ -223,6 +234,12 @@ export class respond<T extends any = any> {
 
             _res.status(this._statusCode).send(this._messageObject);
         }
+
+        if (opts?.sendAbort !== false) {
+            throw {
+                __brand: 'Abort',
+            };
+        }
     }
 }
 
@@ -233,6 +250,15 @@ export const handleThrownError = (
     next: NextFunction,
 ) => {
     const throwableResponse = validateThrowableResponse(err);
+    const abort =
+        typeof err === 'object' &&
+        err !== null &&
+        '__brand' in err &&
+        err.__brand === 'Abort';
+
+    if (abort) {
+        return;
+    }
 
     if (throwableResponse) {
         for (const [key, value] of Object.entries(throwableResponse.headers)) {
