@@ -14,6 +14,7 @@ import { desc, eq } from 'drizzle-orm';
 import { authenticate } from '../../lib/authenticate';
 import { getSql } from '@yukako/state/src/db/init';
 import versionsRouter from './versions';
+import type { ProjectType } from '@yukako/types';
 
 const projectsRouter = Router();
 

@@ -66,7 +66,7 @@ const validateThrowableResponse = (
     }
 };
 
-export class respond<T extends any = any> {
+export class respond {
     private _statusCode: number = 200;
     private _headersObject: Record<string, string> = {};
     private _messageObject: any = 'Hello World!';
@@ -74,8 +74,8 @@ export class respond<T extends any = any> {
 
     private constructor() {}
 
-    public static new<I extends any>(res?: Response): respond<I> {
-        const respo = new respond<I>();
+    public static new(res?: Response) {
+        const respo = new respond();
         if (res) {
             respo._res = res;
         }
@@ -173,11 +173,11 @@ export class respond<T extends any = any> {
         return this;
     }
 
-    public static message(message: any): respond {
+    public static message<T extends any>(message: T): respond {
         return new respond()._message(message);
     }
 
-    public message(message: T): respond {
+    public message<T extends any>(message: T): respond {
         return this._message(message);
     }
 
@@ -191,7 +191,7 @@ export class respond<T extends any = any> {
     }
 
     public send(
-        res?: Response | T,
+        res?: Response | any,
         opts?: {
             sendAbort?: boolean;
         },
