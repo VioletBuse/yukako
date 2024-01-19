@@ -1,16 +1,16 @@
 import path from 'path';
 import * as fs from 'fs-extra';
 
-type FileType = 'esmodule' | 'text' | 'wasm' | 'data' | 'json';
+export type FileType = 'esmodule' | 'text' | 'wasm' | 'data' | 'json';
 
-type File = {
+export type ProjectFolderFile = {
     name: string;
     path: string;
     base64: string;
     type: FileType;
 };
 
-type FileTypeException = {
+export type FileTypeException = {
     path: string;
     type: FileType;
 };
@@ -18,8 +18,8 @@ type FileTypeException = {
 export const recursivelyReadFolder = (
     folder: string,
     exceptions?: FileTypeException[],
-): File[] => {
-    const files: File[] = [];
+): ProjectFolderFile[] => {
+    const files: ProjectFolderFile[] = [];
 
     const _recursivelyReadFolder = (folder: string) => {
         const dir = fs.readdirSync(folder);

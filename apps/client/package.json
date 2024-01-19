@@ -19,9 +19,6 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"ink": "^4.4.1",
-		"pastel": "^2.0.2",
-		"react": "^18.2.0",
-		"zod": "^3.22.4"
+		"@yukako/types": "*"
 	}
 }

@@ -78,6 +78,17 @@ export const loadProjects = async () => {
                 },
             );
 
+            const bindings = [
+                ...textBindings,
+                ...jsonBindings,
+                ...dataBindings,
+            ];
+
+            // console.log('Reloading project with bindings:');
+            // console.log(
+            //     util.inspect(bindings, false, null, true /* enable colors */),
+            // );
+
             return {
                 name: project.name,
                 modules: project.projectVersions[0].projectVersionBlobs.map(
@@ -102,7 +113,7 @@ export const loadProjects = async () => {
                         };
                     },
                 ),
-                bindings: [...textBindings, ...jsonBindings, ...dataBindings],
+                bindings: bindings,
                 routing: project.projectVersions[0].routes.map((route) => {
                     return {
                         host: route.host,

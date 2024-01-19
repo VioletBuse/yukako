@@ -58,7 +58,7 @@ const configFileSchema = z.object({
         )
         .optional(),
 
-    binary_bindings: z
+    data_bindings: z
         .array(
             z.union([
                 z.object({
@@ -74,18 +74,18 @@ const configFileSchema = z.object({
         .optional(),
 });
 
-type ProjectRoute = {
+export type ProjectRoute = {
     host: string;
     paths: string[];
 };
 
-type ProjectDeployment = {
+export type ProjectDeployment = {
     server: string;
     name: string;
     id: string;
 };
 
-type ProjectTextBinding =
+export type ProjectTextBinding =
     | {
           name: string;
           value: string;
@@ -95,7 +95,7 @@ type ProjectTextBinding =
           file: string;
       };
 
-type ProjectJsonBinding =
+export type ProjectJsonBinding =
     | {
           name: string;
           value: any;
@@ -105,7 +105,7 @@ type ProjectJsonBinding =
           file: string;
       };
 
-type ProjectBinaryBinding =
+export type ProjectDataBinding =
     | {
           name: string;
           base64: string;
@@ -115,7 +115,7 @@ type ProjectBinaryBinding =
           file: string;
       };
 
-type Project = {
+export type Project = {
     folder: string;
     entrypoint: string;
 
@@ -125,7 +125,7 @@ type Project = {
 
     text_bindings: ProjectTextBinding[];
     json_bindings: ProjectJsonBinding[];
-    binary_bindings: ProjectBinaryBinding[];
+    data_bindings: ProjectDataBinding[];
 };
 
 export const readProjectFile = (): Project => {
@@ -152,8 +152,8 @@ export const readProjectFile = (): Project => {
         parseResult.data.text_bindings ?? [];
     const json_bindings: ProjectJsonBinding[] =
         parseResult.data.json_bindings ?? [];
-    const binary_bindings: ProjectBinaryBinding[] =
-        parseResult.data.binary_bindings ?? [];
+    const data_bindings: ProjectDataBinding[] =
+        parseResult.data.data_bindings ?? [];
 
     return {
         folder: dir,
@@ -162,5 +162,9 @@ export const readProjectFile = (): Project => {
         routes,
 
         deployments,
+
+        text_bindings,
+        json_bindings,
+        data_bindings,
     };
 };

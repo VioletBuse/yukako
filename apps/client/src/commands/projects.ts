@@ -5,11 +5,16 @@ import { validateServerString } from './auth.js';
 import { input, select } from '@inquirer/prompts';
 import * as util from 'util';
 import chalk from 'chalk';
-import { readProjectFile } from '../util/yukakoproj.js';
+import { ProjectTextBinding, readProjectFile } from '../util/yukakoproj.js';
 import * as fs from 'fs-extra';
 import path from 'path';
-import { recursivelyReadFolder } from '../util/read-folder.js';
+import {
+    ProjectFolderFile,
+    recursivelyReadFolder,
+} from '../util/read-folder.js';
 import { versions } from './versions.js';
+import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
+import { z } from 'zod';
 
 const create = new Command()
     .command('create')
@@ -409,7 +414,18 @@ const deploy = new Command()
                 return;
             }
 
-            const contents = recursivelyReadFolder(folder);
+            // const contents = recursivelyReadFolder(folder);
+
+            const entrypointfile = await fs.readFile(entrypoint, 'base64');
+
+            const contents: ProjectFolderFile[] = [
+                {
+                    name: path.basename(entrypoint),
+                    path: entrypoint,
+                    base64: entrypointfile,
+                    type: 'esmodule',
+                },
+            ];
 
             // console.log(util.inspect(deployment, false, null, true));
             // console.log(util.inspect(contents, false, null, true));
@@ -455,6 +471,82 @@ const deploy = new Command()
                 }
             }
 
+            const textBindings = projectfile.text_bindings.map((binding) => {
+                if ('value' in binding) {
+                    return {
+                        name: binding.name,
+                        value: binding.value,
+                    };
+                } else {
+                    const contents = fs.readFileSync(
+                        path.join(folder, binding.file),
+                        'utf-8',
+                    );
+                    return {
+                        name: binding.name,
+                        value: contents,
+                    };
+                }
+            });
+
+            const jsonBindings = projectfile.json_bindings.map((binding) => {
+                if ('value' in binding) {
+                    return {
+                        name: binding.name,
+                        value: binding.value,
+                    };
+                } else {
+                    const contents = fs.readJSONSync(
+                        path.join(folder, binding.file),
+                        { throws: false },
+                    );
+
+                    if (contents === null) {
+                        throw new Error(
+                            `Failed to read JSON file ${binding.file} to bind to ${binding.name}`,
+                        );
+                    }
+
+                    return {
+                        name: binding.name,
+                        value: contents,
+                    };
+                }
+            });
+
+            const dataBindings = projectfile.data_bindings.map((binding) => {
+                if ('base64' in binding) {
+                    return {
+                        name: binding.name,
+                        base64: binding.base64,
+                    };
+                } else {
+                    const contents = fs.readFileSync(
+                        path.join(folder, binding.file),
+                        'base64',
+                    );
+                    return {
+                        name: binding.name,
+                        base64: contents,
+                    };
+                }
+            });
+
+            const newVersionData: NewProjectVersionRequestBodyType = {
+                blobs: contentsWithEntrypointFirst.map((file) => ({
+                    filename: file.name,
+                    type: file.type,
+                    data: file.base64,
+                })),
+                routes: projectfile.routes.map((route) => ({
+                    host: route.host,
+                    basePaths: route.paths,
+                })),
+                textBindings: textBindings,
+                jsonBindings: jsonBindings,
+                dataBindings: dataBindings,
+            };
+
             const newVersionResult = await fetch(
                 `${server}/api/projects/${id}/versions`,
                 {
@@ -463,17 +555,7 @@ const deploy = new Command()
                         'auth-token': sessionId,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        blobs: contentsWithEntrypointFirst.map((file) => ({
-                            filename: file.name,
-                            type: file.type,
-                            data: file.base64,
-                        })),
-                        routes: projectfile.routes.map((route) => ({
-                            host: route.host,
-                            basePaths: route.paths,
-                        })),
-                    }),
+                    body: JSON.stringify(newVersionData),
                 },
             );
 

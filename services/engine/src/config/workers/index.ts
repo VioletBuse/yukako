@@ -143,7 +143,7 @@ export class WorkerDefinition implements WorkerDefinition {
             .map((binding) => binding.render())
             .join(', ');
 
-        return `const ${this._name}: Workerd.Worker = (
+        return `const ${this._name} :Workerd.Worker = (
     modules = [
 ${indentBlock(modules, { times: 2 })}
     ],

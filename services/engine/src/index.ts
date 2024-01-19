@@ -4,12 +4,19 @@ import { WorkerdSupervisor } from './supervisor';
 import { Configurator } from './configurator';
 import { loadProjects } from './loader';
 import { getSql } from '@yukako/state/src/db/init';
+import * as util from 'util';
+import fs from 'fs-extra';
 
 export const EngineService = {
     start: async (workerId: string) => {
         const reload = async () => {
             console.log('new project version received.');
             const workers = await loadProjects();
+
+            // console.log('workers');
+            // console.log(
+            //     util.inspect(workers, false, null, true /* enable colors */),
+            // );
 
             const workerPath = path.join(process.cwd(), './.yukako', workerId);
 
@@ -32,6 +39,10 @@ export const EngineService = {
             const configPath = path.join(enginePath, './config.capnp');
 
             config.writeConfig(configPath);
+
+            // const writtenContents = fs.readFileSync(configPath, 'utf8');
+            //
+            // console.log('writtenContents', writtenContents);
 
             WorkerdSupervisor.setName(workerId);
             WorkerdSupervisor.restart(configPath, {

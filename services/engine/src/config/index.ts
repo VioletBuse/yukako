@@ -127,7 +127,7 @@ export class WorkerdConfig implements CapnpComponent {
         return `
 using Workerd = import "/workerd/workerd.capnp";
 
-const config: Workerd.Config = (
+const config :Workerd.Config = (
 	${indentBlock(servicesBlock, { indentFirstLine: false })},
 	${indentBlock(socketsBlock, { indentFirstLine: false })},
 	${indentBlock(extensionsBlock, { indentFirstLine: false })},

@@ -16,6 +16,10 @@ import { respond } from '../../middleware/error-handling/throwable';
 import { getSql } from '@yukako/state/src/db/init';
 import { z, ZodError } from 'zod';
 import { nanoid } from 'nanoid';
+import {
+    NewProjectVersionRequestBodySchema,
+    ProjectVersionInfoType,
+} from '@yukako/types';
 
 const versionsRouter = Router({ mergeParams: true });
 
@@ -64,49 +68,59 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
             return;
         }
 
-        const versions = result.projectVersions.map((projectVersion) => {
-            const routes = projectVersion.routes.map((route) => ({
-                id: route.id,
-                host: route.host,
-                basePaths: route.basePaths,
-            }));
+        const versions = result.projectVersions.map(
+            (projectVersion): ProjectVersionInfoType => {
+                const routes = projectVersion.routes.map((route) => ({
+                    id: route.id,
+                    host: route.host,
+                    basePaths: route.basePaths,
+                }));
 
-            const blobs = projectVersion.projectVersionBlobs.map((blob) => ({
-                id: blob.blob.id,
-                data: blob.blob.data,
-                filename: blob.blob.filename,
-                type: blob.blob.type,
-            }));
+                const blobs = projectVersion.projectVersionBlobs.map(
+                    (blob) => ({
+                        id: blob.blob.id,
+                        data: blob.blob.data,
+                        filename: blob.blob.filename,
+                        type: blob.blob.type,
+                    }),
+                );
 
-            const textBindings = projectVersion.textBindings.map((binding) => ({
-                id: binding.id,
-                name: binding.name,
-                value: binding.value,
-            }));
+                const textBindings = projectVersion.textBindings.map(
+                    (binding) => ({
+                        id: binding.id,
+                        name: binding.name,
+                        value: binding.value,
+                    }),
+                );
 
-            const jsonBindings = projectVersion.jsonBindings.map((binding) => ({
-                id: binding.id,
-                name: binding.name,
-                value: binding.value,
-            }));
+                const jsonBindings = projectVersion.jsonBindings.map(
+                    (binding) => ({
+                        id: binding.id,
+                        name: binding.name,
+                        value: binding.value,
+                    }),
+                );
 
-            const dataBindings = projectVersion.dataBindings.map((binding) => ({
-                id: binding.id,
-                name: binding.name,
-                base64: binding.base64,
-            }));
+                const dataBindings = projectVersion.dataBindings.map(
+                    (binding) => ({
+                        id: binding.id,
+                        name: binding.name,
+                        base64: binding.base64,
+                    }),
+                );
 
-            return {
-                id: projectVersion.id,
-                version: projectVersion.version,
-                projectId: projectVersion.projectId,
-                routes,
-                blobs,
-                textBindings,
-                jsonBindings,
-                dataBindings,
-            };
-        });
+                return {
+                    id: projectVersion.id,
+                    version: projectVersion.version,
+                    projectId: projectVersion.projectId,
+                    routes,
+                    blobs,
+                    textBindings,
+                    jsonBindings,
+                    dataBindings,
+                };
+            },
+        );
 
         respond.status(200).message(versions).throw();
     } catch (e) {
@@ -204,7 +218,7 @@ versionsRouter.get(
                 base64: binding.base64,
             }));
 
-            const data = {
+            const data: ProjectVersionInfoType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
@@ -234,57 +248,7 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
 
         await authenticate(req);
 
-        const schema = z.object({
-            blobs: z
-                .array(
-                    z.object({
-                        data: z.string(),
-                        filename: z.string(),
-                        type: z.union([
-                            z.literal('esmodule'),
-                            z.literal('wasm'),
-                            z.literal('json'),
-                            z.literal('text'),
-                            z.literal('data'),
-                        ]),
-                    }),
-                )
-                .min(1),
-            routes: z
-                .array(
-                    z.object({
-                        host: z.string(),
-                        basePaths: z.array(z.string()),
-                    }),
-                )
-                .min(1),
-            textBindings: z
-                .array(
-                    z.object({
-                        name: z.string(),
-                        value: z.string(),
-                    }),
-                )
-                .nullish(),
-            jsonBindings: z
-                .array(
-                    z.object({
-                        name: z.string(),
-                        value: z.any(),
-                    }),
-                )
-                .nullish(),
-            dataBindings: z
-                .array(
-                    z.object({
-                        name: z.string(),
-                        base64: z.string(),
-                    }),
-                )
-                .nullish(),
-        });
-
-        const data = schema.parse(req.body);
+        const data = NewProjectVersionRequestBodySchema.parse(req.body);
 
         const result = await db.$primary.transaction(async (txn) => {
             const project = await txn.query.projects.findFirst({
@@ -428,7 +392,7 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
 
             _sql.notify('project_versions', 'reload');
 
-            return {
+            const _data: ProjectVersionInfoType = {
                 id: newProjectVersion[0].id,
                 version: newProjectVersion[0].version,
                 projectId: newProjectVersion[0].projectId,
@@ -438,6 +402,8 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
                 jsonBindings,
                 dataBindings,
             };
+
+            return _data;
         });
 
         if (result) {
@@ -544,7 +510,7 @@ versionsRouter.get(
                 base64: binding.base64,
             }));
 
-            const data = {
+            const data: ProjectVersionInfoType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,

@@ -1,4 +1,5 @@
 export * from './versions';
+export type * from './versions';
 
 export type ProjectType = {
     id: string;

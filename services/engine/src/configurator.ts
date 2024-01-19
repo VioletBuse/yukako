@@ -640,16 +640,25 @@ export class Configurator {
             service: adminApiService,
         });
 
+        // _worker.bindings.forEach((binding) => {
+        //     // console.log('adding_binding', binding);
+        //     const newBinding = this.baseAddBinding(worker, binding);
+        //     // console.log('just added a binding', newBinding.render());
+        // });
+
         const service = this.baseCreateService({
             type: 'worker',
             worker: worker,
         });
+
         _worker.routing.forEach((route) => {
             this.addWorkerRouterReference(worker, service, {
                 host: route.host,
                 paths: route.basePaths,
             });
         });
+
+        // console.log('just added a worker', worker.render());
 
         return this;
     }
@@ -661,6 +670,10 @@ export class Configurator {
         this.artifacts.writeFiles(artifactsDir);
 
         const workerConfig = this.config.render();
+
+        // console.log('workerConfig', workerConfig);
+
+        fs.rmSync(_path, { force: true });
         fs.writeFileSync(_path, workerConfig);
     }
 }

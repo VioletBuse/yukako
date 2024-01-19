@@ -4,6 +4,7 @@ import ora from 'ora';
 import { input, select } from '@inquirer/prompts';
 import * as util from 'util';
 import chalk from 'chalk';
+import { ProjectVersionInfoType } from '@yukako/types/src/admin-api/projects/versions.js';
 
 const details = new Command()
     .command('details')
@@ -192,7 +193,8 @@ const details = new Command()
             } else {
                 spinner.succeed('Fetched version details');
 
-                const versionDetails = await versionDetailRequest.json();
+                const versionDetails: ProjectVersionInfoType =
+                    await versionDetailRequest.json();
 
                 const id = versionDetails.id;
                 const version = versionDetails.version;
@@ -228,14 +230,37 @@ const details = new Command()
                     chunks.push(`    file-type: ${chalk(blob.type)}`);
                 }
 
-                // console.log(
-                //     util.inspect(
-                //         versionDetails,
-                //         false,
-                //         null,
-                //         true /* enable colors */,
-                //     ) + '\n',
-                // );
+                if (
+                    versionDetails.textBindings.length > 0 ||
+                    versionDetails.jsonBindings.length > 0 ||
+                    versionDetails.dataBindings.length > 0
+                ) {
+                    chunks.push(``);
+                    chunks.push(`----------------------------------------`);
+                    chunks.push(``);
+                    chunks.push(`Bindings:`);
+
+                    for (const binding of versionDetails.textBindings) {
+                        chunks.push(`  ${chalk.bold(binding.name)}`);
+                        chunks.push(`    value: ${chalk(binding.value)}`);
+                    }
+
+                    chunks.push(``);
+
+                    for (const binding of versionDetails.jsonBindings) {
+                        chunks.push(`  ${chalk.bold(binding.name)}`);
+                        chunks.push(
+                            `    value: ${chalk(util.inspect(binding.value))}`,
+                        );
+                    }
+
+                    chunks.push(``);
+
+                    for (const binding of versionDetails.dataBindings) {
+                        chunks.push(`  ${chalk.bold(binding.name)}`);
+                        chunks.push(`    value: ${chalk(binding.base64)}`);
+                    }
+                }
 
                 console.log(chunks.join('\n'));
             }
