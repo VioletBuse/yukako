@@ -2,7 +2,7 @@ import { AuthWrapper } from './auth';
 import { ProjectsWrapper } from './projects';
 
 export const BaseWrapper = (server: string, sessionId: string) => ({
-    auth: AuthWrapper(server),
+    auth: AuthWrapper(server, sessionId),
     projects: ProjectsWrapper(server, sessionId),
 });
 

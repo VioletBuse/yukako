@@ -7,6 +7,7 @@ import * as bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import { authenticate } from '../../lib/authenticate';
 import { respond } from '../../middleware/error-handling/throwable';
+import { LoginResponse, RegisterResponse } from '@yukako/types';
 
 const authRouter = Router();
 
@@ -60,11 +61,13 @@ authRouter.post('/login', async (req, res) => {
                 })
                 .returning();
 
-            return {
+            const data: LoginResponse = {
                 uid: user.id,
                 sessionId,
                 success: true,
             };
+
+            return data;
         });
 
         if (result) {
@@ -182,11 +185,13 @@ authRouter.post('/register', async (req, res) => {
                     .where(eq(newUserTokens.id, newUserToken));
             }
 
-            return {
+            const data: RegisterResponse = {
                 uid,
                 sessionId,
                 success: true,
             };
+
+            return data;
         });
 
         if (result) {

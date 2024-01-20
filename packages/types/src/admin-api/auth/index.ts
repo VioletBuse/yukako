@@ -3,3 +3,9 @@ export type LoginResponse = {
     sessionId: string;
     uid: string;
 };
+
+export type RegisterResponse = {
+    success: boolean;
+    sessionId: string;
+    uid: string;
+};
