@@ -8,10 +8,10 @@ import { nanoid } from 'nanoid';
 import { authenticate } from '../../lib/authenticate';
 import { respond } from '../../middleware/error-handling/throwable';
 import {
-    LoginResponse,
+    AuthLoginResponseBodyType,
     MeResponse,
     NewAuthTokenResponse,
-    RegisterResponse,
+    AuthRegisterResponseBodyType,
 } from '@yukako/types';
 
 const authRouter = Router();
@@ -66,7 +66,7 @@ authRouter.post('/login', async (req, res) => {
                 })
                 .returning();
 
-            const data: LoginResponse = {
+            const data: AuthLoginResponseBodyType = {
                 uid: user.id,
                 sessionId,
                 success: true,
@@ -190,7 +190,7 @@ authRouter.post('/register', async (req, res) => {
                     .where(eq(newUserTokens.id, newUserToken));
             }
 
-            const data: RegisterResponse = {
+            const data: AuthRegisterResponseBodyType = {
                 uid,
                 sessionId,
                 success: true,

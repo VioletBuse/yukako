@@ -1,9 +1,14 @@
 import {
-    LoginResponse,
-    MeResponse,
-    NewAuthTokenResponse,
-    RegisterResponse,
+    AuthLoginResponseBodyType,
+    AuthRegisterResponseBodyType,
+    AuthNewAuthTokenResponseBodyType,
+    AuthMeResponseBodyType,
+    AuthLoginResponseBodySchema,
+    AuthRegisterResponseBodySchema,
+    AuthNewAuthTokenResponseBodySchema,
+    AuthMeResponseBodySchema,
 } from '@yukako/types';
+import { handleResponse } from '../util/responseHandler';
 
 export const AuthWrapper = <T extends string | null | undefined = undefined>(
     server: string,
@@ -12,7 +17,7 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
     login: async (opts: {
         username: string;
         password: string;
-    }): Promise<[LoginResponse, null] | [null, string]> => {
+    }): Promise<[AuthLoginResponseBodyType, null] | [null, string]> => {
         try {
             const resp = await fetch(`${server}/api/auth/login`, {
                 method: 'POST',
@@ -22,25 +27,7 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
                 body: JSON.stringify(opts),
             });
 
-            if (!resp.ok) {
-                try {
-                    const json = await resp.json();
-                    if ('error' in json && typeof json.error === 'string') {
-                        return [null, json.error];
-                    } else {
-                        return [null, 'An unknown error occurred.'];
-                    }
-                } catch (err) {
-                    return [null, 'An unknown error occurred.'];
-                }
-            } else {
-                const json = await resp.json();
-                if ('error' in json && typeof json.error === 'string') {
-                    return [null, json.error];
-                } else {
-                    return [json, null];
-                }
-            }
+            return handleResponse(AuthLoginResponseBodySchema, resp);
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
@@ -49,7 +36,7 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
         username: string;
         password: string;
         newUserToken?: string | null | undefined;
-    }): Promise<[RegisterResponse, null] | [null, string]> => {
+    }): Promise<[AuthRegisterResponseBodyType, null] | [null, string]> => {
         try {
             const resp = await fetch(`${server}/api/auth/register`, {
                 method: 'POST',
@@ -59,31 +46,13 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
                 body: JSON.stringify(opts),
             });
 
-            if (!resp.ok) {
-                try {
-                    const json = await resp.json();
-                    if ('error' in json && typeof json.error === 'string') {
-                        return [null, json.error];
-                    } else {
-                        return [null, 'An unknown error occurred.'];
-                    }
-                } catch (err) {
-                    return [null, 'An unknown error occurred.'];
-                }
-            } else {
-                const json = await resp.json();
-                if ('error' in json && typeof json.error === 'string') {
-                    return [null, json.error];
-                } else {
-                    return [json, null];
-                }
-            }
+            return handleResponse(AuthRegisterResponseBodySchema, resp);
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
     },
     createNewUserToken: async (): Promise<
-        [NewAuthTokenResponse, null] | [null, string]
+        [AuthNewAuthTokenResponseBodyType, null] | [null, string]
     > => {
         try {
             const resp = await fetch(`${server}/api/auth/new-user-token`, {
@@ -93,30 +62,12 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
                 },
             });
 
-            if (!resp.ok) {
-                try {
-                    const json = await resp.json();
-                    if ('error' in json && typeof json.error === 'string') {
-                        return [null, json.error];
-                    } else {
-                        return [null, 'An unknown error occurred.'];
-                    }
-                } catch (err) {
-                    return [null, 'An unknown error occurred.'];
-                }
-            } else {
-                const json = await resp.json();
-                if ('error' in json && typeof json.error === 'string') {
-                    return [null, json.error];
-                } else {
-                    return [json, null];
-                }
-            }
+            return handleResponse(AuthNewAuthTokenResponseBodySchema, resp);
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
     },
-    me: async (): Promise<[MeResponse, null] | [null, string]> => {
+    me: async (): Promise<[AuthMeResponseBodyType, null] | [null, string]> => {
         try {
             const resp = await fetch(`${server}/api/auth/me`, {
                 method: 'GET',
@@ -126,25 +77,7 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
                 },
             });
 
-            if (!resp.ok) {
-                try {
-                    const json = await resp.json();
-                    if ('error' in json && typeof json.error === 'string') {
-                        return [null, json.error];
-                    } else {
-                        return [null, 'An unknown error occurred.'];
-                    }
-                } catch (err) {
-                    return [null, 'An unknown error occurred.'];
-                }
-            } else {
-                const json = await resp.json();
-                if ('error' in json && typeof json.error === 'string') {
-                    return [null, json.error];
-                } else {
-                    return [json, null];
-                }
-            }
+            return handleResponse(AuthMeResponseBodySchema, resp);
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
