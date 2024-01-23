@@ -14,7 +14,7 @@ import { desc, eq } from 'drizzle-orm';
 import { authenticate } from '../../lib/authenticate';
 import { getSql } from '@yukako/state/src/db/init';
 import versionsRouter from './versions';
-import type { ProjectType } from '@yukako/types';
+import type { ProjectsNewProjectResponseBodyType } from '@yukako/types';
 
 const projectsRouter = Router();
 
@@ -62,11 +62,13 @@ projectsRouter.post('/', async (req, res) => {
                 return;
             }
 
-            return {
+            const returnData: ProjectsNewProjectResponseBodyType = {
                 success: true,
                 id: project[0].id,
                 name: project[0].name,
             };
+
+            return returnData;
         });
 
         if (result) {

@@ -59,6 +59,7 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'auth-token': sessionId ?? '',
                 },
             });
 
@@ -73,7 +74,7 @@ export const AuthWrapper = <T extends string | null | undefined = undefined>(
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${sessionId}`,
+                    'auth-token': sessionId ?? '',
                 },
             });
 

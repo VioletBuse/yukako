@@ -1,8 +1,14 @@
+import { z } from 'zod';
+
 export * from './versions';
 export type * from './versions';
 
-export type ProjectType = {
-    id: string;
-    name: string;
-    latest_version: number | null;
-};
+export const ProjectsNewProjectResponseBodySchema = z.object({
+    success: z.boolean(),
+    id: z.string(),
+    name: z.string(),
+});
+
+export type ProjectsNewProjectResponseBodyType = z.infer<
+    typeof ProjectsNewProjectResponseBodySchema
+>;
