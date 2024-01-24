@@ -12,3 +12,13 @@ export const ProjectsNewProjectResponseBodySchema = z.object({
 export type ProjectsNewProjectResponseBodyType = z.infer<
     typeof ProjectsNewProjectResponseBodySchema
 >;
+
+export const ProjectsProjectDataResponseBodySchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    latest_version: z.union([z.null(), z.number()]),
+});
+
+export type ProjectsProjectDataResponseBodyType = z.infer<
+    typeof ProjectsProjectDataResponseBodySchema
+>;

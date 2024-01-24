@@ -14,7 +14,10 @@ import { desc, eq } from 'drizzle-orm';
 import { authenticate } from '../../lib/authenticate';
 import { getSql } from '@yukako/state/src/db/init';
 import versionsRouter from './versions';
-import type { ProjectsNewProjectResponseBodyType } from '@yukako/types';
+import type {
+    ProjectsNewProjectResponseBodyType,
+    ProjectsProjectDataResponseBodyType,
+} from '@yukako/types';
 
 const projectsRouter = Router();
 
@@ -105,13 +108,16 @@ projectsRouter.get('/', async (req, res) => {
             },
         });
 
-        const projects = projectsData.map((project) => ({
-            id: project.id,
-            name: project.name,
-            latest_version: project.projectVersions[0]
-                ? project.projectVersions[0].version
-                : null,
-        }));
+        const projects: ProjectsProjectDataResponseBodyType[] =
+            projectsData.map(
+                (project): ProjectsProjectDataResponseBodyType => ({
+                    id: project.id,
+                    name: project.name,
+                    latest_version: project.projectVersions[0]
+                        ? project.projectVersions[0].version
+                        : null,
+                }),
+            );
 
         respond.status(200).message(projects).throw();
     } catch (e) {
@@ -143,7 +149,7 @@ projectsRouter.get('/:projectId', async (req, res) => {
             return;
         }
 
-        const project = {
+        const project: ProjectsProjectDataResponseBodyType = {
             id: projectData.id,
             name: projectData.name,
             latest_version: projectData.projectVersions[0]
