@@ -54,30 +54,50 @@ export type NewProjectVersionRequestBodyType = z.infer<
     typeof NewProjectVersionRequestBodySchema
 >;
 
-export type ProjectVersionInfoType = {
-    id: string;
-    version: number;
-    projectId: string;
-    routes: {
-        host: string;
-        basePaths: string[];
-    }[];
-    blobs: {
-        id: string;
-        data: string;
-        filename: string;
-        type: 'esmodule' | 'wasm' | 'json' | 'text' | 'data';
-    }[];
-    textBindings: {
-        name: string;
-        value: string;
-    }[];
-    jsonBindings: {
-        name: string;
-        value: any;
-    }[];
-    dataBindings: {
-        name: string;
-        base64: string;
-    }[];
-};
+export const ProjectVersionsDataResponseBodySchema = z.object({
+    id: z.string(),
+    version: z.number(),
+    projectId: z.string(),
+    routes: z.array(
+        z.object({
+            host: z.string(),
+            basePaths: z.array(z.string()),
+        }),
+    ),
+    blobs: z.array(
+        z.object({
+            id: z.string(),
+            data: z.string(),
+            filename: z.string(),
+            type: z.union([
+                z.literal('esmodule'),
+                z.literal('wasm'),
+                z.literal('json'),
+                z.literal('text'),
+                z.literal('data'),
+            ]),
+        }),
+    ),
+    textBindings: z.array(
+        z.object({
+            name: z.string(),
+            value: z.string(),
+        }),
+    ),
+    jsonBindings: z.array(
+        z.object({
+            name: z.string(),
+            value: z.any(),
+        }),
+    ),
+    dataBindings: z.array(
+        z.object({
+            name: z.string(),
+            base64: z.string(),
+        }),
+    ),
+});
+
+export type ProjectVersionsDataResponseBodyType = z.infer<
+    typeof ProjectVersionsDataResponseBodySchema
+>;

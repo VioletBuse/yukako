@@ -10,10 +10,7 @@ import {
 } from '@yukako/types';
 import { handleResponse } from '../util/responseHandler';
 
-export const AuthWrapper = <T extends string | null | undefined = undefined>(
-    server: string,
-    sessionId: T,
-) => ({
+export const AuthWrapper = (server: string, sessionId?: string) => ({
     login: async (opts: {
         username: string;
         password: string;

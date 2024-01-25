@@ -4,7 +4,7 @@ import ora from 'ora';
 import { input, select } from '@inquirer/prompts';
 import * as util from 'util';
 import chalk from 'chalk';
-import { ProjectVersionInfoType } from '@yukako/types/src/admin-api/projects/versions.js';
+import { ProjectVersionsDataResponseBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
 
 const details = new Command()
     .command('details')
@@ -193,7 +193,7 @@ const details = new Command()
             } else {
                 spinner.succeed('Fetched version details');
 
-                const versionDetails: ProjectVersionInfoType =
+                const versionDetails: ProjectVersionsDataResponseBodyType =
                     await versionDetailRequest.json();
 
                 const id = versionDetails.id;

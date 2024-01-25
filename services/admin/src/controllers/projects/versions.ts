@@ -18,7 +18,7 @@ import { z, ZodError } from 'zod';
 import { nanoid } from 'nanoid';
 import {
     NewProjectVersionRequestBodySchema,
-    ProjectVersionInfoType,
+    ProjectVersionsDataResponseBodyType,
 } from '@yukako/types';
 
 const versionsRouter = Router({ mergeParams: true });
@@ -69,7 +69,7 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
         }
 
         const versions = result.projectVersions.map(
-            (projectVersion): ProjectVersionInfoType => {
+            (projectVersion): ProjectVersionsDataResponseBodyType => {
                 const routes = projectVersion.routes.map((route) => ({
                     id: route.id,
                     host: route.host,
@@ -218,7 +218,7 @@ versionsRouter.get(
                 base64: binding.base64,
             }));
 
-            const data: ProjectVersionInfoType = {
+            const data: ProjectVersionsDataResponseBodyType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
@@ -392,7 +392,7 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
 
             _sql.notify('project_versions', 'reload');
 
-            const _data: ProjectVersionInfoType = {
+            const _data: ProjectVersionsDataResponseBodyType = {
                 id: newProjectVersion[0].id,
                 version: newProjectVersion[0].version,
                 projectId: newProjectVersion[0].projectId,
@@ -510,7 +510,7 @@ versionsRouter.get(
                 base64: binding.base64,
             }));
 
-            const data: ProjectVersionInfoType = {
+            const data: ProjectVersionsDataResponseBodyType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
