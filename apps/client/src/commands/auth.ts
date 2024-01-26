@@ -6,7 +6,7 @@ import { readConfig, writeConfig } from '../util/main-config.js';
 import * as util from 'util';
 import { produce } from 'immer';
 import chalk from 'chalk';
-import { validateServerString } from '../util/server-select.js';
+import { validateServerString, selectServer } from '../util/server-select.js';
 
 export const login = new Command()
     .command('login')
@@ -18,17 +18,15 @@ export const login = new Command()
         const loginSpinner = ora('Logging in...');
 
         try {
-            let server = options.server;
+            const server = await selectServer({
+                canSelectWithoutLoggedIn: true,
+                spinner: loginSpinner,
+                serverOption: options.server,
+            });
 
-            if (
-                !server ||
-                typeof server !== 'string' ||
-                !validateServerString(server)
-            ) {
-                server = await input({
-                    message: 'Enter the server URL',
-                    validate: validateServerString,
-                });
+            if (!server) {
+                loginSpinner.fail('No server selected');
+                process.exit(1);
             }
 
             let username = options.username;

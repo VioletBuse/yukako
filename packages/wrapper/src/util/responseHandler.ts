@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-export const handleResponse = <T extends z.ZodTypeAny>(
+export const handleResponse = async <T extends z.ZodTypeAny>(
     schema: T,
     res: Response,
-): [z.infer<T>, null] | [null, string] => {
+): Promise<[z.infer<T>, null] | [null, string]> => {
     if (!res.ok) {
         try {
-            const json = res.json();
+            const json = await res.json();
             if ('error' in json && typeof json.error === 'string') {
                 return [null, json.error];
             } else {
@@ -20,7 +20,7 @@ export const handleResponse = <T extends z.ZodTypeAny>(
         }
     } else {
         try {
-            const json = res.json();
+            const json = await res.json();
             try {
                 return [schema.parse(json), null];
             } catch (err) {

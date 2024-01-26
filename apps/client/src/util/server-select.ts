@@ -23,7 +23,7 @@ export const validateServerString = (val: string) => {
     }
 };
 
-export const selectServer = async (opts?: {
+export const selectServer = async (opts: {
     canSelectWithoutLoggedIn: boolean;
     spinner?: Ora;
     serverOption?: unknown;
@@ -77,8 +77,10 @@ export const selectServer = async (opts?: {
         const sessionId = serverObject.auth.sessionId;
 
         try {
+            spinner.start('Connecting to server...');
             const client = Wrapper(serverOption, sessionId);
             const [me, error] = await client.auth.me();
+            spinner.stop();
 
             if (error) {
                 spinner.fail(error);
@@ -132,9 +134,10 @@ export const selectServer = async (opts?: {
                 }
             }
 
+            spinner.start('Connecting to server...');
             const client = Wrapper(serverChoice, sessionId);
-
             const [me, error] = await client.auth.me();
+            spinner.stop();
 
             if (error) {
                 spinner.fail(error);
@@ -186,8 +189,10 @@ export const selectServer = async (opts?: {
     const sessionId = serverObject.auth.sessionId;
 
     try {
+        spinner.start('Connecting to server...');
         const client = Wrapper(customServerChoice, sessionId);
         const [me, error] = await client.auth.me();
+        spinner.stop();
 
         if (error) {
             spinner.fail(error);

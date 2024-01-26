@@ -14,7 +14,7 @@ import {
 import { versions } from './versions.js';
 import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
 import { z } from 'zod';
-import { validateServerString } from '../util/server-select.js';
+import { selectServer, validateServerString } from '../util/server-select.js';
 
 const create = new Command()
     .command('create')
@@ -109,21 +109,10 @@ const list = new Command()
             const config = readConfig();
             const servers = config.servers;
 
-            let server = options.server;
-
-            if (
-                !server ||
-                typeof server !== 'string' ||
-                !validateServerString(server)
-            ) {
-                server = await select({
-                    message: 'Select a server to list projects on',
-                    choices: Object.keys(servers).map((server) => ({
-                        title: server,
-                        value: server,
-                    })),
-                });
-            }
+            const server = await selectServer({
+                canSelectWithoutLoggedIn: false,
+                serverOption: options.server,
+            });
 
             if (!server || !servers[server]) {
                 throw new Error('No server selected');

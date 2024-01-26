@@ -9,9 +9,9 @@ import { authenticate } from '../../lib/authenticate';
 import { respond } from '../../middleware/error-handling/throwable';
 import {
     AuthLoginResponseBodyType,
-    MeResponse,
-    NewAuthTokenResponse,
     AuthRegisterResponseBodyType,
+    AuthNewAuthTokenResponseBodyType,
+    AuthMeResponseBodyType,
 } from '@yukako/types';
 
 const authRouter = Router();
@@ -232,7 +232,7 @@ authRouter.post('/new-user-token', async (req: Request, res: Response) => {
                 })
                 .returning();
 
-            const data: NewAuthTokenResponse = {
+            const data: AuthNewAuthTokenResponseBodyType = {
                 token,
                 success: true,
             };
@@ -259,7 +259,7 @@ authRouter.get('/me', async (req: Request, res: Response) => {
     try {
         const user = await authenticate(req);
 
-        const data: MeResponse = {
+        const data: AuthMeResponseBodyType = {
             uid: user.uid,
             username: user.username,
             sessionId: user.sessionId,
