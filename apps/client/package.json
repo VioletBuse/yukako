@@ -19,6 +19,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@yukako/types": "*"
+		"@yukako/types": "*",
+		"@yukako/wrapper": "*"
 	}
 }

@@ -6,25 +6,7 @@ import { readConfig, writeConfig } from '../util/main-config.js';
 import * as util from 'util';
 import { produce } from 'immer';
 import chalk from 'chalk';
-
-export const validateServerString = (val: string) => {
-    try {
-        z.string().url().parse(val);
-
-        const url = new URL(val);
-        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-            return 'Url scheme must be http or https';
-        }
-
-        if (url.pathname !== '/') {
-            return 'Url path must be /';
-        }
-
-        return true;
-    } catch (e) {
-        return 'Please enter a valid URL';
-    }
-};
+import { validateServerString } from '../util/server-select.js';
 
 export const login = new Command()
     .command('login')

@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import ora from 'ora';
 import { readConfig } from '../util/main-config.js';
-import { validateServerString } from './auth.js';
 import { input, select } from '@inquirer/prompts';
 import * as util from 'util';
 import chalk from 'chalk';
@@ -15,6 +14,7 @@ import {
 import { versions } from './versions.js';
 import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
 import { z } from 'zod';
+import { validateServerString } from '../util/server-select.js';
 
 const create = new Command()
     .command('create')
