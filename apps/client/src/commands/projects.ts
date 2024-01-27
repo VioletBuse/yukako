@@ -15,6 +15,7 @@ import { versions } from './versions.js';
 import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
 import { z } from 'zod';
 import { selectServer, validateServerString } from '../util/server-select.js';
+import { Wrapper } from '@yukako/wrapper';
 
 const create = new Command()
     .command('create')
@@ -27,21 +28,10 @@ const create = new Command()
             const config = readConfig();
             const servers = config.servers;
 
-            let server = options.server;
-
-            if (
-                !server ||
-                typeof server !== 'string' ||
-                !validateServerString(server)
-            ) {
-                server = await select({
-                    message: 'Select a server to create the project on',
-                    choices: Object.keys(servers).map((server) => ({
-                        title: server,
-                        value: server,
-                    })),
-                });
-            }
+            const server = await selectServer({
+                canSelectWithoutLoggedIn: false,
+                serverOption: options.server,
+            });
 
             if (!server || !servers[server]) {
                 throw new Error('No server selected');
@@ -69,28 +59,14 @@ const create = new Command()
 
             spinner.start('Creating project...');
 
-            const response = await fetch(`${server}/api/projects`, {
-                method: 'POST',
-                headers: {
-                    'auth-token': sessionId,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name }),
-            });
+            const wrapper = Wrapper(server, sessionId);
 
-            const result = await response.json();
+            const [res, err] = await wrapper.projects.create(name);
 
-            if (!response.ok || result.error) {
-                if (typeof result.error === 'string') {
-                    spinner.fail(result.error);
-                } else {
-                    spinner.fail('Failed to create project');
-                    throw new Error('Failed to create project');
-                }
+            if (err) {
+                spinner.fail('Failed to create project');
             } else {
-                if (result.success === true && result.id) {
-                    spinner.succeed(`Created project ${result.id}`);
-                }
+                spinner.succeed(`Created project ${name} (id: ${res.id})`);
             }
         } catch (error) {
             spinner.fail('Failed to create project');
@@ -128,46 +104,33 @@ const list = new Command()
 
             spinner.start('Listing projects...');
 
-            const response = await fetch(`${server}/api/projects`, {
-                method: 'GET',
-                headers: {
-                    'auth-token': sessionId,
-                    'Content-Type': 'application/json',
-                },
-            });
+            const wrapper = Wrapper(server, sessionId);
 
-            const result = await response.json();
+            const [res, err] = await wrapper.projects.list();
 
-            if (!response.ok || result.error) {
-                if (typeof result.error === 'string') {
-                    spinner.fail(result.error);
-                } else {
-                    spinner.fail('Failed to list projects');
-                    throw new Error('Failed to list projects');
-                }
+            if (err) {
+                spinner.fail('Failed to list projects');
             } else {
-                if (result) {
-                    const chunks = result.map(
-                        (project: {
-                            id: string;
-                            name: string;
-                            latest_version: number | null;
-                        }) => {
-                            let str = '';
-                            str += `${chalk.bold(project.name)}\n`;
-                            str += `------------------------------\n`;
-                            str += `ID: ${project.id}\n`;
-                            str += `Latest version: ${
-                                project.latest_version ?? 'none'
-                            }\n`;
+                const chunks = res.map(
+                    (project: {
+                        id: string;
+                        name: string;
+                        latest_version: number | null;
+                    }) => {
+                        let str = '';
+                        str += `${chalk.bold(project.name)}\n`;
+                        str += `------------------------------\n`;
+                        str += `ID: ${project.id}\n`;
+                        str += `Latest version: ${
+                            project.latest_version ?? 'none'
+                        }\n`;
 
-                            return str;
-                        },
-                    );
+                        return str;
+                    },
+                );
 
-                    console.log('\n\n' + chunks.join('\n'));
-                    spinner.succeed(`Listed projects on server ${server}`);
-                }
+                console.log('\n\n' + chunks.join('\n'));
+                spinner.succeed(`Listed projects on server ${server}`);
             }
         } catch (error) {
             spinner.fail('Failed to list projects');
@@ -196,15 +159,10 @@ const details = new Command()
                 return;
             }
 
-            if (typeof server !== 'string') {
-                server = await select({
-                    message: 'Select a server to get project details from.',
-                    choices: Object.keys(config.servers).map((server) => ({
-                        title: server,
-                        value: server,
-                    })),
-                });
-            }
+            server = await selectServer({
+                canSelectWithoutLoggedIn: false,
+                serverOption: server,
+            });
 
             if (!server) {
                 throw new Error('No server selected');
@@ -225,20 +183,15 @@ const details = new Command()
                     'Fetching Projects from server',
                 );
 
-                const projectsResponse = await fetch(`${server}/api/projects`, {
-                    headers: {
-                        'auth-token': auth_token,
-                    },
-                });
+                const [projects, err] = await Wrapper(
+                    server,
+                    auth_token,
+                ).projects.list();
 
-                if (!projectsResponse.ok) {
+                if (err) {
                     fetchProjectListSpinner.fail('Failed to get projects');
                     throw new Error('Failed to get projects');
                 }
-
-                const projects = await projectsResponse.json();
-
-                fetchProjectListSpinner.succeed('Fetched projects');
 
                 const project = await select({
                     message: 'Select a project to get details about',
@@ -259,24 +212,11 @@ const details = new Command()
 
             spinner.start('Getting project details...');
 
-            const projectResponse = await fetch(
-                `${server}/api/projects/${id}`,
-                {
-                    headers: {
-                        'auth-token': auth_token,
-                    },
-                },
-            );
+            const wrapper = Wrapper(server, auth_token);
+            const [project, err] = await wrapper.projects.getById(id);
 
-            const project = await projectResponse.json();
-
-            if (!projectResponse.ok) {
-                if (typeof project.error === 'string') {
-                    spinner.fail(project.error);
-                } else {
-                    spinner.fail('Failed to get project details');
-                    throw new Error('Failed to get project details');
-                }
+            if (err) {
+                spinner.fail('Failed to get project details');
             } else {
                 if (project) {
                     spinner.succeed(`Got project details for ${project.name}`);
@@ -318,6 +258,11 @@ const deploy = new Command()
                 spinner.fail('You must specify both a server and a project ID');
                 return;
             }
+
+            server = await selectServer({
+                canSelectWithoutLoggedIn: false,
+                serverOption: server,
+            });
 
             let deployment: { id: string; server: string } | undefined =
                 undefined;
@@ -437,27 +382,15 @@ const deploy = new Command()
             //     util.inspect(contentsWithEntrypointFirst, false, null, true),
             // );
 
-            const projectResponse = await fetch(
-                `${server}/api/projects/${id}`,
-                {
-                    headers: { 'auth-token': sessionId },
-                },
-            );
+            const wrapper = Wrapper(server, sessionId);
 
-            if (!projectResponse.ok) {
-                if (projectResponse.status === 404) {
-                    spinner.fail('Project not found');
-                    return;
-                } else {
-                    const data = await projectResponse.json();
-                    if (typeof data.error === 'string') {
-                        spinner.fail(data.error);
-                        throw new Error('Failed to get project.');
-                    } else {
-                        spinner.fail('Failed to get project');
-                        throw new Error('Failed to get project.');
-                    }
-                }
+            const [project, errFetchingProject] =
+                await wrapper.projects.getById(id);
+
+            if (errFetchingProject) {
+                spinner.fail('Failed to get project');
+                spinner.fail(errFetchingProject);
+                return;
             }
 
             const textBindings = projectfile.text_bindings.map((binding) => {
@@ -536,39 +469,17 @@ const deploy = new Command()
                 dataBindings: dataBindings,
             };
 
-            const newVersionResult = await fetch(
-                `${server}/api/projects/${id}/versions`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'auth-token': sessionId,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newVersionData),
-                },
+            const [res, err] = await wrapper.projects.versions.new(
+                id,
+                newVersionData,
             );
 
-            const newVersion = await newVersionResult.json();
-
-            if (!newVersionResult.ok) {
-                if (typeof newVersion.error === 'string') {
-                    spinner.fail(newVersion.error);
-                } else {
-                    spinner.fail('Failed to create new version');
-                    throw new Error('Failed to create new version');
-                }
+            if (err) {
+                spinner.fail(err);
+                console.error(err);
             } else {
-                if (newVersion.version) {
-                    spinner.succeed(`Created version ${newVersion.version}`);
-                } else {
-                    spinner.fail('Failed to create new version');
-                    console.log('Response:');
-                    console.log(util.inspect(newVersion, false, null, true));
-                    throw new Error('Failed to create new version');
-                }
+                spinner.succeed(`Created version ${res.version}`);
             }
-
-            spinner.succeed('Deployed project');
         } catch (err) {
             spinner.fail('Failed to deploy project');
             console.error(err);

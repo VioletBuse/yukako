@@ -326,11 +326,7 @@ const whoami = new Command()
         } else {
             const { username, uid } = res;
 
-            if (typeof username === 'string' && typeof uid === 'string') {
-                console.log(`Logged in as ${username} (uid: ${uid})`);
-            } else {
-                console.error('Unknown error: invalid response from server');
-            }
+            console.log(`Logged in as ${username} (uid: ${uid})`);
         }
     });
 
