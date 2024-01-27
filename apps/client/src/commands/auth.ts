@@ -7,6 +7,7 @@ import * as util from 'util';
 import { produce } from 'immer';
 import chalk from 'chalk';
 import { validateServerString, selectServer } from '../util/server-select.js';
+import { Wrapper } from '@yukako/wrapper';
 
 export const login = new Command()
     .command('login')
@@ -46,25 +47,19 @@ export const login = new Command()
                 });
             }
 
+            const wrapper = Wrapper(server);
+
             loginSpinner.start('Logging in...');
 
-            const response = await fetch(`${server}/api/auth/login`, {
-                headers: { 'Content-Type': 'application/json' },
-                method: 'POST',
-                body: JSON.stringify({
-                    username,
-                    password: pass,
-                }),
+            const [res, err] = await wrapper.auth.login({
+                username,
+                password: pass,
             });
 
-            const json = await response.json();
-
-            if (json.error) {
-                loginSpinner.fail(json.error);
-            } else if (!json.sessionId || typeof json.sessionId !== 'string') {
-                loginSpinner.fail('Invalid response from server');
-            } else if (json.sessionId && typeof json.sessionId === 'string') {
-                const sessionId = json.sessionId as string;
+            if (!res) {
+                loginSpinner.fail(err);
+            } else {
+                const sessionId = res.sessionId;
 
                 const config = readConfig();
                 const newConfig = produce(config, (draft) => {
@@ -82,8 +77,6 @@ export const login = new Command()
                 writeConfig(newConfig);
 
                 loginSpinner.succeed('Logged in successfully');
-            } else {
-                loginSpinner.fail('Unknown error');
             }
         } catch (err) {
             loginSpinner.fail('Unknown error');
@@ -104,17 +97,15 @@ const register = new Command()
         const registerSpinner = ora('Registering...');
 
         try {
-            let server = options.server;
+            const server = await selectServer({
+                canSelectWithoutLoggedIn: true,
+                spinner: registerSpinner,
+                serverOption: options.server,
+            });
 
-            if (
-                !server ||
-                typeof server !== 'string' ||
-                !validateServerString(server)
-            ) {
-                server = await input({
-                    message: 'Enter the server URL',
-                    validate: validateServerString,
-                });
+            if (!server) {
+                registerSpinner.fail('No server selected');
+                process.exit(1);
             }
 
             let username = options.username;
@@ -167,24 +158,18 @@ const register = new Command()
 
             registerSpinner.start('Registering...');
 
-            const response = await fetch(`${server}/api/auth/register`, {
-                headers: { 'Content-Type': 'application/json' },
-                method: 'POST',
-                body: JSON.stringify({
-                    username,
-                    password: pass,
-                    newUserToken,
-                }),
+            const wrapper = Wrapper(server);
+
+            const [res, err] = await wrapper.auth.register({
+                username,
+                password: pass,
+                newUserToken,
             });
 
-            const json = await response.json();
-
-            if (json.error) {
-                registerSpinner.fail(json.error);
-            } else if (!json.sessionId || typeof json.sessionId !== 'string') {
-                registerSpinner.fail('Invalid response from server');
-            } else if (json.sessionId && typeof json.sessionId === 'string') {
-                const sessionId = json.sessionId as string;
+            if (!res) {
+                registerSpinner.fail(err);
+            } else {
+                const sessionId = res.sessionId;
 
                 const config = readConfig();
                 const newConfig = produce(config, (draft) => {
@@ -202,8 +187,6 @@ const register = new Command()
                 writeConfig(newConfig);
 
                 registerSpinner.succeed('Registered successfully');
-            } else {
-                registerSpinner.fail('Unknown error');
             }
         } catch (err) {
             registerSpinner.fail('Unknown error');
@@ -220,20 +203,14 @@ const logout = new Command()
             const config = readConfig();
             const servers = config.servers;
 
-            let server = options.server;
+            const server = await selectServer({
+                canSelectWithoutLoggedIn: true,
+                serverOption: options.server,
+            });
 
-            if (
-                !server ||
-                typeof server !== 'string' ||
-                !validateServerString(server)
-            ) {
-                server = await select({
-                    message: 'Select a server',
-                    choices: Object.keys(servers).map((name) => ({
-                        title: name,
-                        value: name,
-                    })),
-                });
+            if (!server) {
+                console.error('No server selected');
+                process.exit(1);
             }
 
             if (!servers[server]) {
@@ -267,20 +244,14 @@ const generateNewUserToken = new Command()
             const config = readConfig();
             const servers = config.servers;
 
-            let server = options.server;
+            const server = await selectServer({
+                canSelectWithoutLoggedIn: false,
+                serverOption: options.server,
+            });
 
-            if (
-                !server ||
-                typeof server !== 'string' ||
-                !validateServerString(server)
-            ) {
-                server = await select({
-                    message: 'Select a server',
-                    choices: Object.keys(servers).map((name) => ({
-                        title: name,
-                        value: name,
-                    })),
-                });
+            if (!server) {
+                newTokenSpinner.fail('No server selected');
+                process.exit(1);
             }
 
             newTokenSpinner.start('Generating new user token...');
@@ -297,32 +268,18 @@ const generateNewUserToken = new Command()
                 process.exit(1);
             }
 
-            const response = await fetch(`${server}/api/auth/new-user-token`, {
-                method: 'POST',
-                headers: { 'auth-token': sessionId },
-            });
+            const wrapper = Wrapper(server, sessionId);
 
-            const json = await response.json();
+            const [res, err] = await wrapper.auth.createNewUserToken();
 
-            if (response.status !== 200) {
-                const error = json.error;
-                if (typeof error === 'string') {
-                    newTokenSpinner.fail(error);
-                } else {
-                    newTokenSpinner.fail('Unknown error');
-                }
+            if (!res) {
+                newTokenSpinner.fail(err);
             } else {
-                const { token } = json;
+                const newUserToken = res.newUserToken;
 
-                if (typeof token === 'string') {
-                    newTokenSpinner.succeed(
-                        `New user token: ${chalk.bold(token)}`,
-                    );
-                } else {
-                    newTokenSpinner.fail(
-                        'Unknown error: invalid response from server',
-                    );
-                }
+                newTokenSpinner.succeed(
+                    `New user token: ${chalk.bold(newUserToken)}`,
+                );
             }
         } catch (err) {
             newTokenSpinner.fail('Unknown error');
@@ -335,61 +292,44 @@ const whoami = new Command()
     .description('Display the current user')
     .option('-s, --server <server>', 'The server to check the current user on')
     .action(async (options) => {
+        const server = await selectServer({
+            canSelectWithoutLoggedIn: true,
+            serverOption: options.server,
+        });
+
+        if (!server) {
+            console.error('No server selected');
+            process.exit(1);
+        }
+
         const config = readConfig();
         const servers = config.servers;
 
-        const serverNames = Object.keys(servers);
-
-        let server = options.server;
-
-        if (
-            !server ||
-            typeof server !== 'string' ||
-            !validateServerString(server)
-        ) {
-            server = await select({
-                message: 'Select a server',
-                choices: serverNames.map((name) => ({
-                    title: name,
-                    value: name,
-                })),
-            });
-        }
-
-        const spinner = ora('Fetching user info...').start();
-
         if (!servers[server]) {
-            spinner.fail(`Server ${server} not found`);
+            console.error(`Server ${server} not found`);
             process.exit(1);
         }
 
         const sessionId = servers[server].auth.sessionId;
 
         if (!sessionId) {
-            spinner.fail(`No session ID found for ${server}`);
+            console.error(`No session ID found for ${server}`);
             process.exit(1);
         }
 
-        const response = await fetch(`${server}/api/auth/me`, {
-            headers: { 'auth-token': sessionId },
-        });
+        const wrapper = Wrapper(server, sessionId);
 
-        const json = await response.json();
+        const [res, err] = await wrapper.auth.me();
 
-        if (response.status !== 200) {
-            const error = json.error;
-            if (typeof error === 'string') {
-                spinner.fail(error);
-            } else {
-                spinner.fail('Unknown error');
-            }
+        if (!res) {
+            console.error(err);
         } else {
-            const { username, uid } = json;
+            const { username, uid } = res;
 
             if (typeof username === 'string' && typeof uid === 'string') {
-                spinner.succeed(`Logged in as ${username} (uid: ${uid})`);
+                console.log(`Logged in as ${username} (uid: ${uid})`);
             } else {
-                spinner.fail('Unknown error: invalid response from server');
+                console.error('Unknown error: invalid response from server');
             }
         }
     });
