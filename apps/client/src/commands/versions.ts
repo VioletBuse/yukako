@@ -5,6 +5,8 @@ import { input, select } from '@inquirer/prompts';
 import * as util from 'util';
 import chalk from 'chalk';
 import { ProjectVersionsDataResponseBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
+import { selectServer } from '../util/server-select.js';
+import { Wrapper } from '@yukako/wrapper';
 
 const details = new Command()
     .command('details')
@@ -38,14 +40,9 @@ const details = new Command()
             let authToken: string;
 
             if (noOptionsAreSet) {
-                server = await select({
-                    message: 'Select a server',
-                    choices: Object.keys(config.servers).map((key) => {
-                        return {
-                            name: key,
-                            value: key,
-                        };
-                    }),
+                server = await selectServer({
+                    canSelectWithoutLoggedIn: false,
+                    serverOption: server,
                 });
 
                 if (typeof server !== 'string') {
@@ -96,39 +93,22 @@ const details = new Command()
 
                 spinner.start('Fetching project details');
 
-                const projectDetailsResponse = await fetch(
-                    `${server}/api/projects/${id}`,
-                    {
-                        headers: {
-                            'auth-token': authToken,
-                        },
-                    },
-                );
+                const wrapper = Wrapper(server, authToken);
+                const [projectDetails, errFetchingProject] =
+                    await wrapper.projects.getById(id);
 
                 let latestVersion: number;
 
-                if (!projectDetailsResponse.ok) {
+                if (errFetchingProject) {
                     throw new Error('Failed to fetch project details');
                 } else {
                     spinner.succeed('Fetched project details');
 
-                    const projectDetails = await projectDetailsResponse.json();
-
-                    if (!('latest_version' in projectDetails)) {
-                        throw new Error('Failed to fetch project details');
+                    if (!projectDetails?.latest_version) {
+                        throw new Error('Project has no deployed versions.');
                     }
 
-                    if (projectDetails.latest_version === null) {
-                        throw new Error(
-                            'No versions found. Use `$ yukactl projects deploy` to deploy a project version.',
-                        );
-                    }
-
-                    if (typeof projectDetails.latest_version !== 'number') {
-                        throw new Error('Failed to fetch project details');
-                    }
-
-                    latestVersion = projectDetails.latest_version;
+                    latestVersion = projectDetails?.latest_version;
                 }
 
                 version = await input({
@@ -156,6 +136,15 @@ const details = new Command()
                     },
                 });
             } else {
+                server = await selectServer({
+                    canSelectWithoutLoggedIn: false,
+                    serverOption: server,
+                });
+
+                if (typeof server !== 'string') {
+                    throw new Error('You must select a server');
+                }
+
                 const sessionId = config.servers[server].auth.sessionId;
 
                 if (typeof sessionId !== 'string') {
@@ -169,32 +158,17 @@ const details = new Command()
 
             spinner.start('Fetching version details');
 
-            const versionDetailRequest = await fetch(
-                `${server}/api/projects/${id}/versions/find-by-version/${version}`,
-                {
-                    headers: {
-                        'auth-token': authToken,
-                    },
-                },
+            const wrapper = Wrapper(server, authToken);
+            const [res, err] = await wrapper.projects.versions.findByVersion(
+                id,
+                version,
             );
 
-            if (!versionDetailRequest.ok) {
-                if (versionDetailRequest.status === 404) {
-                    throw new Error('Version not found');
-                } else {
-                    const data = await versionDetailRequest.json();
-
-                    if ('error' in data && typeof data.error === 'string') {
-                        throw new Error(data.error);
-                    } else {
-                        throw new Error('Failed to fetch version details');
-                    }
-                }
+            if (err) {
+                throw new Error(err);
             } else {
                 spinner.succeed('Fetched version details');
-
-                const versionDetails: ProjectVersionsDataResponseBodyType =
-                    await versionDetailRequest.json();
+                const versionDetails: ProjectVersionsDataResponseBodyType = res;
 
                 const id = versionDetails.id;
                 const version = versionDetails.version;
