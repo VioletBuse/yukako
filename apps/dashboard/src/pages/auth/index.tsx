@@ -24,9 +24,10 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form.tsx';
-import { FormInput } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button.tsx';
+import { useAuth } from '@/lib/hooks/auth.ts';
+import { toast } from 'sonner';
 
 const loginFormSchema = z.object({
     username: z.string().min(3).max(20),
@@ -34,6 +35,8 @@ const loginFormSchema = z.object({
 });
 
 const LoginCard: React.FC = () => {
+    const { login } = useAuth();
+
     const form = useForm<z.infer<typeof loginFormSchema>>({
         resolver: zodResolver(loginFormSchema),
         defaultValues: {
@@ -43,7 +46,16 @@ const LoginCard: React.FC = () => {
     });
 
     const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
-        console.log(data);
+        const [res, err] = await login({
+            username: data.username,
+            password: data.password,
+        });
+
+        if (err) {
+            toast.error(err);
+        } else {
+            toast.success('Logged in!');
+        }
     };
 
     return (
@@ -211,7 +223,10 @@ const RegisterCard: React.FC = () => {
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        Enter your new account token.
+                                        Enter your new account token. Unless
+                                        this is the first account being created,
+                                        you will need to get this from an
+                                        existing account.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
