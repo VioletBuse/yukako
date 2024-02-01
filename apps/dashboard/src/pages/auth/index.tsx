@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button.tsx';
 import { useAuth } from '@/lib/hooks/auth.ts';
 import { toast } from 'sonner';
+import { useBaseWrapper } from '@/lib/hooks/wrapper.ts';
 
 const loginFormSchema = z.object({
     username: z.string().min(3).max(20),
@@ -122,10 +123,12 @@ const registerFormSchema = z.object({
     username: z.string().min(3).max(20),
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
-    newAccountToken: z.string(),
+    newAccountToken: z.string().nullish(),
 });
 
 const RegisterCard: React.FC = () => {
+    const { register } = useAuth();
+
     const form = useForm<z.infer<typeof registerFormSchema>>({
         resolver: zodResolver(registerFormSchema),
         defaultValues: {
@@ -136,8 +139,30 @@ const RegisterCard: React.FC = () => {
         },
     });
 
+    const wrapper = useBaseWrapper();
+
     const onSubmit = async (data: z.infer<typeof registerFormSchema>) => {
-        console.log(data);
+        if (data.password !== data.confirmPassword) {
+            form.setError('confirmPassword', {
+                type: 'custom',
+                message: 'Passwords do not match.',
+            });
+            return;
+        }
+
+        const token = data.newAccountToken || null;
+
+        const [res, err] = await register({
+            username: data.username,
+            password: data.password,
+            newUserToken: token,
+        });
+
+        if (err) {
+            toast.error(err);
+        } else {
+            toast.success('Registered!');
+        }
     };
 
     return (

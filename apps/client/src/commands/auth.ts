@@ -275,7 +275,7 @@ const generateNewUserToken = new Command()
             if (!res) {
                 newTokenSpinner.fail(err);
             } else {
-                const newUserToken = res.newUserToken;
+                const newUserToken = res.token;
 
                 newTokenSpinner.succeed(
                     `New user token: ${chalk.bold(newUserToken)}`,
