@@ -29,7 +29,10 @@ type Props = {
 
 const sidebarLinkClass =
     'w-full justify-start ' +
-    buttonVariants({ variant: 'ghost' }).replace('justify-center', '');
+    buttonVariants({ variant: 'ghost' })
+        .replace('justify-center', '')
+        .replace('px-4', 'px-2')
+        .replace('py-2', 'py-1');
 
 export const MainLayout = (props: Props) => {
     const user = useUser();
