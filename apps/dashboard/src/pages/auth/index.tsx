@@ -28,7 +28,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button.tsx';
 import { useAuth } from '@/lib/hooks/auth.ts';
 import { toast } from 'sonner';
-import { useBaseWrapper } from '@/lib/hooks/wrapper.ts';
+import { useLocation } from 'wouter';
 
 const loginFormSchema = z.object({
     username: z.string().min(3).max(20),
@@ -36,6 +36,7 @@ const loginFormSchema = z.object({
 });
 
 const LoginCard: React.FC = () => {
+    const [, setLocation] = useLocation();
     const { login } = useAuth();
 
     const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -47,7 +48,7 @@ const LoginCard: React.FC = () => {
     });
 
     const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
-        const [res, err] = await login({
+        const [, err] = await login({
             username: data.username,
             password: data.password,
         });
@@ -56,6 +57,7 @@ const LoginCard: React.FC = () => {
             toast.error(err);
         } else {
             toast.success('Logged in!');
+            setLocation('/');
         }
     };
 
@@ -123,10 +125,11 @@ const registerFormSchema = z.object({
     username: z.string().min(3).max(20),
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
-    newAccountToken: z.string().nullish(),
+    newAccountToken: z.string(),
 });
 
 const RegisterCard: React.FC = () => {
+    const [, setLocation] = useLocation();
     const { register } = useAuth();
 
     const form = useForm<z.infer<typeof registerFormSchema>>({
@@ -139,8 +142,6 @@ const RegisterCard: React.FC = () => {
         },
     });
 
-    const wrapper = useBaseWrapper();
-
     const onSubmit = async (data: z.infer<typeof registerFormSchema>) => {
         if (data.password !== data.confirmPassword) {
             form.setError('confirmPassword', {
@@ -152,7 +153,7 @@ const RegisterCard: React.FC = () => {
 
         const token = data.newAccountToken || null;
 
-        const [res, err] = await register({
+        const [, err] = await register({
             username: data.username,
             password: data.password,
             newUserToken: token,
@@ -162,6 +163,7 @@ const RegisterCard: React.FC = () => {
             toast.error(err);
         } else {
             toast.success('Registered!');
+            setLocation('/');
         }
     };
 
