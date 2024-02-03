@@ -7,6 +7,7 @@ type Result = {
         anyUrl: string;
     };
     adminHost: string;
+    port: number;
 };
 
 export const run = (): Result => {
@@ -26,7 +27,7 @@ export const run = (): Result => {
             flags: {
                 postgres: {
                     type: 'string',
-                    shortFlag: 'p',
+                    shortFlag: 'pg',
                     default:
                         process.env.POSTGRES_URL ||
                         'postgres://postgres:postgres@localhost:5432/postgres',
@@ -34,6 +35,9 @@ export const run = (): Result => {
                 postgresRo: {
                     type: 'string',
                     shortFlag: 'r',
+                    default:
+                        process.env.POSTGRES_RO_URL ||
+                        'postgres://postgres:postgres@localhost:5432/postgres',
                 },
                 adminHost: {
                     type: 'string',
@@ -44,6 +48,11 @@ export const run = (): Result => {
                     type: 'boolean',
                     shortFlag: 'h',
                     default: false,
+                },
+                port: {
+                    type: 'number',
+                    shortFlag: 'p',
+                    default: 8080,
                 },
             },
         },
@@ -61,5 +70,6 @@ export const run = (): Result => {
             anyUrl: cli.flags.postgresRo || cli.flags.postgres,
         },
         adminHost: cli.flags.adminHost,
+        port: cli.flags.port,
     };
 };

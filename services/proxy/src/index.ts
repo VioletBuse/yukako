@@ -7,6 +7,8 @@ let server: http.Server | null = null;
 
 export const ProxyService = {
     start: (workerId: string) => {
+        console.log('Starting proxy service...');
+
         const workerPath = path.join(process.cwd(), './.yukako', workerId);
 
         const enginePath = path.join(workerPath, './engine');
@@ -18,6 +20,7 @@ export const ProxyService = {
         const cli = run();
 
         const adminHost = cli.adminHost as string;
+        const port = cli.port as number;
 
         const adminProxy = httpProxy.createProxyServer({
             // @ts-ignore
@@ -59,9 +62,9 @@ export const ProxyService = {
 
         server = _server;
 
-        _server.listen(8080);
-
-        console.log('Starting proxy service...');
+        _server.listen(port, () => {
+            console.log(`Proxy service listening on port ${port}`);
+        });
     },
     stop: () => {
         server?.close();

@@ -5,12 +5,18 @@ import { fileURLToPath } from 'url';
 import * as path from 'path';
 
 export const migrate = async (db: PostgresJsDatabase) => {
+    // @ts-ignore
     const filename = __filename || fileURLToPath(import.meta.url);
     const dirname = __dirname || path.dirname(filename);
 
     const folder = path.join(dirname, 'migrations');
 
-    await drizzleMigrate(db, {
-        migrationsFolder: folder,
-    });
+    try {
+        await drizzleMigrate(db, {
+            migrationsFolder: folder,
+        });
+    } catch (err) {
+        console.error('An error occurred while running migrations:', err);
+        process.exit(1);
+    }
 };

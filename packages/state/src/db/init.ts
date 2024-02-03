@@ -15,28 +15,44 @@ export const getDatabase = (): PgWithReplicas<
     PostgresJsDatabase<typeof schema>
 > => {
     if (!global.db) {
-        const cli = run();
+        try {
+            const cli = run();
 
-        const url = cli.postgres.url;
-        const readonlyUrl = cli.postgres.readonlyUrl || url;
+            const url = cli.postgres.url;
+            const readonlyUrl = cli.postgres.readonlyUrl || url;
 
-        const sql = postgres(url, {
-            onnotice: () => {},
-        });
+            const sql = postgres(url, {
+                onnotice: () => {},
+            });
 
-        const readonlySql = postgres(readonlyUrl, {
-            onnotice: () => {},
-        });
+            const readonlySql = postgres(readonlyUrl, {
+                onnotice: () => {},
+            });
 
-        global._pg = sql;
-        global._pgReadonly = readonlySql;
+            global._pg = sql;
+            global._pgReadonly = readonlySql;
 
-        const db = drizzle(sql, { schema });
-        const readonlyDb = drizzle(readonlySql, { schema });
+            const db = drizzle(sql, { schema });
+            const readonlyDb = drizzle(readonlySql, { schema });
 
-        const fullDB = withReplicas(db, [readonlyDb]);
+            const fullDB = withReplicas(db, [readonlyDb]);
 
-        global.db = fullDB;
+            global.db = fullDB;
+        } catch (err) {
+            if (err instanceof Error && err.message.includes('ECONNREFUSED')) {
+                console.error(
+                    'Could not connect to the database. Please ensure that the database is running and that the connection information is correct.',
+                );
+            } else {
+                console.error(
+                    'An error occurred while connecting to the database:',
+                    err,
+                );
+            }
+
+            console.error('Exiting...');
+            process.exit(1);
+        }
     }
 
     return global.db;

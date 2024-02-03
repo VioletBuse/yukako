@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { run } from '@yukako/cli';
 import { migrate } from '@yukako/state';
 import cluster from 'cluster';
@@ -9,10 +11,11 @@ import path from 'path';
 import fs from 'fs-extra';
 import { LeaderService } from '@yukako/leader';
 import { getDatabase } from '@yukako/state/src/db/init.js';
-import prexit from 'prexit';
+import { testDB } from '@yukako/state/src/db/test.js';
 
 const cli = run();
 const db = getDatabase();
+await testDB(db);
 await migrate(db);
 
 const isMaster = cluster.isPrimary || cluster.isMaster;
