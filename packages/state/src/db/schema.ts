@@ -21,12 +21,12 @@ export const users = pgTable('users', {
 export const userRelations = relations(users, ({ many, one }) => ({
     sessions: many(sessions),
     createdNewUserTokens: many(newUserTokens, {
-        relationName: 'createdNewUserTokens',
+        relationName: 'createdBy',
     }),
     createdFromToken: one(newUserTokens, {
         fields: [users.id],
         references: [newUserTokens.newUserId],
-        relationName: 'createdFromToken',
+        relationName: 'newUser',
     }),
 }));
 

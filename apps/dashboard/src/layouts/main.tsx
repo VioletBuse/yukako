@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, buttonVariants } from '@/components/ui/button.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import {
     CircleUserRound,
-    Home,
+    LayoutDashboard,
     Loader2,
     LogOut,
     MoreVertical,
+    Users,
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useAuth, useRequireLoggedIn, useUser } from '@/lib/hooks/auth.ts';
@@ -27,12 +28,12 @@ type Props = {
     children: React.ReactNode;
 };
 
-const sidebarLinkClass =
-    'w-full justify-start ' +
-    buttonVariants({ variant: 'ghost' })
-        .replace('justify-center', '')
-        .replace('px-4', 'px-2')
-        .replace('py-2', 'py-1');
+// const sidebarLinkClass =
+//     'w-full justify-start ' +
+//     buttonVariants({ variant: 'ghost' })
+//         .replace('justify-center', '')
+//         .replace('px-4', 'px-2')
+//         .replace('py-2', 'py-1');
 
 export const MainLayout = (props: Props) => {
     const user = useUser();
@@ -44,54 +45,79 @@ export const MainLayout = (props: Props) => {
     return (
         <>
             <div className='w-screen h-screen flex flex-col'>
-                <div className='px-2 py-2 flex items-center justify-between'>
-                    <Link href='/'>
-                        <h1 className='font-bold text-2xl'>Yukako</h1>
-                    </Link>
-                    <div></div>
-                    <div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant='secondary'>
-                                    {user.loading && (
-                                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                    )}
-                                    {!user.loading && (
-                                        <MoreVertical className='mr-2 h-4 w-4' />
-                                    )}
-                                    {user.loading
-                                        ? 'Loading...'
-                                        : user.data?.username}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem
-                                        onSelect={() =>
-                                            setLocation('/profile')
-                                        }>
-                                        <CircleUserRound className='mr-2 h-4 w-4' />
-                                        <span>Profile</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onSelect={logout}>
-                                        <LogOut className='mr-2 h-4 w-4' />
-                                        <span>Log Out</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </div>
+                {/*<div className='px-2 py-2 flex items-center justify-between'>*/}
+                {/*    <Link href='/'>*/}
+                {/*        <h1 className='font-bold text-2xl'>Yukako</h1>*/}
+                {/*    </Link>*/}
+                {/*    <div></div>*/}
+                {/*    <div>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
                 <ResizablePanelGroup
-                    className='border-t border-border grow'
+                    className='w-screen h-screen overflow-hidden'
                     direction='horizontal'>
-                    <ResizablePanel defaultSize={22}>
-                        <ScrollArea className='h-full w-full'>
-                            <Link className={sidebarLinkClass} href='/'>
-                                <Home className='mr-2 h-4 w-4' />
-                                Home
-                            </Link>
-                        </ScrollArea>
+                    <ResizablePanel
+                        className='flex flex-col justify-between items-start'
+                        defaultSize={22}>
+                        <div className='grid grid-cols-1 w-full'>
+                            <div className='mb-8 mt-2'>
+                                <Link className='p-4' href='/'>
+                                    Yukako Dashboard
+                                </Link>
+                            </div>
+                            <Button
+                                className='justify-start'
+                                variant='ghost'
+                                asChild>
+                                <Link href='/projects'>
+                                    <LayoutDashboard className='mr-2 w-4 h-4' />
+                                    Projects
+                                </Link>
+                            </Button>
+                            <Button
+                                className='justify-start'
+                                variant='ghost'
+                                asChild>
+                                <Link href='/users'>
+                                    <Users className='mr-2 w-4 h-4' />
+                                    Users
+                                </Link>
+                            </Button>
+                        </div>
+                        <div className='flex flex-row items-center justify-between w-full p-2'>
+                            <p className='ml-2 text-md font-light'>
+                                {user.loading
+                                    ? 'Loading...'
+                                    : user.data?.username}
+                            </p>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant='secondary' size='icon'>
+                                        {user.loading && (
+                                            <Loader2 className='h-4 w-4 animate-spin' />
+                                        )}
+                                        {!user.loading && (
+                                            <MoreVertical className='h-4 w-4' />
+                                        )}
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className='w-56'>
+                                    <DropdownMenuGroup>
+                                        <DropdownMenuItem
+                                            onSelect={() =>
+                                                setLocation('/profile')
+                                            }>
+                                            <CircleUserRound className='mr-2 h-4 w-4' />
+                                            <span>Profile</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={logout}>
+                                            <LogOut className='mr-2 h-4 w-4' />
+                                            <span>Log Out</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </ResizablePanel>
                     <ResizableHandle withHandle />
                     <ResizablePanel>

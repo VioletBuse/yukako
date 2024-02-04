@@ -1,9 +1,11 @@
 import { AuthWrapper } from './auth';
 import { ProjectsWrapper } from './projects';
+import { UsersWrapper } from './users';
 
 export const BaseWrapper = (server: string, sessionId: string) => ({
     auth: AuthWrapper(server, sessionId),
     projects: ProjectsWrapper(server, sessionId),
+    users: UsersWrapper(server, sessionId),
 });
 
 export const WrapperWithoutSession = (server: string) => ({
