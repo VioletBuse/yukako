@@ -61,18 +61,45 @@ const details = new Command()
 
                 spinner.start('Fetching list of projects.');
 
-                const projectsResponse = await fetch(`${server}/api/projects`, {
-                    headers: {
-                        'auth-token': authToken,
-                    },
-                });
+                // const projectsResponse = await fetch(`${server}/api/projects`, {
+                //     headers: {
+                //         'auth-token': authToken,
+                //     },
+                // });
 
-                if (!projectsResponse.ok) {
-                    throw new Error('Failed to fetch list of projects');
+                const wrapper = Wrapper(server, authToken);
+                const [projectsResponse, err] = await wrapper.projects.list();
+
+                // if (!projectsResponse.ok) {
+                //     throw new Error('Failed to fetch list of projects');
+                // } else {
+                //     spinner.succeed('Fetched list of projects');
+                //
+                //     const projects = await projectsResponse.json();
+                //
+                //     id = await select({
+                //         message: 'Select a project',
+                //         choices: projects.map(
+                //             (project: { id: string; name: string }) => {
+                //                 return {
+                //                     name: project.name,
+                //                     value: project.id,
+                //                 };
+                //             },
+                //         ),
+                //     });
+                //
+                //     if (typeof id !== 'string') {
+                //         throw new Error('You must select a project');
+                //     }
+                // }
+
+                if (err) {
+                    throw new Error(err);
                 } else {
                     spinner.succeed('Fetched list of projects');
 
-                    const projects = await projectsResponse.json();
+                    const projects = projectsResponse;
 
                     id = await select({
                         message: 'Select a project',
@@ -93,7 +120,6 @@ const details = new Command()
 
                 spinner.start('Fetching project details');
 
-                const wrapper = Wrapper(server, authToken);
                 const [projectDetails, errFetchingProject] =
                     await wrapper.projects.getById(id);
 
