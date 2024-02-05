@@ -2,13 +2,21 @@ import { AuthWrapper } from './auth';
 import { ProjectsWrapper } from './projects';
 import { UsersWrapper } from './users';
 
-export const BaseWrapper = (server: string, sessionId: string) => ({
+export type Options = {
+    passthroughResult?: boolean;
+};
+
+export const BaseWrapper = (
+    server: string,
+    sessionId: string,
+    opts?: Options,
+) => ({
     auth: AuthWrapper(server, sessionId),
     projects: ProjectsWrapper(server, sessionId),
     users: UsersWrapper(server, sessionId),
 });
 
-export const WrapperWithoutSession = (server: string) => ({
+export const WrapperWithoutSession = (server: string, opts?: Options) => ({
     auth: AuthWrapper(server),
 });
 
@@ -30,3 +38,9 @@ export const Wrapper = <T extends string | undefined = undefined>(
         return WrapperWithoutSession(serverString) as any;
     }
 };
+
+export const PassthroughWrapper = (server: string, sessionId: string) => ({
+    auth: AuthWrapper(server, sessionId, { passthroughResult: true }),
+    projects: ProjectsWrapper(server, sessionId, { passthroughResult: true }),
+    users: UsersWrapper(server, sessionId, { passthroughResult: true }),
+});

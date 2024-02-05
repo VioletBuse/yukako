@@ -7,9 +7,14 @@ import {
 } from '@yukako/types';
 import { handleResponse } from '../util/responseHandler';
 import { z } from 'zod';
+import { Options } from '../index';
 
-export const ProjectsWrapper = (server: string, sessionId: string) => ({
-    versions: VersionsWrapper(server, sessionId),
+export const ProjectsWrapper = (
+    server: string,
+    sessionId: string,
+    opts?: Options,
+) => ({
+    versions: VersionsWrapper(server, sessionId, opts),
     create: async (
         name: string,
     ): Promise<[ProjectsNewProjectResponseBodyType, null] | [null, string]> => {
@@ -23,7 +28,11 @@ export const ProjectsWrapper = (server: string, sessionId: string) => ({
                 body: JSON.stringify({ name }),
             });
 
-            return handleResponse(ProjectsNewProjectResponseBodySchema, resp);
+            return handleResponse(
+                ProjectsNewProjectResponseBodySchema,
+                resp,
+                opts,
+            );
         } catch (e) {
             return [null, 'An unknown error occurred.'];
         }
@@ -43,6 +52,7 @@ export const ProjectsWrapper = (server: string, sessionId: string) => ({
             return handleResponse(
                 z.array(ProjectsProjectDataResponseBodySchema),
                 resp,
+                opts,
             );
         } catch (e) {
             return [null, 'An unknown error occurred.'];
@@ -62,7 +72,11 @@ export const ProjectsWrapper = (server: string, sessionId: string) => ({
                 },
             });
 
-            return handleResponse(ProjectsProjectDataResponseBodySchema, resp);
+            return handleResponse(
+                ProjectsProjectDataResponseBodySchema,
+                resp,
+                opts,
+            );
         } catch (e) {
             return [null, 'An unknown error occurred.'];
         }
@@ -84,7 +98,11 @@ export const ProjectsWrapper = (server: string, sessionId: string) => ({
                 },
             );
 
-            return handleResponse(ProjectsProjectDataResponseBodySchema, resp);
+            return handleResponse(
+                ProjectsProjectDataResponseBodySchema,
+                resp,
+                opts,
+            );
         } catch (e) {
             return [null, 'An unknown error occurred.'];
         }

@@ -9,8 +9,13 @@ import {
     AuthMeResponseBodySchema,
 } from '@yukako/types';
 import { handleResponse } from '../util/responseHandler';
+import { Options } from '../index';
 
-export const AuthWrapper = (server: string, sessionId?: string) => ({
+export const AuthWrapper = (
+    server: string,
+    sessionId?: string,
+    options?: Options,
+) => ({
     login: async (opts: {
         username: string;
         password: string;
@@ -24,7 +29,7 @@ export const AuthWrapper = (server: string, sessionId?: string) => ({
                 body: JSON.stringify(opts),
             });
 
-            return handleResponse(AuthLoginResponseBodySchema, resp);
+            return handleResponse(AuthLoginResponseBodySchema, resp, options);
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
@@ -43,7 +48,11 @@ export const AuthWrapper = (server: string, sessionId?: string) => ({
                 body: JSON.stringify(opts),
             });
 
-            return handleResponse(AuthRegisterResponseBodySchema, resp);
+            return handleResponse(
+                AuthRegisterResponseBodySchema,
+                resp,
+                options,
+            );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
@@ -60,7 +69,11 @@ export const AuthWrapper = (server: string, sessionId?: string) => ({
                 },
             });
 
-            return handleResponse(AuthNewAuthTokenResponseBodySchema, resp);
+            return handleResponse(
+                AuthNewAuthTokenResponseBodySchema,
+                resp,
+                options,
+            );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
@@ -75,7 +88,7 @@ export const AuthWrapper = (server: string, sessionId?: string) => ({
                 },
             });
 
-            return handleResponse(AuthMeResponseBodySchema, resp);
+            return handleResponse(AuthMeResponseBodySchema, resp, options);
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }

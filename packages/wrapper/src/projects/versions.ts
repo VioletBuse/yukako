@@ -5,8 +5,13 @@ import {
 } from '@yukako/types';
 import { handleResponse } from '../util/responseHandler';
 import { z } from 'zod';
+import { Options } from '../index';
 
-export const VersionsWrapper = (server: string, sessionId: string) => ({
+export const VersionsWrapper = (
+    server: string,
+    sessionId: string,
+    opts?: Options,
+) => ({
     new: async (
         projectId: string,
         data: NewProjectVersionRequestBodyType,
@@ -26,7 +31,11 @@ export const VersionsWrapper = (server: string, sessionId: string) => ({
                 },
             );
 
-            return handleResponse(ProjectVersionsDataResponseBodySchema, resp);
+            return handleResponse(
+                ProjectVersionsDataResponseBodySchema,
+                resp,
+                opts,
+            );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
@@ -51,6 +60,7 @@ export const VersionsWrapper = (server: string, sessionId: string) => ({
             return handleResponse(
                 z.array(ProjectVersionsDataResponseBodySchema),
                 resp,
+                opts,
             );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
@@ -74,7 +84,11 @@ export const VersionsWrapper = (server: string, sessionId: string) => ({
                 },
             );
 
-            return handleResponse(ProjectVersionsDataResponseBodySchema, resp);
+            return handleResponse(
+                ProjectVersionsDataResponseBodySchema,
+                resp,
+                opts,
+            );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }
@@ -97,7 +111,11 @@ export const VersionsWrapper = (server: string, sessionId: string) => ({
                 },
             );
 
-            return handleResponse(ProjectVersionsDataResponseBodySchema, resp);
+            return handleResponse(
+                ProjectVersionsDataResponseBodySchema,
+                resp,
+                opts,
+            );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
         }

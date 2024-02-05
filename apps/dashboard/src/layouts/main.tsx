@@ -36,7 +36,7 @@ type Props = {
 //         .replace('py-2', 'py-1');
 
 export const MainLayout = (props: Props) => {
-    const user = useUser();
+    const [userData, , userLoading] = useUser();
     useRequireLoggedIn();
 
     const [, setLocation] = useLocation();
@@ -86,17 +86,17 @@ export const MainLayout = (props: Props) => {
                         </div>
                         <div className='flex flex-row items-center justify-between w-full p-2'>
                             <p className='ml-2 text-md font-light'>
-                                {user.loading
+                                {userLoading
                                     ? 'Loading...'
-                                    : user.data?.username}
+                                    : userData?.username || 'Unknown'}
                             </p>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant='secondary' size='icon'>
-                                        {user.loading && (
+                                        {userLoading && (
                                             <Loader2 className='h-4 w-4 animate-spin' />
                                         )}
-                                        {!user.loading && (
+                                        {!userLoading && (
                                             <MoreVertical className='h-4 w-4' />
                                         )}
                                     </Button>

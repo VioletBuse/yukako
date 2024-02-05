@@ -4,8 +4,13 @@ import {
 } from '@yukako/types';
 import { handleResponse } from '../util/responseHandler';
 import { z } from 'zod';
+import { Options } from '../index';
 
-export const UsersWrapper = (server: string, sessionId: string) => ({
+export const UsersWrapper = (
+    server: string,
+    sessionId: string,
+    options?: Options,
+) => ({
     list: async (): Promise<
         [UsersUserDataResponseBodyType[], null] | [null, string]
     > => {
@@ -21,6 +26,7 @@ export const UsersWrapper = (server: string, sessionId: string) => ({
             return handleResponse(
                 z.array(UsersUserDataResponseBodySchema),
                 resp,
+                options,
             );
         } catch (e) {
             return [null, 'An unknown error occurred.'];
