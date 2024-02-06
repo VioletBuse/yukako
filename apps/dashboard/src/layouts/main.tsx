@@ -9,6 +9,8 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import {
     CircleUserRound,
+    Github,
+    GithubIcon,
     HomeIcon,
     LayoutDashboard,
     Loader2,
@@ -47,16 +49,18 @@ export const MainLayout = (props: Props) => {
     return (
         <>
             <div className='w-screen h-screen flex flex-col'>
-                {/*<div className='px-2 py-2 flex items-center justify-between'>*/}
-                {/*    <Link href='/'>*/}
-                {/*        <h1 className='font-bold text-2xl'>Yukako</h1>*/}
-                {/*    </Link>*/}
-                {/*    <div></div>*/}
-                {/*    <div>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
+                <div className='px-4 py-2 flex items-center justify-between'>
+                    <h1 className='font-bold text-2xl'>Yukako</h1>
+                    <div>
+                        <Button variant='ghost' asChild>
+                            <a href='https://github.com/JulianBuse/yukako'>
+                                <Github className='w-4 h-4 mr-2' /> Github
+                            </a>
+                        </Button>
+                    </div>
+                </div>
                 <ResizablePanelGroup
-                    className='w-screen h-screen overflow-hidden'
+                    className='w-screen grow overflow-hidden border-t border-t-border'
                     direction='horizontal'>
                     <ResizablePanel
                         className='flex flex-col justify-between items-start'
