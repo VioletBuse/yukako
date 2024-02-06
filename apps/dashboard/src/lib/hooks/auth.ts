@@ -3,14 +3,15 @@ import {
     setAuthToken,
     useAuthToken,
     useBaseWrapper,
-    useServerUrl,
+    // useServerUrl,
 } from '@/lib/hooks/wrapper.ts';
-import useSWR from 'swr';
+// import useSWR from 'swr';
 import { PassthroughWrapper } from '@yukako/wrapper';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
-import { useValidateSWRResponse } from '@/lib/hooks/hook-helpers';
+// import { useValidateSWRResponse } from '@/lib/hooks/hook-helpers';
 import { AuthMeResponseBodySchema } from '@yukako/types';
+import { useValidatedSWR } from '@/lib/hooks/validatedSWR';
 
 export const useAuth = () => {
     const wrapper = useBaseWrapper();
@@ -87,15 +88,22 @@ export const useRequireLoggedIn = () => {
 };
 
 export const useUser = () => {
-    const server = useServerUrl();
-    const token = useAuthToken();
+    // const server = useServerUrl();
+    // const token = useAuthToken();
+    //
+    // const res = useSWR(
+    //     ['/api/auth/me', server, token],
+    //     ([, _server, _token]) => {
+    //         return PassthroughWrapper(_server, _token ?? '').auth.me();
+    //     },
+    // );
+    //
+    // return useValidateSWRResponse(AuthMeResponseBodySchema, res);
 
-    const res = useSWR(
-        ['/api/auth/me', server, token],
-        ([, _server, _token]) => {
-            return PassthroughWrapper(_server, _token ?? '').auth.me();
-        },
+    return useValidatedSWR(
+        '/api/auth/me',
+        (server, authToken) => PassthroughWrapper(server, authToken).auth.me,
+        AuthMeResponseBodySchema,
+        [],
     );
-
-    return useValidateSWRResponse(AuthMeResponseBodySchema, res);
 };

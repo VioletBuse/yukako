@@ -2,7 +2,7 @@ import { useUser } from '@/lib/hooks/auth.ts';
 import { MainLayout } from '@/layouts/main.tsx';
 
 export const HomePage: React.FC = () => {
-    const { data, error, loading } = useUser();
+    const [data, error, loading] = useUser();
 
     console.log({ data, error, loading });
 
