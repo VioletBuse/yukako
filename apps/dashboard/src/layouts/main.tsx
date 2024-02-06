@@ -10,7 +10,6 @@ import {
 import {
     CircleUserRound,
     Github,
-    GithubIcon,
     HomeIcon,
     LayoutDashboard,
     Loader2,
