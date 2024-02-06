@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import {
     CircleUserRound,
+    HomeIcon,
     LayoutDashboard,
     Loader2,
     LogOut,
@@ -26,6 +27,7 @@ import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 
 type Props = {
     children: React.ReactNode;
+    selectedTab?: 'home' | 'projects' | 'users';
 };
 
 // const sidebarLinkClass =
@@ -60,14 +62,31 @@ export const MainLayout = (props: Props) => {
                         className='flex flex-col justify-between items-start'
                         defaultSize={22}>
                         <div className='grid grid-cols-1 w-full'>
-                            <div className='mb-8 mt-2'>
-                                <Link className='p-4' href='/'>
-                                    Yukako Dashboard
-                                </Link>
-                            </div>
+                            {/*<div className='mb-8 mt-2'>*/}
+                            {/*    <Link className='p-4' href='/'>*/}
+                            {/*        Yukako Dashboard*/}
+                            {/*    </Link>*/}
+                            {/*</div>*/}
                             <Button
                                 className='justify-start'
-                                variant='ghost'
+                                variant={
+                                    props.selectedTab === 'home'
+                                        ? undefined
+                                        : 'ghost'
+                                }
+                                asChild>
+                                <Link href='/'>
+                                    <HomeIcon className='mr-2 w-4 h-4' />
+                                    Home
+                                </Link>
+                            </Button>
+                            <Button
+                                className='justify-start'
+                                variant={
+                                    props.selectedTab === 'projects'
+                                        ? undefined
+                                        : 'ghost'
+                                }
                                 asChild>
                                 <Link href='/projects'>
                                     <LayoutDashboard className='mr-2 w-4 h-4' />
@@ -76,7 +95,11 @@ export const MainLayout = (props: Props) => {
                             </Button>
                             <Button
                                 className='justify-start'
-                                variant='ghost'
+                                variant={
+                                    props.selectedTab === 'users'
+                                        ? undefined
+                                        : 'ghost'
+                                }
                                 asChild>
                                 <Link href='/users'>
                                     <Users className='mr-2 w-4 h-4' />

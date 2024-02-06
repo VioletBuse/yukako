@@ -8,7 +8,7 @@ export const HomePage: React.FC = () => {
 
     return (
         <>
-            <MainLayout>
+            <MainLayout selectedTab='home'>
                 <p>
                     Etiam eros habitant arcu mi viverra praesent? Tincidunt
                     vestibulum sollicitudin fames senectus sociis dis fermentum
