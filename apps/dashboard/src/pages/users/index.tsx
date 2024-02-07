@@ -1,5 +1,5 @@
 import { MainLayout } from '@/layouts/main';
-import { useUsers } from '@/lib/hooks/data-hooks/users';
+import { useUsersList } from '@/lib/hooks/data-hooks/users';
 import { Loader2 } from 'lucide-react';
 import {
     Table,
@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 export const UsersPage: React.FC = () => {
-    const [userList, usersFetchError, loadingUsers] = useUsers();
+    const [userList, usersFetchError, loadingUsers] = useUsersList();
 
     return (
         <>

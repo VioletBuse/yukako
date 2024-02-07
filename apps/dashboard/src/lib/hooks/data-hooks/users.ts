@@ -57,7 +57,7 @@ import { useValidatedSWR } from '@/lib/hooks/validated-swr';
 //     );
 // };
 
-export const useUsers = () => {
+export const useUsersList = () => {
     return useValidatedSWR(
         '/api/users',
         (server, authToken) => PassthroughWrapper(server, authToken).users.list,

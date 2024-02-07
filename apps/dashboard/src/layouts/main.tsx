@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import {
     DropdownMenu,
@@ -9,12 +9,14 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import {
     CircleUserRound,
+    FolderGit2,
     Github,
     HomeIcon,
     LayoutDashboard,
     Loader2,
     LogOut,
     MoreVertical,
+    Terminal,
     Users,
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
@@ -29,6 +31,18 @@ import {
     ResizablePanelGroup,
 } from '@/components/ui/resizable.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
+import {
+    CommandDialog,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandSeparator,
+} from '@/components/ui/command';
+import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
+import { useUsersList } from '@/lib/hooks/data-hooks/users';
+import { CommandLoading } from 'cmdk';
 
 type Props = {
     children: React.ReactNode;
@@ -42,6 +56,110 @@ type Props = {
 //         .replace('px-4', 'px-2')
 //         .replace('py-2', 'py-1');
 
+type CommandBarProps = {
+    open: boolean;
+    onChangeOpen: (open: boolean | ((val: boolean) => boolean)) => void;
+};
+
+const CommandBar: React.FC<CommandBarProps> = ({ open, onChangeOpen }) => {
+    const [, setLocation] = useLocation();
+    const [projects] = useListProjects();
+    const [users] = useUsersList();
+
+    React.useEffect(() => {
+        const down = (e: KeyboardEvent) => {
+            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                onChangeOpen((open) => !open);
+            }
+        };
+
+        document.addEventListener('keydown', down);
+        return () => document.removeEventListener('keydown', down);
+    }, []);
+
+    return (
+        <>
+            <CommandDialog open={open} onOpenChange={onChangeOpen}>
+                <CommandInput placeholder='Type a command or search...' />
+                <CommandList>
+                    <CommandEmpty>No Commands Found...</CommandEmpty>
+                    <CommandGroup heading='Navigation'>
+                        <CommandItem
+                            value='home-page-navigate'
+                            onSelect={() => setLocation('/')}>
+                            <HomeIcon className='mr-2 w-4 h-4' />
+                            <span>Home</span>
+                        </CommandItem>
+                        <CommandItem
+                            value='projects-page-navigate'
+                            onSelect={() => setLocation('/projects')}>
+                            <LayoutDashboard className='mr-2 w-4 h-4' />
+                            <span>Projects</span>
+                        </CommandItem>
+                        <CommandItem
+                            value='users-page-navigate'
+                            onSelect={() => setLocation('/users')}>
+                            <Users className='mr-2 w-4 h-4' />
+                            <span>Users</span>
+                        </CommandItem>
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup heading='Projects'>
+                        {projects === null && (
+                            <CommandLoading>
+                                Loading Project List...
+                            </CommandLoading>
+                        )}
+                        {projects !== null &&
+                            projects.map((project) => (
+                                <CommandItem
+                                    key={project.id}
+                                    value={`navigate-specific-project-${project.id}`}
+                                    onSelect={() =>
+                                        setLocation(`/projects/${project.id}`)
+                                    }>
+                                    <FolderGit2 className='mr-2 w-4 h-4' />
+                                    <span>
+                                        View Project{' '}
+                                        <span className='italic font-medium'>
+                                            {project.name}
+                                        </span>
+                                    </span>
+                                </CommandItem>
+                            ))}
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup heading='Users'>
+                        {users === null && (
+                            <CommandLoading>
+                                Loading User List...
+                            </CommandLoading>
+                        )}
+                        {users !== null &&
+                            users.map((user) => (
+                                <CommandItem
+                                    key={user.uid}
+                                    value={`navigate-specific-user-${user.uid}`}
+                                    onSelect={() =>
+                                        setLocation(`/users/${user.uid}`)
+                                    }>
+                                    <CircleUserRound className='mr-2 w-4 h-4' />
+                                    <span>
+                                        View User{' '}
+                                        <span className='italic font-medium'>
+                                            {user.username}
+                                        </span>
+                                    </span>
+                                </CommandItem>
+                            ))}
+                    </CommandGroup>
+                </CommandList>
+            </CommandDialog>
+        </>
+    );
+};
+
 export const MainLayout = (props: Props) => {
     const [userData, , userLoading] = useUser();
     useRequireLoggedIn();
@@ -49,12 +167,24 @@ export const MainLayout = (props: Props) => {
     const [, setLocation] = useLocation();
     const { logout } = useAuth();
 
+    const [cmdBarOpen, setCmdBarOpen] = useState(false);
+
     return (
         <>
+            <CommandBar open={cmdBarOpen} onChangeOpen={setCmdBarOpen} />
             <div className='w-screen h-screen flex flex-col'>
                 <div className='px-4 py-2 flex items-center justify-between'>
                     <h1 className='font-bold text-2xl'>Yukako</h1>
-                    <div>
+                    <div className='flex flex-row gap-2'>
+                        <Button
+                            variant='secondary'
+                            onClick={() => setCmdBarOpen(!cmdBarOpen)}>
+                            <Terminal className='w-4 h-4 mr-2' />
+                            {cmdBarOpen ? 'Close' : 'Open'} Command Menu
+                            <span className='ml-5 px-2 py-1 text-xs bg-background hover:bg-background/50'>
+                                ⌘ + K
+                            </span>
+                        </Button>
                         <Button variant='ghost' asChild>
                             <a href='https://github.com/JulianBuse/yukako'>
                                 <Github className='w-4 h-4 mr-2' /> Github

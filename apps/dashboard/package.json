@@ -24,6 +24,7 @@
 		"@yukako/wrapper": "*",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.0",
+		"cmdk": "^0.2.1",
 		"lucide-react": "^0.319.0",
 		"next-themes": "^0.2.1",
 		"react-hook-form": "^7.49.3",
