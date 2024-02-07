@@ -43,7 +43,9 @@ projectsRouter.post('/', async (req, res) => {
             if (existingProject) {
                 respond
                     .status(400)
-                    .message({ error: 'Project already exists' })
+                    .message({
+                        error: `Project with name "${data.name}" already exists`,
+                    })
                     .throw();
                 return;
             }
