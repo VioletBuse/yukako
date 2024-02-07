@@ -8,6 +8,7 @@ import * as util from 'util';
 import { test } from '@yukako/extensions';
 import { createHash } from 'crypto';
 import { BaseBindingData } from './configurator';
+import { base64ToDataView, base64Hash } from '@yukako/base64ops';
 
 export const loadProjects = async () => {
     const db = getDatabase();
@@ -94,16 +95,9 @@ export const loadProjects = async () => {
                 modules: project.projectVersions[0].projectVersionBlobs.map(
                     (blob) => {
                         const base64 = blob.blob.data;
-                        const buffer = Buffer.from(base64, 'base64');
-                        const dataview = new DataView(
-                            buffer.buffer,
-                            buffer.byteOffset,
-                            buffer.byteLength,
-                        );
+                        const dataview = base64ToDataView(base64);
 
-                        const sha256 = createHash('sha256')
-                            .update(base64)
-                            .digest('hex');
+                        const sha256 = base64Hash(base64);
 
                         return {
                             importName: blob.blob.filename,

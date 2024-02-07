@@ -1,5 +1,5 @@
 import { MainLayout } from '@/layouts/main';
-import { useUsers } from '@/lib/hooks/users';
+import { useUsers } from '@/lib/hooks/data-hooks/users';
 import { Loader2 } from 'lucide-react';
 import {
     Table,
@@ -79,35 +79,39 @@ export const UsersPage: React.FC = () => {
                                                     'null'}
                                             </TableCell>
                                             <TableCell>
-                                                <Popover>
-                                                    <PopoverTrigger asChild>
-                                                        <Button variant='outline'>
-                                                            Invited Users
-                                                        </Button>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className='min-w-56 p-4 grid grid-cols-1 gap-2'>
-                                                        {user.invitees
-                                                            .length === 0 && (
-                                                            <p className='text-lg'>
-                                                                This user has
-                                                                not invited any
-                                                                other users.
-                                                            </p>
-                                                        )}
-                                                        {user.invitees.map(
-                                                            (val) => (
-                                                                <p
-                                                                    key={
-                                                                        val.uid
-                                                                    }>
-                                                                    {
-                                                                        val.username
-                                                                    }
-                                                                </p>
-                                                            ),
-                                                        )}
-                                                    </PopoverContent>
-                                                </Popover>
+                                                {user.invitees.length === 0 && (
+                                                    <Button
+                                                        className='w-full'
+                                                        disabled
+                                                        variant='secondary'>
+                                                        None
+                                                    </Button>
+                                                )}
+                                                {user.invitees.length > 0 && (
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant='secondary'
+                                                                className='w-full'>
+                                                                Invited Users
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className='min-w-56 p-4 grid grid-cols-1 gap-2'>
+                                                            {user.invitees.map(
+                                                                (val) => (
+                                                                    <p
+                                                                        key={
+                                                                            val.uid
+                                                                        }>
+                                                                        {
+                                                                            val.username
+                                                                        }
+                                                                    </p>
+                                                                ),
+                                                            )}
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

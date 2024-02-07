@@ -1,4 +1,4 @@
-import { useUser } from '@/lib/hooks/auth.ts';
+import { useUser } from '@/lib/hooks/data-hooks/auth.ts';
 import { MainLayout } from '@/layouts/main.tsx';
 
 export const HomePage: React.FC = () => {

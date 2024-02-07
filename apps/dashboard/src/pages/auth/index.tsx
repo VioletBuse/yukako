@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form.tsx';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button.tsx';
-import { useAuth } from '@/lib/hooks/auth.ts';
+import { useAuth } from '@/lib/hooks/data-hooks/auth.ts';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 

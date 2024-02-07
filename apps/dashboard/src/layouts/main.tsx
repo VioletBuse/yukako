@@ -18,7 +18,11 @@ import {
     Users,
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
-import { useAuth, useRequireLoggedIn, useUser } from '@/lib/hooks/auth.ts';
+import {
+    useAuth,
+    useRequireLoggedIn,
+    useUser,
+} from '@/lib/hooks/data-hooks/auth.ts';
 import {
     ResizableHandle,
     ResizablePanel,

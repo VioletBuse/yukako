@@ -2,19 +2,22 @@ import {
     clearAuthToken,
     setAuthToken,
     useAuthToken,
-    useBaseWrapper,
-    // useServerUrl,
+    useServerUrl,
 } from '@/lib/hooks/wrapper.ts';
-// import useSWR from 'swr';
-import { PassthroughWrapper } from '@yukako/wrapper';
+import { PassthroughWrapper, Wrapper } from '@yukako/wrapper';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
-// import { useValidateSWRResponse } from '@/lib/hooks/hook-helpers';
 import { AuthMeResponseBodySchema } from '@yukako/types';
-import { useValidatedSWR } from '@/lib/hooks/validatedSWR';
+import { useValidatedSWR } from '@/lib/hooks/validated-swr';
+import { useEffect, useState } from 'react';
 
 export const useAuth = () => {
-    const wrapper = useBaseWrapper();
+    const server = useServerUrl();
+    const [wrapper, _setWrapper] = useState(() => Wrapper(server));
+
+    useEffect(() => {
+        _setWrapper(Wrapper(server));
+    }, [server, _setWrapper]);
 
     const login = async (data: {
         username: string;

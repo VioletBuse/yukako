@@ -9,7 +9,7 @@ import { PassthroughWrapper } from '@yukako/wrapper';
 // import useSWR from 'swr';
 // import { useValidateSWRResponse } from '@/lib/hooks/hook-helpers';
 import { z } from 'zod';
-import { useValidatedSWR } from '@/lib/hooks/validatedSWR';
+import { useValidatedSWR } from '@/lib/hooks/validated-swr';
 
 // type Response = { mutate: () => void } & (
 //     | {

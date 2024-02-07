@@ -67,7 +67,7 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
     blobs: z.array(
         z.object({
             id: z.string(),
-            data: z.string(),
+            digest: z.string(),
             filename: z.string(),
             type: z.union([
                 z.literal('esmodule'),
@@ -93,7 +93,7 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
     dataBindings: z.array(
         z.object({
             name: z.string(),
-            base64: z.string(),
+            digest: z.string(),
         }),
     ),
 });

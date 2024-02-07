@@ -230,36 +230,56 @@ const details = new Command()
                     chunks.push(`    file-type: ${chalk(blob.type)}`);
                 }
 
-                if (
-                    versionDetails.textBindings.length > 0 ||
-                    versionDetails.jsonBindings.length > 0 ||
-                    versionDetails.dataBindings.length > 0
-                ) {
-                    chunks.push(``);
-                    chunks.push(`----------------------------------------`);
-                    chunks.push(``);
-                    chunks.push(`Bindings:`);
+                chunks.push(``);
+                chunks.push(`----------------------------------------`);
+                chunks.push(``);
+                chunks.push(`Bindings:`);
 
-                    for (const binding of versionDetails.textBindings) {
-                        chunks.push(`  ${chalk.bold(binding.name)}`);
-                        chunks.push(`    value: ${chalk(binding.value)}`);
-                    }
+                for (const binding of versionDetails.textBindings) {
+                    chunks.push(`  ${chalk.bold(binding.name)}:`);
 
-                    chunks.push(``);
+                    const formatted = util.inspect(binding.value, {
+                        depth: 10,
+                        colors: true,
+                    });
 
-                    for (const binding of versionDetails.jsonBindings) {
-                        chunks.push(`  ${chalk.bold(binding.name)}`);
-                        chunks.push(
-                            `    value: ${chalk(util.inspect(binding.value))}`,
-                        );
-                    }
+                    const indented = formatted
+                        .split('\n')
+                        .map((line) => {
+                            return `    ${line}`;
+                        })
+                        .join('\n');
 
-                    chunks.push(``);
+                    chunks.push(indented);
+                }
 
-                    for (const binding of versionDetails.dataBindings) {
-                        chunks.push(`  ${chalk.bold(binding.name)}`);
-                        chunks.push(`    value: ${chalk(binding.base64)}`);
-                    }
+                chunks.push(``);
+
+                for (const binding of versionDetails.jsonBindings) {
+                    chunks.push(`  ${chalk.bold(binding.name)}:`);
+
+                    const formatted = util.inspect(binding.value, {
+                        depth: 10,
+                        colors: true,
+                    });
+
+                    const indented = formatted
+                        .split('\n')
+                        .map((line) => {
+                            return `    ${line}`;
+                        })
+                        .join('\n');
+
+                    chunks.push(indented);
+                }
+
+                chunks.push(``);
+
+                for (const binding of versionDetails.dataBindings) {
+                    chunks.push(`  ${chalk.bold(binding.name)}`);
+                    chunks.push(
+                        `    digest (sha256): ${chalk(binding.digest)}`,
+                    );
                 }
 
                 console.log(chunks.join('\n'));

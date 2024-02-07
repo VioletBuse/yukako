@@ -20,6 +20,7 @@ import {
     NewProjectVersionRequestBodySchema,
     ProjectVersionsDataResponseBodyType,
 } from '@yukako/types';
+import { base64Hash } from '@yukako/base64ops';
 
 const versionsRouter = Router({ mergeParams: true });
 
@@ -34,6 +35,7 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
         await authenticate(req);
 
         let limit = 5;
+        let page = 0;
 
         if (req.query.limit) {
             const parsedLimit = parseInt(req.query.limit as string);
@@ -42,34 +44,114 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
             }
         }
 
-        const result = await db.query.projects.findFirst({
-            where: eq(projects.id, req.params.projectId),
-            with: {
-                projectVersions: {
-                    orderBy: desc(projectVersions.version),
-                    limit,
-                    with: {
-                        projectVersionBlobs: {
-                            with: {
-                                blob: true,
-                            },
-                        },
-                        routes: true,
-                        textBindings: true,
-                        jsonBindings: true,
-                        dataBindings: true,
-                    },
-                },
-            },
-        });
-
-        if (!result) {
-            respond.status(404).message({ error: 'Project Not found' }).throw();
-            return;
+        if (req.query.page) {
+            const parsedPage = parseInt(req.query.page as string);
+            if (!isNaN(parsedPage)) {
+                page = parsedPage;
+            }
         }
 
-        const versions = result.projectVersions.map(
-            (projectVersion): ProjectVersionsDataResponseBodyType => {
+        //
+        // const result = await db.query.projects.findFirst({
+        //     where: eq(projects.id, req.params.projectId),
+        //     with: {
+        //         projectVersions: {
+        //             orderBy: desc(projectVersions.version),
+        //             limit,
+        //             with: {
+        //                 projectVersionBlobs: {
+        //                     with: {
+        //                         blob: true,
+        //                     },
+        //                 },
+        //                 routes: true,
+        //                 textBindings: true,
+        //                 jsonBindings: true,
+        //                 dataBindings: true,
+        //             },
+        //         },
+        //     },
+        // });
+        //
+        // if (!result) {
+        //     respond.status(404).message({ error: 'Project Not found' }).throw();
+        //     return;
+        // }
+        //
+        // const versions = result.projectVersions.map(
+        //     (projectVersion): ProjectVersionsDataResponseBodyType => {
+        //         const routes = projectVersion.routes.map((route) => ({
+        //             id: route.id,
+        //             host: route.host,
+        //             basePaths: route.basePaths,
+        //         }));
+        //
+        //         const blobs = projectVersion.projectVersionBlobs.map(
+        //             (blob) => ({
+        //                 id: blob.blob.id,
+        //                 data: blob.blob.data,
+        //                 filename: blob.blob.filename,
+        //                 type: blob.blob.type,
+        //             }),
+        //         );
+        //
+        //         const textBindings = projectVersion.textBindings.map(
+        //             (binding) => ({
+        //                 id: binding.id,
+        //                 name: binding.name,
+        //                 value: binding.value,
+        //             }),
+        //         );
+        //
+        //         const jsonBindings = projectVersion.jsonBindings.map(
+        //             (binding) => ({
+        //                 id: binding.id,
+        //                 name: binding.name,
+        //                 value: binding.value,
+        //             }),
+        //         );
+        //
+        //         const dataBindings = projectVersion.dataBindings.map(
+        //             (binding) => ({
+        //                 id: binding.id,
+        //                 name: binding.name,
+        //                 base64: binding.base64,
+        //             }),
+        //         );
+        //
+        //         return {
+        //             id: projectVersion.id,
+        //             version: projectVersion.version,
+        //             projectId: projectVersion.projectId,
+        //             routes,
+        //             blobs,
+        //             textBindings,
+        //             jsonBindings,
+        //             dataBindings,
+        //         };
+        //     },
+        // );
+
+        const data = await db.query.projectVersions.findMany({
+            where: eq(projectVersions.projectId, req.params.projectId),
+            orderBy: desc(projectVersions.version),
+            with: {
+                projectVersionBlobs: {
+                    with: {
+                        blob: true,
+                    },
+                },
+                routes: true,
+                textBindings: true,
+                jsonBindings: true,
+                dataBindings: true,
+            },
+            limit,
+            offset: page * limit,
+        });
+
+        const versions: ProjectVersionsDataResponseBodyType[] = data.map(
+            (projectVersion) => {
                 const routes = projectVersion.routes.map((route) => ({
                     id: route.id,
                     host: route.host,
@@ -79,7 +161,7 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
                 const blobs = projectVersion.projectVersionBlobs.map(
                     (blob) => ({
                         id: blob.blob.id,
-                        data: blob.blob.data,
+                        digest: base64Hash(blob.blob.data),
                         filename: blob.blob.filename,
                         type: blob.blob.type,
                     }),
@@ -105,7 +187,7 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
                     (binding) => ({
                         id: binding.id,
                         name: binding.name,
-                        base64: binding.base64,
+                        digest: base64Hash(binding.base64),
                     }),
                 );
 
@@ -195,7 +277,7 @@ versionsRouter.get(
 
             const blobs = projectVersion.projectVersionBlobs.map((blob) => ({
                 id: blob.blob.id,
-                data: blob.blob.data,
+                digest: base64Hash(blob.blob.data),
                 filename: blob.blob.filename,
                 type: blob.blob.type,
             }));
@@ -215,7 +297,7 @@ versionsRouter.get(
             const dataBindings = projectVersion.dataBindings.map((binding) => ({
                 id: binding.id,
                 name: binding.name,
-                base64: binding.base64,
+                digest: base64Hash(binding.base64),
             }));
 
             const data: ProjectVersionsDataResponseBodyType = {
@@ -367,7 +449,7 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
 
             const blobs = newBlobs.map((blob) => ({
                 id: blob.id,
-                data: blob.data,
+                digest: base64Hash(blob.data),
                 filename: blob.filename,
                 type: blob.type,
             }));
@@ -387,7 +469,7 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
             const dataBindings = newDataBindings.map((binding) => ({
                 id: binding.id,
                 name: binding.name,
-                base64: binding.base64,
+                digest: base64Hash(binding.base64),
             }));
 
             _sql.notify('project_versions', 'reload');
@@ -487,7 +569,7 @@ versionsRouter.get(
 
             const blobs = projectVersion.projectVersionBlobs.map((blob) => ({
                 id: blob.blob.id,
-                data: blob.blob.data,
+                digest: base64Hash(blob.blob.data),
                 filename: blob.blob.filename,
                 type: blob.blob.type,
             }));
@@ -507,7 +589,7 @@ versionsRouter.get(
             const dataBindings = projectVersion.dataBindings.map((binding) => ({
                 id: binding.id,
                 name: binding.name,
-                base64: binding.base64,
+                digest: base64Hash(binding.base64),
             }));
 
             const data: ProjectVersionsDataResponseBodyType = {
