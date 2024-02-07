@@ -179,9 +179,11 @@ const details = new Command()
             }
 
             if (typeof id !== 'string') {
-                const fetchProjectListSpinner = ora().start(
-                    'Fetching Projects from server',
-                );
+                // const fetchProjectListSpinner = ora().start(
+                //     'Fetching Projects from server',
+                // );
+
+                spinner.start('Fetching Projects from server');
 
                 const [projects, err] = await Wrapper(
                     server,
@@ -189,8 +191,10 @@ const details = new Command()
                 ).projects.list();
 
                 if (err) {
-                    fetchProjectListSpinner.fail('Failed to get projects');
+                    spinner.fail('Failed to get projects');
                     throw new Error('Failed to get projects');
+                } else {
+                    spinner.succeed('Got projects');
                 }
 
                 const project = await select({
@@ -215,17 +219,34 @@ const details = new Command()
             const wrapper = Wrapper(server, auth_token);
             const [project, err] = await wrapper.projects.getById(id);
 
+            spinner.stop();
+
             if (err) {
                 spinner.fail('Failed to get project details');
             } else {
                 if (project) {
                     spinner.succeed(`Got project details for ${project.name}`);
-                    // console.log(util.inspect(project, false, null, true));
+
+                    const versionStrings = project.latest_version
+                        ? [
+                              `	ID: ${project.latest_version.id}`,
+                              `	Version: ${project.latest_version.version}`,
+                              `	Created at: ${new Date(
+                                  project.latest_version.created_at,
+                              ).toUTCString()}`,
+                          ]
+                        : ['	Project is not deployed yet'];
+
                     const chunks = [
                         `${chalk.bold(project.name)}`,
                         `------------------------------`,
                         `ID: ${project.id}`,
-                        `Latest version: ${project.latest_version ?? 'none'}`,
+                        `Latest version:`,
+                        ...versionStrings,
+                        ``,
+                        `Created at: ${new Date(
+                            project.created_at,
+                        ).toUTCString()}`,
                     ];
                     console.log('\n\n' + chunks.join('\n'));
                 }

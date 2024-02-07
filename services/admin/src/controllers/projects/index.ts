@@ -114,8 +114,14 @@ projectsRouter.get('/', async (req, res) => {
                     id: project.id,
                     name: project.name,
                     latest_version: project.projectVersions[0]
-                        ? project.projectVersions[0].version
+                        ? {
+                              id: project.projectVersions[0].id,
+                              version: project.projectVersions[0].version,
+                              created_at:
+                                  project.projectVersions[0].createdAt.getTime(),
+                          }
                         : null,
+                    created_at: project.createdAt.getTime(),
                 }),
             );
 
@@ -153,8 +159,14 @@ projectsRouter.get('/:projectId', async (req, res) => {
             id: projectData.id,
             name: projectData.name,
             latest_version: projectData.projectVersions[0]
-                ? projectData.projectVersions[0].version
+                ? ({
+                      id: projectData.projectVersions[0].id,
+                      version: projectData.projectVersions[0].version,
+                      created_at:
+                          projectData.projectVersions[0].createdAt.getTime(),
+                  } as ProjectsProjectDataResponseBodyType['latest_version'])
                 : null,
+            created_at: projectData.createdAt.getTime(),
         };
 
         respond.status(200).message(project).throw();
@@ -187,12 +199,18 @@ projectsRouter.get('/find-by-name/:name', async (req, res) => {
             return;
         }
 
-        const project = {
+        const project: ProjectsProjectDataResponseBodyType = {
             id: projectsData.id,
             name: projectsData.name,
             latest_version: projectsData.projectVersions[0]
-                ? projectsData.projectVersions[0].version
+                ? {
+                      id: projectsData.projectVersions[0].id,
+                      version: projectsData.projectVersions[0].version,
+                      created_at:
+                          projectsData.projectVersions[0].createdAt.getTime(),
+                  }
                 : null,
+            created_at: projectsData.createdAt.getTime(),
         };
 
         respond.status(200).message(project).throw();

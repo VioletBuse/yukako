@@ -10,7 +10,7 @@ import { Options } from '../index';
 export const VersionsWrapper = (
     server: string,
     sessionId: string,
-    opts?: Options,
+    options?: Options,
 ) => ({
     new: async (
         projectId: string,
@@ -34,7 +34,7 @@ export const VersionsWrapper = (
             return handleResponse(
                 ProjectVersionsDataResponseBodySchema,
                 resp,
-                opts,
+                options,
             );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
@@ -42,12 +42,23 @@ export const VersionsWrapper = (
     },
     list: async (
         projectId: string,
+        opts?: {
+            limit?: number;
+            page?: number;
+        },
     ): Promise<
         [ProjectVersionsDataResponseBodyType[], null] | [null, string]
     > => {
+        const limit = opts?.limit || 10;
+        const page = opts?.page || 0;
+
+        const params = new URLSearchParams();
+        params.append('limit', limit.toString());
+        params.append('page', page.toString());
+
         try {
             const resp = await fetch(
-                `${server}/api/projects/${projectId}/versions`,
+                `${server}/api/projects/${projectId}/versions?${params.toString()}`,
                 {
                     method: 'GET',
                     headers: {
@@ -60,7 +71,7 @@ export const VersionsWrapper = (
             return handleResponse(
                 z.array(ProjectVersionsDataResponseBodySchema),
                 resp,
-                opts,
+                options,
             );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
@@ -87,7 +98,7 @@ export const VersionsWrapper = (
             return handleResponse(
                 ProjectVersionsDataResponseBodySchema,
                 resp,
-                opts,
+                options,
             );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
@@ -114,7 +125,7 @@ export const VersionsWrapper = (
             return handleResponse(
                 ProjectVersionsDataResponseBodySchema,
                 resp,
-                opts,
+                options,
             );
         } catch (error) {
             return [null, 'An unknown error occurred.'];
