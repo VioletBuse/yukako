@@ -38,25 +38,6 @@ export const ProjectsPage: React.FC = () => {
                                 <CardContent>
                                     {project.latest_version && (
                                         <>
-                                            {/*<div className='border border-border p-4 bg-background'>*/}
-                                            {/*    <h2 className='font-medium'>*/}
-                                            {/*        Last Deployed: Version{' '}*/}
-                                            {/*        {*/}
-                                            {/*            project.latest_version*/}
-                                            {/*                .version*/}
-                                            {/*        }*/}
-                                            {/*    </h2>*/}
-                                            {/*    <p className='text-sm'>*/}
-                                            {/*        (id){' '}*/}
-                                            {/*        {project.latest_version.id}*/}
-                                            {/*    </p>*/}
-                                            {/*    <p className='text-sm'>*/}
-                                            {/*        Deployed at:{' '}*/}
-                                            {/*        {new Date(*/}
-                                            {/*            project.latest_version.created_at,*/}
-                                            {/*        ).toLocaleDateString()}*/}
-                                            {/*    </p>*/}
-                                            {/*</div>*/}
                                             <Alert>
                                                 <Server className='h-4 w-4' />
                                                 <AlertTitle>

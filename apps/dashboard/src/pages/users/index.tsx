@@ -42,11 +42,6 @@ export const UsersPage: React.FC = () => {
                     )}
                     {userList !== null && (
                         <div>
-                            {/*<ul>*/}
-                            {/*    {userList.map((user) => (*/}
-                            {/*        <li key={user.uid}>{user.username}</li>*/}
-                            {/*    ))}*/}
-                            {/*</ul>*/}
                             <Table>
                                 <TableCaption>
                                     A list of Yukako Cluster Users
