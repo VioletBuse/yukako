@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner.tsx';
 import { HomePage } from '@/pages/home.tsx';
 import { UsersPage } from '@/pages/users';
 import { ProjectsPage } from '@/pages/projects';
+import { NotFoundPage } from '@/pages/not-found';
 
 function App() {
     return (
@@ -20,6 +21,8 @@ function App() {
                     <Route path='/projects' component={ProjectsPage}></Route>
 
                     <Route path='/auth' component={AuthPage}></Route>
+
+                    <Route component={NotFoundPage}></Route>
                 </Switch>
             </ThemeProvider>
         </>
