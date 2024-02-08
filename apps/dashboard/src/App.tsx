@@ -6,6 +6,7 @@ import { HomePage } from '@/pages/home.tsx';
 import { UsersPage } from '@/pages/users';
 import { ProjectsPage } from '@/pages/projects';
 import { NotFoundPage } from '@/pages/not-found';
+import { ProjectByIdPage } from '@/pages/projects/[id]';
 
 function App() {
     return (
@@ -19,6 +20,9 @@ function App() {
                     <Route path='/users' component={UsersPage}></Route>
 
                     <Route path='/projects' component={ProjectsPage}></Route>
+                    <Route path='/projects/:id'>
+                        {(params) => <ProjectByIdPage id={params.id} />}
+                    </Route>
 
                     <Route path='/auth' component={AuthPage}></Route>
 

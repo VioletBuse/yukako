@@ -58,6 +58,7 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
     id: z.string(),
     version: z.number(),
     projectId: z.string(),
+    deployed_at: z.number(),
     routes: z.array(
         z.object({
             host: z.string(),

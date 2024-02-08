@@ -51,87 +51,6 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
             }
         }
 
-        //
-        // const result = await db.query.projects.findFirst({
-        //     where: eq(projects.id, req.params.projectId),
-        //     with: {
-        //         projectVersions: {
-        //             orderBy: desc(projectVersions.version),
-        //             limit,
-        //             with: {
-        //                 projectVersionBlobs: {
-        //                     with: {
-        //                         blob: true,
-        //                     },
-        //                 },
-        //                 routes: true,
-        //                 textBindings: true,
-        //                 jsonBindings: true,
-        //                 dataBindings: true,
-        //             },
-        //         },
-        //     },
-        // });
-        //
-        // if (!result) {
-        //     respond.status(404).message({ error: 'Project Not found' }).throw();
-        //     return;
-        // }
-        //
-        // const versions = result.projectVersions.map(
-        //     (projectVersion): ProjectVersionsDataResponseBodyType => {
-        //         const routes = projectVersion.routes.map((route) => ({
-        //             id: route.id,
-        //             host: route.host,
-        //             basePaths: route.basePaths,
-        //         }));
-        //
-        //         const blobs = projectVersion.projectVersionBlobs.map(
-        //             (blob) => ({
-        //                 id: blob.blob.id,
-        //                 data: blob.blob.data,
-        //                 filename: blob.blob.filename,
-        //                 type: blob.blob.type,
-        //             }),
-        //         );
-        //
-        //         const textBindings = projectVersion.textBindings.map(
-        //             (binding) => ({
-        //                 id: binding.id,
-        //                 name: binding.name,
-        //                 value: binding.value,
-        //             }),
-        //         );
-        //
-        //         const jsonBindings = projectVersion.jsonBindings.map(
-        //             (binding) => ({
-        //                 id: binding.id,
-        //                 name: binding.name,
-        //                 value: binding.value,
-        //             }),
-        //         );
-        //
-        //         const dataBindings = projectVersion.dataBindings.map(
-        //             (binding) => ({
-        //                 id: binding.id,
-        //                 name: binding.name,
-        //                 base64: binding.base64,
-        //             }),
-        //         );
-        //
-        //         return {
-        //             id: projectVersion.id,
-        //             version: projectVersion.version,
-        //             projectId: projectVersion.projectId,
-        //             routes,
-        //             blobs,
-        //             textBindings,
-        //             jsonBindings,
-        //             dataBindings,
-        //         };
-        //     },
-        // );
-
         const data = await db.query.projectVersions.findMany({
             where: eq(projectVersions.projectId, req.params.projectId),
             orderBy: desc(projectVersions.version),
@@ -151,7 +70,7 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
         });
 
         const versions: ProjectVersionsDataResponseBodyType[] = data.map(
-            (projectVersion) => {
+            (projectVersion): ProjectVersionsDataResponseBodyType => {
                 const routes = projectVersion.routes.map((route) => ({
                     id: route.id,
                     host: route.host,
@@ -195,6 +114,7 @@ versionsRouter.get('/', async (req: Request<ParentRouterParams>, res) => {
                     id: projectVersion.id,
                     version: projectVersion.version,
                     projectId: projectVersion.projectId,
+                    deployed_at: projectVersion.createdAt.getTime(),
                     routes,
                     blobs,
                     textBindings,
@@ -304,6 +224,7 @@ versionsRouter.get(
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
+                deployed_at: projectVersion.createdAt.getTime(),
                 routes,
                 blobs,
                 textBindings,
@@ -478,6 +399,7 @@ versionsRouter.post('/', async (req: Request<ParentRouterParams>, res) => {
                 id: newProjectVersion[0].id,
                 version: newProjectVersion[0].version,
                 projectId: newProjectVersion[0].projectId,
+                deployed_at: newProjectVersion[0].createdAt.getTime(),
                 routes,
                 blobs,
                 textBindings,
@@ -596,6 +518,7 @@ versionsRouter.get(
                 id: projectVersion.id,
                 version: projectVersion.version,
                 projectId: projectVersion.projectId,
+                deployed_at: projectVersion.createdAt.getTime(),
                 routes,
                 blobs,
                 textBindings,
