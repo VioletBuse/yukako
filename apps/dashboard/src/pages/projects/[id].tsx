@@ -1,3 +1,4 @@
+import React from 'react';
 import { MainLayout } from '@/layouts/main';
 import { useGetProjectById } from '@/lib/hooks/data-hooks/get-project-by-id';
 import {
@@ -64,7 +65,7 @@ const VersionsCardPage: React.FC<VersionsCardPageProps> = ({
             {versionData &&
                 versionData.map((version, idx) => (
                     <>
-                        <Card>
+                        <Card className=''>
                             <CardHeader>
                                 <CardTitle className='text-xl flex flex-row items-center'>
                                     V{version.version}
@@ -82,51 +83,79 @@ const VersionsCardPage: React.FC<VersionsCardPageProps> = ({
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Accordion type='multiple'>
-                                    <AccordionItem value='artifacts'>
-                                        <AccordionTrigger>
-                                            Artifacts
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            artifact list
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value='bindings'>
-                                        <AccordionTrigger>
-                                            Bindings
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <Accordion
-                                                className='pl-4'
-                                                type='multiple'>
-                                                <AccordionItem value='json-bindings'>
-                                                    <AccordionTrigger>
-                                                        Json Bindings
-                                                    </AccordionTrigger>
-                                                    <AccordionContent>
-                                                        content...
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                                <AccordionItem value='text-bindings'>
-                                                    <AccordionTrigger>
-                                                        Text Bindings
-                                                    </AccordionTrigger>
-                                                    <AccordionContent>
-                                                        content...
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                                <AccordionItem value='data-bindings'>
-                                                    <AccordionTrigger>
-                                                        data Bindings
-                                                    </AccordionTrigger>
-                                                    <AccordionContent>
-                                                        content...
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
+                                <div className='border border-border p-2 mb-2 flex flex-col gap-y-2'>
+                                    <h1 className='text-lg font-medium'>
+                                        Artifacts
+                                    </h1>
+                                    {version.blobs.map((blob) => (
+                                        <React.Fragment key={blob.id}>
+                                            <div className='border border-border p-2'>
+                                                <p className='text-md font-medium'>
+                                                    {blob.filename}
+                                                </p>
+                                                <p className='text-sm'>
+                                                    (sha256) {blob.digest}
+                                                </p>
+                                            </div>
+                                        </React.Fragment>
+                                    ))}
+                                </div>
+                                <div className='flex flex-col gap-y-2 border border-border p-2'>
+                                    <h1 className='text-lg font-medium'>
+                                        Bindings
+                                    </h1>
+                                    <div className='border border-border flex flex-col gap-y-2 p-2'>
+                                        <h2 className='text-md font-medium'>
+                                            Json Bindings
+                                        </h2>
+                                        {version.jsonBindings.map((binding) => (
+                                            <div className='border border-border p-2'>
+                                                <p className='text-md font-medium'>
+                                                    {binding.name}
+                                                </p>
+                                                <pre className='text-sm'>
+                                                    {JSON.stringify(
+                                                        binding.value,
+                                                        undefined,
+                                                        2,
+                                                    )}
+                                                </pre>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className='border border-border flex flex-col gap-y-2 p-2'>
+                                        <h2 className='text-md font-medium'>
+                                            Text Bindings
+                                        </h2>
+                                        {version.textBindings.map((binding) => (
+                                            <div className='border border-border p-2'>
+                                                <p className='text-md font-medium'>
+                                                    {binding.name}
+                                                </p>
+                                                <pre className='text-sm'>
+                                                    {JSON.stringify(
+                                                        binding.value,
+                                                    )}
+                                                </pre>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className='border border-border flex flex-col gap-y-2 p-2'>
+                                        <h2 className='text-md font-medium'>
+                                            Binary/Data Bindings
+                                        </h2>
+                                        {version.dataBindings.map((binding) => (
+                                            <div className='border border-border p-2'>
+                                                <p className='text-md font-medium'>
+                                                    {binding.name}
+                                                </p>
+                                                <p className='text-sm'>
+                                                    (sha256) {binding.digest}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
                     </>
