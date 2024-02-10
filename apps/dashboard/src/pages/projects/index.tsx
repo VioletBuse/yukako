@@ -116,9 +116,15 @@ export const ProjectsPage: React.FC = () => {
 
     return (
         <>
-            <MainLayout selectedTab='projects'>
-                <h1 className='text-3xl font-medium mb-2'>Projects</h1>
-                <NewProjectForm />
+            <MainLayout
+                breadcrumbs={[
+                    { name: 'projects', href: '/projects', loading: false },
+                ]}
+                selectedTab='projects'>
+                <div className='pb-4 top-0 sticky z-10 bg-gradient-to-b from-background from-80% to-transparent'>
+                    <h1 className='text-3xl font-medium mb-2'>Projects</h1>
+                    <NewProjectForm />
+                </div>
                 {fetchProjectsError && (
                     <Alert variant='destructive' className='mb-2'>
                         <AlertCircle className='h-4 w-4' />

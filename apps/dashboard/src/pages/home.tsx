@@ -8,7 +8,9 @@ export const HomePage: React.FC = () => {
 
     return (
         <>
-            <MainLayout selectedTab='home'>
+            <MainLayout
+                breadcrumbs={[{ loading: false, name: 'home', href: '/' }]}
+                selectedTab='home'>
                 <p>
                     Etiam eros habitant arcu mi viverra praesent? Tincidunt
                     vestibulum sollicitudin fames senectus sociis dis fermentum

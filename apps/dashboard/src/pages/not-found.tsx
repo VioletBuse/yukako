@@ -5,7 +5,7 @@ import { Link } from 'wouter';
 
 export const NotFoundPage: React.FC = () => {
     return (
-        <MainLayout>
+        <MainLayout breadcrumbs={[]}>
             <div className='h-[90vh] w-full flex items-center justify-center'>
                 <Alert variant='destructive' className='w-fit'>
                     <AlertTitle>

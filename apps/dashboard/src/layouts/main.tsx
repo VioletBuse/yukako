@@ -43,11 +43,7 @@ import {
 import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
 import { useUsersList } from '@/lib/hooks/data-hooks/users';
 import { CommandLoading } from 'cmdk';
-
-type Props = {
-    children: React.ReactNode;
-    selectedTab?: 'home' | 'projects' | 'users';
-};
+import { Skeleton } from '@/components/ui/skeleton';
 
 // const sidebarLinkClass =
 //     'w-full justify-start ' +
@@ -160,6 +156,23 @@ const CommandBar: React.FC<CommandBarProps> = ({ open, onChangeOpen }) => {
     );
 };
 
+type Props = {
+    children: React.ReactNode;
+    selectedTab?: 'home' | 'projects' | 'users';
+    breadcrumbs: (
+        | {
+              name: string;
+              href: string | null;
+              loading: false;
+          }
+        | {
+              loading: true;
+              name?: null;
+              href?: null;
+          }
+    )[];
+};
+
 export const MainLayout = (props: Props) => {
     const [userData, , userLoading] = useUser();
     useRequireLoggedIn();
@@ -174,7 +187,32 @@ export const MainLayout = (props: Props) => {
             <CommandBar open={cmdBarOpen} onChangeOpen={setCmdBarOpen} />
             <div className='w-screen h-screen flex flex-col'>
                 <div className='px-4 py-2 flex items-center justify-between'>
-                    <h1 className='font-bold text-2xl'>Yukako</h1>
+                    <div className='flex flex-row items-center gap-x-3'>
+                        <h1 className='font-semibold text-xl'>Yukako</h1>
+                        {props.breadcrumbs.length > 0 &&
+                            props.breadcrumbs.map((crumb, _idx) => (
+                                <React.Fragment key={_idx}>
+                                    <span className='text-lg font-light'>
+                                        /
+                                    </span>
+                                    {crumb.loading && (
+                                        <Skeleton className='h-6 w-24' />
+                                    )}
+                                    {!crumb.loading && crumb.href && (
+                                        <Link
+                                            className='text-md font-light'
+                                            href={crumb.href}>
+                                            {crumb.name}
+                                        </Link>
+                                    )}
+                                    {!crumb.loading && !crumb.href && (
+                                        <span className='text-md font-light'>
+                                            {crumb.name}
+                                        </span>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                    </div>
                     <div className='flex flex-row gap-2'>
                         <Button
                             variant='secondary'

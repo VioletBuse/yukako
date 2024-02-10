@@ -22,7 +22,11 @@ export const UsersPage: React.FC = () => {
 
     return (
         <>
-            <MainLayout selectedTab='users'>
+            <MainLayout
+                breadcrumbs={[
+                    { name: 'users', href: '/users', loading: false },
+                ]}
+                selectedTab='users'>
                 <>
                     {loadingUsers && (
                         <div className='w-full h-[95vh] flex items-center justify-center'>
