@@ -63,40 +63,64 @@ const VersionsCardBindings: React.FC<VersionsCardBindingsProps> = ({
     textBindings,
     dataBindings,
 }) => {
+    const hasBindings =
+        jsonBindings.length > 0 ||
+        textBindings.length > 0 ||
+        dataBindings.length > 0;
+
     return (
         <div className='flex flex-col gap-y-2 border border-border p-2'>
             <h1 className='text-lg font-medium'>Bindings</h1>
-            <div className='border border-border flex flex-col gap-y-2 p-2'>
-                <h2 className='text-md font-medium'>Json Bindings</h2>
-                {jsonBindings.map((binding) => (
-                    <div className='border border-border p-2'>
-                        <p className='text-md font-medium'>{binding.name}</p>
-                        <pre className='text-sm'>
-                            {JSON.stringify(binding.value, undefined, 2)}
-                        </pre>
-                    </div>
-                ))}
-            </div>
-            <div className='border border-border flex flex-col gap-y-2 p-2'>
-                <h2 className='text-md font-medium'>Text Bindings</h2>
-                {textBindings.map((binding) => (
-                    <div className='border border-border p-2'>
-                        <p className='text-md font-medium'>{binding.name}</p>
-                        <pre className='text-sm'>
-                            {JSON.stringify(binding.value)}
-                        </pre>
-                    </div>
-                ))}
-            </div>
-            <div className='border border-border flex flex-col gap-y-2 p-2'>
-                <h2 className='text-md font-medium'>Binary/Data Bindings</h2>
-                {dataBindings.map((binding) => (
-                    <div className='border border-border p-2'>
-                        <p className='text-md font-medium'>{binding.name}</p>
-                        <p className='text-sm'>(sha256) {binding.digest}</p>
-                    </div>
-                ))}
-            </div>
+            {!hasBindings && (
+                <p className='text-md font-medium'>
+                    This version has no bindings.
+                </p>
+            )}
+            {jsonBindings.length > 0 && (
+                <div className='border border-border flex flex-col gap-y-2 p-2'>
+                    <h2 className='text-md font-medium'>Json Bindings</h2>
+                    {jsonBindings.map((binding) => (
+                        <div className='border border-border p-2'>
+                            <p className='text-md font-medium'>
+                                {binding.name}
+                            </p>
+                            <pre className='text-sm'>
+                                {JSON.stringify(binding.value, undefined, 2)}
+                            </pre>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {textBindings.length > 0 && (
+                <div className='border border-border flex flex-col gap-y-2 p-2'>
+                    <h2 className='text-md font-medium'>Text Bindings</h2>
+                    {textBindings.map((binding) => (
+                        <div className='border border-border p-2'>
+                            <p className='text-md font-medium'>
+                                {binding.name}
+                            </p>
+                            <pre className='text-sm'>
+                                {JSON.stringify(binding.value)}
+                            </pre>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {dataBindings.length > 0 && (
+                <div className='border border-border flex flex-col gap-y-2 p-2'>
+                    <h2 className='text-md font-medium'>
+                        Binary/Data Bindings
+                    </h2>
+                    {dataBindings.map((binding) => (
+                        <div className='border border-border p-2'>
+                            <p className='text-md font-medium'>
+                                {binding.name}
+                            </p>
+                            <p className='text-sm'>(sha256) {binding.digest}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
