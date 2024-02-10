@@ -4,7 +4,11 @@ import { readConfig } from '../util/main-config.js';
 import { input, select } from '@inquirer/prompts';
 import * as util from 'util';
 import chalk from 'chalk';
-import { ProjectTextBinding, readProjectFile } from '../util/yukakoproj.js';
+import {
+    Project,
+    ProjectTextBinding,
+    readProjectFile,
+} from '../util/yukakoproj.js';
 import * as fs from 'fs-extra';
 import path from 'path';
 import {
@@ -285,7 +289,7 @@ const deploy = new Command()
                 serverOption: server,
             });
 
-            let deployment: { id: string; server: string } | undefined =
+            let deployment: Project['deployments'][number] | undefined =
                 undefined;
 
             if (typeof server === 'string' && typeof id === 'string') {
@@ -310,7 +314,7 @@ const deploy = new Command()
                     deployment = _deployment;
                 }
             } else {
-                const deploymentdata = await select({
+                deployment = await select({
                     message: 'Select a deployment to deploy',
                     choices: projectfile.deployments.map((deployment) => ({
                         name: `${deployment.name} -> ${deployment.server}`,
@@ -318,8 +322,6 @@ const deploy = new Command()
                         value: deployment,
                     })),
                 });
-
-                deployment = deploymentdata;
             }
 
             if (!deployment) {
@@ -475,16 +477,27 @@ const deploy = new Command()
                 }
             });
 
+            let routes: NewProjectVersionRequestBodyType['routes'] = [];
+
+            if (deployment.routes) {
+                routes = deployment.routes.map((route) => ({
+                    host: route.host,
+                    basePaths: route.paths,
+                }));
+            } else {
+                routes = projectfile.routes.map((route) => ({
+                    host: route.host,
+                    basePaths: route.paths,
+                }));
+            }
+
             const newVersionData: NewProjectVersionRequestBodyType = {
                 blobs: contentsWithEntrypointFirst.map((file) => ({
                     filename: file.name,
                     type: file.type,
                     data: file.base64,
                 })),
-                routes: projectfile.routes.map((route) => ({
-                    host: route.host,
-                    basePaths: route.paths,
-                })),
+                routes: routes,
                 textBindings: textBindings,
                 jsonBindings: jsonBindings,
                 dataBindings: dataBindings,

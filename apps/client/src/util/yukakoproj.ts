@@ -18,6 +18,15 @@ const configFileSchema = z.object({
             server: z.string(),
             name: z.string(),
             id: z.string(),
+
+            routes: z
+                .array(
+                    z.object({
+                        host: z.string(),
+                        paths: z.array(z.string()),
+                    }),
+                )
+                .optional(),
         }),
     ),
 
@@ -83,6 +92,8 @@ export type ProjectDeployment = {
     server: string;
     name: string;
     id: string;
+
+    routes?: ProjectRoute[];
 };
 
 export type ProjectTextBinding =
