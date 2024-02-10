@@ -9,7 +9,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Loader2, Terminal, TerminalSquare } from 'lucide-react';
+import {
+    AlertCircle,
+    CornerDownRight,
+    Loader2,
+    Terminal,
+    TerminalSquare,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/get-versions-paginated';
 import {
@@ -36,7 +42,7 @@ const VersionsCardArtifacts: React.FC<VersionsCardArtifactsProps> = ({
     artifacts,
 }) => {
     return (
-        <div className='border border-border p-2 mb-2 flex flex-col gap-y-2'>
+        <div className='border border-border p-2 flex flex-col gap-y-2'>
             <h1 className='text-lg font-medium'>Artifacts</h1>
             {artifacts.map((artifact) => (
                 <React.Fragment key={artifact.id}>
@@ -48,6 +54,36 @@ const VersionsCardArtifacts: React.FC<VersionsCardArtifactsProps> = ({
                     </div>
                 </React.Fragment>
             ))}
+        </div>
+    );
+};
+
+type VersionsCardRoutesProps = {
+    routes: ProjectVersionsDataResponseBodyType['routes'];
+};
+
+const VersionsCardRoutes: React.FC<VersionsCardRoutesProps> = ({ routes }) => {
+    return (
+        <div className='flex flex-col gap-y-2 border border-border p-2'>
+            <h1 className='text-lg font-medium'>Routes</h1>
+            {routes.map((route) => {
+                const paths =
+                    route.basePaths.length > 0 ? route.basePaths : ['/'];
+
+                return (
+                    <div className='border border-border p-2'>
+                        <p className='text-md font-medium'>{route.host}</p>
+                        <div className='pl-2'>
+                            {paths.map((path) => (
+                                <pre className='flex flex-row items-center text-sm'>
+                                    <CornerDownRight className='mr-2' />
+                                    {path}
+                                </pre>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 };
@@ -146,8 +182,9 @@ const VersionCard: React.FC<VersionCardProps> = ({ data: version, badges }) => {
                         Deployed {new Date(version.deployed_at).toUTCString()}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className='flex flex-col gap-y-2'>
                     <VersionsCardArtifacts artifacts={version.blobs} />
+                    <VersionsCardRoutes routes={version.routes} />
                     <VersionsCardBindings
                         jsonBindings={version.jsonBindings}
                         textBindings={version.textBindings}

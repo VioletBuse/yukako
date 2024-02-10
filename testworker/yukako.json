@@ -1,49 +1,53 @@
 {
-	"folder": ".",
-	"entrypoint": "testworker.js",
-	"routes": [
-		{
-			"host": "newproject.localhost:8080",
-			"paths": []
-		}
-	],
-	"deployments": [
-		{
-			"server": "http://localhost:8080",
-			"name": "newproject",
-			"id": "htztTRq4VEnVuGgPYxtkA"
-		}
-	],
-	"text_bindings": [
-		{
-			"name": "embedded_text_binding",
-			"value": "hi from embedded text binding"
-		},
-		{
-			"name": "text_binding_from_file",
-			"file": "./textbinding.txt"
-		}
-	],
-	"json_bindings": [
-		{
-			"name": "embedded_json_binding",
-			"value": {
-				"hello": "world"
-			}
-		},
-		{
-			"name": "json_binding_from_file",
-			"file": "./jsonbinding.json"
-		}
-	],
-	"data_bindings": [
-		{
-			"name": "embedded_data_binding",
-			"base64": "aGVsbG93b3JsZA=="
-		},
-		{
-			"name": "data_binding_from_file",
-			"file": "./databinding.dat"
-		}
-	]
+  "folder": ".",
+  "entrypoint": "testworker.js",
+  "routes": [
+	{
+	  "host": "newproject.localhost:8080",
+	  "paths": [
+		"/",
+		"/hello",
+		"/world"
+	  ]
+	}
+  ],
+  "deployments": [
+	{
+	  "server": "http://localhost:8080",
+	  "name": "newproject",
+	  "id": "htztTRq4VEnVuGgPYxtkA"
+	}
+  ],
+  "text_bindings": [
+	{
+	  "name": "embedded_text_binding",
+	  "value": "hi from embedded text binding"
+	},
+	{
+	  "name": "text_binding_from_file",
+	  "file": "./textbinding.txt"
+	}
+  ],
+  "json_bindings": [
+	{
+	  "name": "embedded_json_binding",
+	  "value": {
+		"hello": "world"
+	  }
+	},
+	{
+	  "name": "json_binding_from_file",
+	  "file": "./jsonbinding.json"
+	}
+  ],
+  "data_bindings": [
+	{
+	  "name": "embedded_data_binding",
+	  "base64": "aGVsbG93b3JsZA=="
+	},
+	{
+	  "name": "data_binding_from_file",
+	  "file": "./databinding.dat"
+	}
+  ]
 }
