@@ -28,6 +28,13 @@ import {
 import { useAuthToken, useServerUrl } from '@/lib/hooks/wrapper';
 import { Wrapper } from '@yukako/wrapper';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Link } from 'wouter';
 
 const NewUserTokenForm: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -122,6 +129,43 @@ export const UsersPage: React.FC = () => {
                         <h1 className='text-3xl font-medium mb-2'>Users</h1>
                         <NewUserTokenForm />
                     </div>
+                    {loadingUsers && (
+                        <div className='w-full h-[70vh] flex items-center justify-center'>
+                            <Loader2 className='w-8 h-8 animate-spin' />
+                        </div>
+                    )}
+                    {usersFetchError && (
+                        <Alert variant='destructive' className='mb-2'>
+                            <AlertCircle className='h-4 w-4 mr-2' />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>
+                                {usersFetchError}
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                    {userList && (
+                        <div className='grid gap-2 grid-cols-1'>
+                            {userList.map((user) => (
+                                <Link
+                                    href={`/users/${user.uid}`}
+                                    key={user.uid}>
+                                    <Card className='hover:animate-pulse hover:bg-accent/40'>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                {user.username}
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Joined{' '}
+                                                {new Date(
+                                                    user.createdAt,
+                                                ).toLocaleDateString()}
+                                            </CardDescription>
+                                        </CardHeader>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </>
             </MainLayout>
         </>
