@@ -1,6 +1,6 @@
 import { MainLayout } from '@/layouts/main';
 import { useUsersList } from '@/lib/hooks/data-hooks/users';
-import { Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import {
     Table,
     TableBody,
@@ -16,6 +16,96 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogDescription,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { useAuthToken, useServerUrl } from '@/lib/hooks/wrapper';
+import { Wrapper } from '@yukako/wrapper';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+const NewUserTokenForm: React.FC = () => {
+    const [open, setOpen] = useState(false);
+    const auth_token = useAuthToken();
+    const server = useServerUrl();
+
+    const [loading, setLoading] = useState(false);
+    const [token, setToken] = useState('');
+    const [error, setError] = useState('');
+
+    const onOpenChange = (isOpen: boolean) => {
+        if (!isOpen) {
+            setToken('');
+            setError('');
+        }
+        setOpen(isOpen);
+    };
+
+    const onGenerateToken = async () => {
+        setLoading(true);
+        const wrapper = Wrapper(server, auth_token ?? '');
+        const [res, err] = await wrapper.auth.createNewUserToken();
+        setLoading(false);
+
+        if (res) {
+            setError('');
+            setToken(res.token);
+        } else {
+            setError(err);
+            setToken('');
+        }
+    };
+
+    return (
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogTrigger asChild>
+                    <Button>Generate New User Token</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Generate New User Token</DialogTitle>
+                        <DialogDescription>
+                            This token will only be valid for 24 hours.
+                            Alternatively you can create a token with
+                            &#96;yukactl auth new-token&#96;.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div>
+                        <Button
+                            className='mb-2'
+                            disabled={loading}
+                            onClick={onGenerateToken}>
+                            {loading && (
+                                <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                            )}
+                            Generate
+                        </Button>
+                        {token && (
+                            <p className='bg-accent p-2 w-full'>{token}</p>
+                        )}
+                        {error && (
+                            <Alert variant='destructive'>
+                                <AlertCircle className='w-4 h-4 mr-2' />
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+            <p className='text-muted-foreground'>
+                Want to invite a new user? Press this button to generate a new
+                user token. This token can be used to create a new user account.
+            </p>
+        </>
+    );
+};
 
 export const UsersPage: React.FC = () => {
     const [userList, usersFetchError, loadingUsers] = useUsersList();
@@ -28,96 +118,10 @@ export const UsersPage: React.FC = () => {
                 ]}
                 selectedTab='users'>
                 <>
-                    {loadingUsers && (
-                        <div className='w-full h-[95vh] flex items-center justify-center'>
-                            <p className='flex flex-row gap-x-2 items-center'>
-                                <Loader2 className='w-4 h-4 animate-spin' />
-                                Loading
-                            </p>
-                        </div>
-                    )}
-                    {usersFetchError && (
-                        <div className='w-full h-[95vh] flex items-center justify-center'>
-                            <p className='text-red-500'>
-                                {usersFetchError ??
-                                    'There was an unknown error loading users.'}
-                            </p>
-                        </div>
-                    )}
-                    {userList !== null && (
-                        <div>
-                            <Table>
-                                <TableCaption>
-                                    A list of Yukako Cluster Users
-                                </TableCaption>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Username</TableHead>
-                                        <TableHead>User Id</TableHead>
-                                        <TableHead>
-                                            Account Creation Date
-                                        </TableHead>
-                                        <TableHead>Invited By</TableHead>
-                                        <TableHead>Invitees</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {userList.map((user) => (
-                                        <TableRow key={user.uid}>
-                                            <TableCell>
-                                                {user.username}
-                                            </TableCell>
-                                            <TableCell>{user.uid}</TableCell>
-                                            <TableCell>
-                                                {new Date(
-                                                    user.createdAt,
-                                                ).toDateString()}
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.invitedBy?.username ??
-                                                    'null'}
-                                            </TableCell>
-                                            <TableCell>
-                                                {user.invitees.length === 0 && (
-                                                    <Button
-                                                        className='w-full'
-                                                        disabled
-                                                        variant='secondary'>
-                                                        None
-                                                    </Button>
-                                                )}
-                                                {user.invitees.length > 0 && (
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant='secondary'
-                                                                className='w-full'>
-                                                                Invited Users
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className='min-w-56 p-4 grid grid-cols-1 gap-2'>
-                                                            {user.invitees.map(
-                                                                (val) => (
-                                                                    <p
-                                                                        key={
-                                                                            val.uid
-                                                                        }>
-                                                                        {
-                                                                            val.username
-                                                                        }
-                                                                    </p>
-                                                                ),
-                                                            )}
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    )}
+                    <div className='mb-2'>
+                        <h1 className='text-3xl font-medium mb-2'>Users</h1>
+                        <NewUserTokenForm />
+                    </div>
                 </>
             </MainLayout>
         </>
