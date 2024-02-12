@@ -1,5 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { parse as yamlParse } from 'yaml';
+import { parse as tomlParse } from 'toml';
 import { z } from 'zod';
 
 const configFileSchema = z.object({
@@ -139,15 +141,42 @@ export type Project = {
     data_bindings: ProjectDataBinding[];
 };
 
-export const readProjectFile = (): Project => {
+export const findAndParseFile = (): unknown => {
     const dir = process.cwd();
-    const projectFile = path.join(dir, 'yukako.json');
 
-    if (!fs.existsSync(projectFile)) {
-        throw new Error('Project file does not exist');
+    const jsonProjectFile = path.join(dir, 'yukako.json');
+    const yamlProjectFile = path.join(dir, 'yukako.yaml');
+    const ymlProjectFile = path.join(dir, 'yukako.yml');
+    const tomlProjectFile = path.join(dir, 'yukako.toml');
+
+    try {
+        if (fs.existsSync(jsonProjectFile)) {
+            return fs.readJSONSync(jsonProjectFile);
+        }
+
+        if (fs.existsSync(yamlProjectFile)) {
+            const fileContents = fs.readFileSync(yamlProjectFile, 'utf8');
+            return yamlParse(fileContents);
+        }
+
+        if (fs.existsSync(ymlProjectFile)) {
+            const fileContents = fs.readFileSync(ymlProjectFile, 'utf8');
+            return yamlParse(fileContents);
+        }
+
+        if (fs.existsSync(tomlProjectFile)) {
+            const fileContents = fs.readFileSync(tomlProjectFile, 'utf8');
+            return tomlParse(fileContents);
+        }
+
+        throw new Error('Project file does not exist or could not be parsed.');
+    } catch (err) {
+        throw new Error('Project file does not exist or could not be parsed.');
     }
+};
 
-    const project = fs.readJSONSync(projectFile);
+export const readProjectFile = (): Project => {
+    const project = findAndParseFile();
 
     const parseResult = configFileSchema.safeParse(project);
 
@@ -167,7 +196,7 @@ export const readProjectFile = (): Project => {
         parseResult.data.data_bindings ?? [];
 
     return {
-        folder: dir,
+        folder: process.cwd(),
         entrypoint: parseResult.data.entrypoint,
 
         routes,

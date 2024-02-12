@@ -301,10 +301,10 @@ const deploy = new Command()
 
                 if (!_deployment) {
                     spinner.fail(
-                        'There is no deployment in yukako.json with that ID and server',
+                        'There is no deployment in yukako.yml with that ID and server',
                     );
                     spinner.info(
-                        'Add a deployment to yukako.json with the correct ID and server',
+                        'Add a deployment to yukako.yml with the correct ID and server',
                     );
                     spinner.info(
                         'Run $ yukactl projects list to see all projects on a specific server',
