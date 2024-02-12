@@ -20,7 +20,15 @@
 	{
 	  "server": "http://localhost:8080",
 	  "name": "test",
-	  "id": "qMpwvWEEGagb8djEgjQFD"
+	  "id": "qMpwvWEEGagb8djEgjQFD",
+	  "routes": [
+		{
+		  "host": "test-project.localhost:8080",
+		  "paths": [
+			"/"
+		  ]
+		}
+	  ]
 	}
   ],
   "text_bindings": [

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MainLayout } from '@/layouts/main';
 import { useGetProjectById } from '@/lib/hooks/data-hooks/get-project-by-id';
 import {
@@ -9,30 +9,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-    AlertCircle,
-    CornerDownRight,
-    Loader2,
-    Terminal,
-    TerminalSquare,
-} from 'lucide-react';
+import { AlertCircle, CornerDownRight, Loader2, Terminal } from 'lucide-react';
 import { useState } from 'react';
 import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/get-versions-per-proj-pagted';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { ProjectVersionsDataResponseBodyType } from '@yukako/types';
+import { useSearch } from 'wouter';
 
 type VersionsCardArtifactsProps = {
     artifacts: ProjectVersionsDataResponseBodyType['blobs'];
@@ -167,9 +150,34 @@ type VersionCardProps = {
 };
 
 const VersionCard: React.FC<VersionCardProps> = ({ data: version, badges }) => {
+    const searchString = useSearch();
+    const [isLinkedCard, setIsLinkedCard] = useState(false);
+
+    const ref = useRef<HTMLDivElement>(null);
+
+    console.log({ searchString, version, isLinkedCard });
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(searchString);
+        const _version = searchParams.get('version');
+
+        if (_version === version.id && ref.current) {
+            setIsLinkedCard(true);
+        } else {
+            setIsLinkedCard(false);
+        }
+    }, [searchString]);
+
+    useEffect(() => {
+        if (isLinkedCard && ref.current) {
+            console.log('scrolling');
+            ref.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [isLinkedCard]);
+
     return (
         <>
-            <Card className='bg-accent/50 border-t-transparent'>
+            <Card ref={ref} className='bg-accent/50 border-t-transparent'>
                 <CardHeader className='top-0 sticky bg-gradient-to-b from-background from-75% to-transparent border-t border-border'>
                     <CardTitle className='text-xl flex flex-row items-center'>
                         Deployment V{version.version}
@@ -248,7 +256,7 @@ const VersionsSection: React.FC<VersionsSectionProps> = ({
     projectId,
     latestVersion,
 }) => {
-    const limit = 5;
+    const limit = 50;
     const maxPage =
         latestVersion !== null ? Math.ceil(latestVersion / limit) : 1;
 

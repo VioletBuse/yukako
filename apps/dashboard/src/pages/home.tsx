@@ -97,15 +97,20 @@ const VersionsCardSpecificVersionCard: React.FC<
                 </div>
             )}
             {projectData && (
-                <div className='border border-border p-2 hover:bg-accent'>
-                    <h1 className='text-xl font-normal'>
-                        V{versionData.version} of {projectData.name}
-                    </h1>
-                    <h3 className='text-sm font-light'>
-                        Deployed At{' '}
-                        {new Date(versionData.deployed_at).toUTCString()}
-                    </h3>
-                </div>
+                <Link
+                    href={`/projects/${
+                        projectData.id
+                    }?version=${encodeURIComponent(versionData.id)}`}>
+                    <div className='border border-border p-2 hover:bg-accent'>
+                        <h1 className='text-xl font-normal'>
+                            V{versionData.version} of {projectData.name}
+                        </h1>
+                        <h3 className='text-sm font-light'>
+                            Deployed At{' '}
+                            {new Date(versionData.deployed_at).toUTCString()}
+                        </h3>
+                    </div>
+                </Link>
             )}
         </>
     );
@@ -134,13 +139,10 @@ const VersionsCard: React.FC = () => {
                     <>
                         <div className='flex flex-col gap-2 pt-2'>
                             {recentVersionsList.map((version) => (
-                                <Link
-                                    href={`/projects/${version.projectId}`}
-                                    key={version.id}>
-                                    <VersionsCardSpecificVersionCard
-                                        versionData={version}
-                                    />
-                                </Link>
+                                <VersionsCardSpecificVersionCard
+                                    key={version.id}
+                                    versionData={version}
+                                />
                             ))}
                         </div>
                     </>
