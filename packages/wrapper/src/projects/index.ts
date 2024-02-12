@@ -1,4 +1,4 @@
-import { VersionsWrapper } from './versions';
+import { ProjectSpecificVersionsWrapper } from './versions';
 import {
     ProjectsNewProjectResponseBodySchema,
     ProjectsNewProjectResponseBodyType,
@@ -14,7 +14,7 @@ export const ProjectsWrapper = (
     sessionId: string,
     opts?: Options,
 ) => ({
-    versions: VersionsWrapper(server, sessionId, opts),
+    versions: ProjectSpecificVersionsWrapper(server, sessionId, opts),
     create: async (
         name: string,
     ): Promise<[ProjectsNewProjectResponseBodyType, null] | [null, string]> => {

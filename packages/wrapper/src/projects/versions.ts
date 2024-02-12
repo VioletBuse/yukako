@@ -7,7 +7,7 @@ import { handleResponse } from '../util/responseHandler';
 import { z } from 'zod';
 import { Options } from '../index';
 
-export const VersionsWrapper = (
+export const ProjectSpecificVersionsWrapper = (
     server: string,
     sessionId: string,
     options?: Options,

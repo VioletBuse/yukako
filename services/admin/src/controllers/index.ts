@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import authRouter from './auth';
 import projectsRouter from './projects';
 import usersRouter from './users';
+import versionsRouter from './versions';
 
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectsRouter);
+app.use('/api/versions', versionsRouter);
 app.use('/api/users', usersRouter);
 
 app.use(serve());

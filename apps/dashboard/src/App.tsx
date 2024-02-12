@@ -11,7 +11,7 @@ import { ProjectByIdPage } from '@/pages/projects/[id]';
 function App() {
     return (
         <>
-            <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
+            <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
                 <Toaster richColors />
                 <Switch>
                     <Route path='/' component={HomePage}></Route>

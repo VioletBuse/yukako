@@ -15,7 +15,9 @@ import {
     LayoutDashboard,
     Loader2,
     LogOut,
+    Moon,
     MoreVertical,
+    Sun,
     Terminal,
     Users,
 } from 'lucide-react';
@@ -44,6 +46,7 @@ import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
 import { useUsersList } from '@/lib/hooks/data-hooks/users';
 import { CommandLoading } from 'cmdk';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTheme } from '@/components/theme-provider';
 
 // const sidebarLinkClass =
 //     'w-full justify-start ' +
@@ -174,6 +177,8 @@ type Props = {
 };
 
 export const MainLayout = (props: Props) => {
+    const { theme, setTheme } = useTheme();
+
     const [userData, , userLoading] = useUser();
     useRequireLoggedIn();
 
@@ -188,7 +193,9 @@ export const MainLayout = (props: Props) => {
             <div className='w-screen h-screen flex flex-col'>
                 <div className='px-4 py-2 flex items-center justify-between'>
                     <div className='flex flex-row items-center gap-x-3'>
-                        <h1 className='font-semibold text-xl'>Yukako</h1>
+                        <Link href='/' className='font-semibold text-xl'>
+                            Yukako
+                        </Link>
                         {props.breadcrumbs.length > 0 &&
                             props.breadcrumbs.map((crumb, _idx) => (
                                 <React.Fragment key={_idx}>
@@ -223,7 +230,19 @@ export const MainLayout = (props: Props) => {
                                 ⌘ + K
                             </span>
                         </Button>
-                        <Button variant='ghost' asChild>
+                        <Button
+                            variant='secondary'
+                            onClick={() =>
+                                setTheme(theme === 'light' ? 'dark' : 'light')
+                            }>
+                            {theme === 'light' ? (
+                                <Moon className='w-4 h-4 mr-2' />
+                            ) : (
+                                <Sun className='w-4 h-4 mr-2' />
+                            )}
+                            {theme === 'light' ? 'Dark' : 'Light'} Mode
+                        </Button>
+                        <Button variant='secondary' asChild>
                             <a href='https://github.com/JulianBuse/yukako'>
                                 <Github className='w-4 h-4 mr-2' /> Github
                             </a>

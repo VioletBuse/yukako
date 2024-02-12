@@ -13,7 +13,7 @@ import {
 import { desc, eq } from 'drizzle-orm';
 import { authenticate } from '../../lib/authenticate';
 import { getSql } from '@yukako/state/src/db/init';
-import versionsRouter from './versions';
+import projectSpecificVersionsRouter from './versions';
 import type {
     ProjectsNewProjectResponseBodyType,
     ProjectsProjectDataResponseBodyType,
@@ -21,7 +21,7 @@ import type {
 
 const projectsRouter = Router();
 
-projectsRouter.use('/:projectId/versions', versionsRouter);
+projectsRouter.use('/:projectId/versions', projectSpecificVersionsRouter);
 
 projectsRouter.post('/', async (req, res) => {
     try {
