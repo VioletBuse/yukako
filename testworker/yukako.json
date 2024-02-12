@@ -16,6 +16,11 @@
 	  "server": "http://localhost:8080",
 	  "name": "newproject",
 	  "id": "htztTRq4VEnVuGgPYxtkA"
+	},
+	{
+	  "server": "http://localhost:8080",
+	  "name": "test",
+	  "id": "qMpwvWEEGagb8djEgjQFD"
 	}
   ],
   "text_bindings": [

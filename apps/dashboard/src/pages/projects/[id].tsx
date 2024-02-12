@@ -330,7 +330,7 @@ export const ProjectByIdPage: React.FC<Props> = ({ id }) => {
             {projectData && (
                 <>
                     <h1 className='text-3xl font-bold'>{projectData.name}</h1>
-                    <h3 className='text-lg font-medium mb-4'>
+                    <h3 className='text-lg font-normal mb-4'>
                         (id) {projectData.id}
                         <br />
                         (created at){' '}
