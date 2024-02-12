@@ -17,7 +17,7 @@ import {
     TerminalSquare,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/get-versions-paginated';
+import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/get-versions-per-proj-pagted';
 import {
     Pagination,
     PaginationContent,

@@ -1,9 +1,6 @@
 import { useValidatedSWR } from '@/lib/hooks/validated-swr';
 import { PassthroughWrapper } from '@yukako/wrapper';
-import {
-    ProjectsProjectDataResponseBodySchema,
-    ProjectVersionsDataResponseBodySchema,
-} from '@yukako/types';
+import { ProjectVersionsDataResponseBodySchema } from '@yukako/types';
 import { z } from 'zod';
 
 export const useGetVersionsForProject = (data: {
