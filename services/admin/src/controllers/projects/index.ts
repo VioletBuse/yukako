@@ -129,7 +129,6 @@ projectsRouter.get('/', async (req, res) => {
 
         respond.status(200).message(projects).throw();
     } catch (e) {
-        console.error(e);
         respond.rethrow(e);
 
         respond.status(500).message({ error: 'Internal server error' }).throw();
@@ -173,7 +172,6 @@ projectsRouter.get('/:projectId', async (req, res) => {
 
         respond.status(200).message(project).throw();
     } catch (e) {
-        console.error(e);
         respond.rethrow(e);
 
         respond.status(500).message({ error: 'Internal server error' }).throw();
