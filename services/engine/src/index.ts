@@ -39,6 +39,16 @@ export const EngineService = {
             const configPath = path.join(enginePath, './config.capnp');
 
             config.writeConfig(configPath);
+            // console.log('written config to', configPath);
+            // console.log(
+            //     'config',
+            //     util.inspect(config, false, null, true /* enable colors */),
+            // );
+            // console.log(
+            //     'written contents: \n',
+            //     fs.readFileSync(configPath, 'utf8'),
+            //     '\n',
+            // );
 
             // const writtenContents = fs.readFileSync(configPath, 'utf8');
             //

@@ -61,11 +61,11 @@ export const ProxyService = {
                 }
             }
 
-            console.log(
-                `${method} ${host}${pathname} --> ${
-                    routeToEngine ? 'engine' : 'admin'
-                }`,
-            );
+            // console.log(
+            //     `${method} ${host}${pathname} --> ${
+            //         routeToEngine ? 'engine' : 'admin'
+            //     }`,
+            // );
 
             if (host && host !== adminHost) {
                 engineProxy.web(req, res);

@@ -7,6 +7,8 @@ import {
     DataModule,
     DiskService,
     EsModule,
+    Extension,
+    ExtensionModule,
     ExternalServer,
     Header,
     HttpOptions,
@@ -28,9 +30,14 @@ import {
     WorkerService,
     WrappedBinding,
 } from './config';
-import { entrypoint, router, RouterMeta } from '@yukako/extensions';
+import {
+    entrypoint,
+    router,
+    kvExtension,
+    RouterMeta,
+} from '@yukako/extensions';
 import * as path from 'path';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 import { nanoid } from 'nanoid';
 import * as fs from 'fs-extra';
 import { produce } from 'immer';
@@ -55,7 +62,7 @@ export type BaseBindingData =
     | {
           type: 'service';
           name: string;
-          service: Service;
+          service: Service | 'admin-service' | 'router-service';
       }
     | {
           type: 'wrapped';
@@ -246,11 +253,17 @@ export class Configurator {
                     .setName(binding.name)
                     .setValue(CapnpJSON.new(binding.value)),
             )
-            .with({ type: 'service' }, (binding) =>
-                ServiceBinding.new()
+            .with({ type: 'service' }, (binding) => {
+                const serviceName = match(binding.service)
+                    .with('admin-service', () => 'defaultAdminApiService')
+                    .with('router-service', () => 'defaultRouter')
+                    .with({ _name: P.string }, (service) => service._name)
+                    .exhaustive();
+
+                return ServiceBinding.new()
                     .setName(binding.name)
-                    .setService(ServiceDesignator.new(binding.service._name)),
-            )
+                    .setService(ServiceDesignator.new(serviceName));
+            })
             .with({ type: 'wrapped' }, (binding) => {
                 return WrappedBinding.new()
                     .setName(binding.name)
@@ -525,7 +538,7 @@ export class Configurator {
             address: opts.adminApiAddress,
             name: 'defaultAdminApiService',
             httpOptions: {
-                type: 'proxy',
+                type: 'host',
             },
         });
     }
@@ -544,6 +557,33 @@ export class Configurator {
         return service;
     }
 
+    private initializeKvExtension() {
+        this.artifacts.addFile('__yukako_internal_extensions', {
+            name: 'kv-extension-module.js',
+            content: kvExtension,
+            meta: {
+                type: 'esmodule',
+            },
+        });
+
+        const _kvExtension = Extension.new().setModules([
+            ExtensionModule.new()
+                .setName('kv-extension')
+                .setInternal(true)
+                .setEsModule(
+                    CapnpEmbed.new(
+                        'artifacts/__yukako_internal_extensions/kv-extension-module.js',
+                    ),
+                ),
+        ]);
+
+        this.config._extensions.push(_kvExtension);
+    }
+
+    private initializeExtensions() {
+        this.initializeKvExtension();
+    }
+
     public static new(opts: {
         workerId: string;
         listenAddress: string;
@@ -559,6 +599,7 @@ export class Configurator {
         configurator.initializeAdminApiService({
             adminApiAddress: opts.adminApiAddress,
         });
+        configurator.initializeExtensions();
 
         configurator.setListenAddress(opts.listenAddress);
         configurator.setAdminApiAddress(opts.adminApiAddress);

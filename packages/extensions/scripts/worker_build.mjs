@@ -4,26 +4,30 @@ import fs from "fs-extra";
 await fs.rm("dist", { recursive: true, force: true });
 
 const workers = [
-  { out: "router", in: "workers/router/index.ts" },
-  { out: "test", in: "workers/test/index.ts" }];
+	{ out: "router", in: "workers/router/index.ts" },
+	{ out: "test", in: "workers/test/index.ts" }];
 const modules = [
-  { out: "entrypoint", in: "modules/entrypoint/index.ts" }
+	{ out: "entrypoint", in: "modules/entrypoint/index.ts" }
 ];
-const extensions = [];
+const extensions = [
+	{ out: "kv-extension", in: "extensions/kv/index.ts" }
+];
 
 await esbuild.build({
-  entryPoints: [...workers, ...modules, ...extensions],
-  bundle: true,
-  external: ["./_entrypoint.js"],
-  format: "esm",
-  minify: true,
-  outdir: "dist"
+	entryPoints: [...workers, ...modules, ...extensions],
+	bundle: true,
+	external: ["./_entrypoint.js"],
+	format: "esm",
+	minify: true,
+	outdir: "dist"
 });
 
 const router = await fs.readFile("dist/router.js", "utf-8");
 const test = await fs.readFile("dist/test.js", "utf-8");
 
 const entrypoint = await fs.readFile("dist/entrypoint.js", "utf-8");
+
+const kvExtension = await fs.readFile("dist/kv-extension.js", "utf-8");
 
 const final = `
 
@@ -38,6 +42,9 @@ export const test = ${JSON.stringify(test)};
 
 // Path: packages/extensions/modules/entrypoint/index.ts
 export const entrypoint = ${JSON.stringify(entrypoint)};
+
+// Path: packages/extensions/extensions/kv/index.ts
+export const kvExtension = ${JSON.stringify(kvExtension)};
 `;
 
 await fs.writeFile("src/dist.ts", final);

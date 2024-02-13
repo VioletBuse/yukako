@@ -9,6 +9,7 @@ import { test } from '@yukako/extensions';
 import { createHash } from 'crypto';
 import { BaseBindingData } from './configurator';
 import { base64ToDataView, base64Hash } from '@yukako/base64ops';
+import { ExternalServer } from './config';
 
 export const loadProjects = async () => {
     const db = getDatabase();
@@ -79,10 +80,31 @@ export const loadProjects = async () => {
                 },
             );
 
+            const kvBindings: BaseBindingData[] = [
+                {
+                    name: 'KV_BINDING',
+                    type: 'wrapped',
+                    module: 'kv-extension',
+                    innerBindings: [
+                        {
+                            type: 'text',
+                            name: 'KV_DB_ID',
+                            value: 'BASE_KV_DB_ID',
+                        },
+                        {
+                            type: 'service',
+                            name: '__admin',
+                            service: 'admin-service',
+                        },
+                    ],
+                },
+            ];
+
             const bindings = [
                 ...textBindings,
                 ...jsonBindings,
                 ...dataBindings,
+                ...kvBindings,
             ];
 
             // console.log('Reloading project with bindings:');

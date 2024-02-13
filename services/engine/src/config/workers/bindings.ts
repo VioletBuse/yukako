@@ -198,7 +198,7 @@ export class WrappedBinding implements WorkerBinding {
 	wrapped = (
 	    moduleName = "${this._moduleName}",
 	    entrypoint = "${this._entrypoint}",
-	    bindings = [
+	    innerBindings = [
 ${indentBlock(innerBindings, { times: 3 })}
 	    ]
 	)

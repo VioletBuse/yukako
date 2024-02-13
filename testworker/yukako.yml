@@ -18,6 +18,9 @@ deployments:
       - host: test-project.localhost:8080
         paths:
           - "/"
+      - host: test.localhost:8080
+        paths:
+          - "/"
 text_bindings:
   - name: embedded_text_binding
     value: hi from embedded text binding
