@@ -32,4 +32,25 @@ export const UsersWrapper = (
             return [null, 'An unknown error occurred.'];
         }
     },
+    getById: async (
+        uid: string,
+    ): Promise<[UsersUserDataResponseBodyType, null] | [null, string]> => {
+        try {
+            const resp = await fetch(`${server}/api/users/${uid}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': sessionId,
+                },
+            });
+
+            return handleResponse(
+                UsersUserDataResponseBodySchema,
+                resp,
+                options,
+            );
+        } catch (e) {
+            return [null, 'An unknown error occurred.'];
+        }
+    },
 });

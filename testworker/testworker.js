@@ -1,10 +1,17 @@
 export default {
-    fetch: (req, env) => {
-        console.log('Hello from the newproject worker!');
+    fetch: async (req, env) => {
+        // console.log('Hello from the newproject worker!');
         // console.log('env', env);
+        // console.log('__admin', env.__admin.fetch);
 
-        return new Response('Hello World from newproject!', {
-            status: 200,
+        const res = await env.__admin.fetch('http://dummy/', {
+            method: 'GET',
         });
+
+        const json = await res.text();
+
+        console.log('json', json);
+
+        return new Response(json);
     },
 };

@@ -8,6 +8,7 @@ type Result = {
     };
     adminHost: string;
     port: number;
+    secret: string;
 };
 
 export const run = (): Result => {
@@ -20,6 +21,7 @@ export const run = (): Result => {
 	--postgres, -p  Postgres connection string, defaults to $POSTGRES_URL
 	--postgres-ro, -r  Postgres read-only connection string
 	--admin-host, -a  Admin host, defaults to localhost
+	--secret, -s Secret for authenticating other cluster members
 	--help, -h  Show help
 `,
         {
@@ -44,15 +46,20 @@ export const run = (): Result => {
                     shortFlag: 'a',
                     default: 'localhost',
                 },
-                help: {
-                    type: 'boolean',
-                    shortFlag: 'h',
-                    default: false,
+                secret: {
+                    type: 'string',
+                    shortFlag: 's',
+                    default: process.env.YUKAKO_SECRET || '',
                 },
                 port: {
                     type: 'number',
                     shortFlag: 'p',
                     default: 8080,
+                },
+                help: {
+                    type: 'boolean',
+                    shortFlag: 'h',
+                    default: false,
                 },
             },
         },
@@ -71,5 +78,6 @@ export const run = (): Result => {
         },
         adminHost: cli.flags.adminHost,
         port: cli.flags.port,
+        secret: cli.flags.secret,
     };
 };

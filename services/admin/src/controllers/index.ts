@@ -11,16 +11,20 @@ import {
     respond,
 } from '../middleware/error-handling/throwable';
 import { serve } from '../middleware/dashboard/serve';
+import yukakoInternalApiRouter from './__yukako_internal';
+import morgan from 'morgan';
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(morgan('tiny'));
 
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/versions', versionsRouter);
 app.use('/api/users', usersRouter);
+app.use('/__yukako', yukakoInternalApiRouter);
 
 app.use(serve());
 

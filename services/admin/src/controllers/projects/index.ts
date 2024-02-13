@@ -3,16 +3,9 @@ import { getDatabase } from '@yukako/state';
 import { respond } from '../../middleware/error-handling/throwable';
 import { z, ZodError } from 'zod';
 import { nanoid } from 'nanoid';
-import {
-    dataBlobs,
-    projects,
-    projectVersionBlobs,
-    projectVersionRoutes,
-    projectVersions,
-} from '@yukako/state/src/db/schema';
+import { projects, projectVersions } from '@yukako/state/src/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { authenticate } from '../../lib/authenticate';
-import { getSql } from '@yukako/state/src/db/init';
 import projectSpecificVersionsRouter from './versions';
 import type {
     ProjectsNewProjectResponseBodyType,

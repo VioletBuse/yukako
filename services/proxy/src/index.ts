@@ -47,6 +47,20 @@ export const ProxyService = {
 
             const routeToEngine = host && host !== adminHost;
 
+            if (pathname && pathname.startsWith('/__yukako')) {
+                const yukakoSecretHeader = req.headers['x-yukako-secret'];
+                const yukakoSecret = cli.secret as string;
+
+                if (
+                    !yukakoSecretHeader ||
+                    yukakoSecretHeader !== yukakoSecret
+                ) {
+                    res.statusCode = 403;
+                    res.end('Forbidden');
+                    return;
+                }
+            }
+
             console.log(
                 `${method} ${host}${pathname} --> ${
                     routeToEngine ? 'engine' : 'admin'

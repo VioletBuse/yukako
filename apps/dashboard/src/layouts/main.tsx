@@ -336,7 +336,7 @@ export const MainLayout = (props: Props) => {
                             </DropdownMenu>
                         </div>
                     </ResizablePanel>
-                    <ResizableHandle withHandle />
+                    <ResizableHandle disabled withHandle={false} />
                     <ResizablePanel>
                         <ScrollArea className='p-2 h-full w-full'>
                             {props.children}

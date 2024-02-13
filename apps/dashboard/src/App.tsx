@@ -6,7 +6,8 @@ import { HomePage } from '@/pages/home.tsx';
 import { UsersPage } from '@/pages/users';
 import { ProjectsPage } from '@/pages/projects';
 import { NotFoundPage } from '@/pages/not-found';
-import { ProjectByIdPage } from '@/pages/projects/[id]';
+import { ProjectByIdPage } from '@/pages/projects/[projectid]';
+import { SpecificUserPage } from '@/pages/users/[userid]';
 
 function App() {
     return (
@@ -18,6 +19,11 @@ function App() {
                     <Route path='/home' component={HomePage}></Route>
 
                     <Route path='/users' component={UsersPage}></Route>
+                    <Route path='/users/:userid'>
+                        {(params) => (
+                            <SpecificUserPage userid={params.userid} />
+                        )}
+                    </Route>
 
                     <Route path='/projects' component={ProjectsPage}></Route>
                     <Route path='/projects/:id'>

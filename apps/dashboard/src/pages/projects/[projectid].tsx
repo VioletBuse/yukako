@@ -335,9 +335,33 @@ export const ProjectByIdPage: React.FC<Props> = ({ id }) => {
                     : { loading: true },
             ]}
             selectedTab='projects'>
+            {loadingProject && (
+                <>
+                    <div className='w-full h-[75vh] flex flex-row items-center justify-center'>
+                        <p className='flex flex-row items-center'>
+                            <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                            Loading Project...
+                        </p>
+                    </div>
+                </>
+            )}
+            {projectLoadError && (
+                <>
+                    <div className='w-full h-[75vh] flex flex-row items-center justify-center'>
+                        <Alert variant='destructive'>
+                            <AlertCircle className='w-4 h-4 mr-2' />
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>
+                                {projectLoadError ??
+                                    'An unknown error has occurred.'}
+                            </AlertDescription>
+                        </Alert>
+                    </div>
+                </>
+            )}
             {projectData && (
                 <>
-                    <h1 className='text-3xl font-bold'>{projectData.name}</h1>
+                    <h1 className='text-3xl font-medium'>{projectData.name}</h1>
                     <h3 className='text-lg font-normal mb-4'>
                         (id) {projectData.id}
                         <br />

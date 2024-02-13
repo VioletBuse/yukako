@@ -12,6 +12,9 @@ export const AdminService = {
         const adminPath = path.join(workerPath, './admin');
         const adminSocket = path.join(adminPath, './admin.sock');
 
+        process.env.WORKER_PATH = workerPath;
+        process.env.WORKER_ID = workerId;
+
         fs.ensureDirSync(adminPath);
         fs.rmSync(adminSocket, { force: true });
 
