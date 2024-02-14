@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 type KvBindingEnv = {
     KV_DB_ID: string;
     __admin: {
@@ -8,137 +10,128 @@ type KvBindingEnv = {
     };
 };
 
+// type KvErrorCode =
+//     | 'INVALID_SERVER_RESPONSE'
+//     | 'TRANSACTION_FAILED'
+//     | 'INTERNAL_SERVER_ERROR';
+//
+// class YukakoKvError extends Error {
+//     public readonly code: KvErrorCode;
+//
+//     constructor(code: KvErrorCode, message: string) {
+//         super(message);
+//         this.code = code;
+//     }
+// }
+
 export type KvNamespace = {
-    get: (key: string) => Promise<[string | null, null] | [null, string]>;
-    put: (
-        key: string,
-        value: string,
+    get: <T extends string | string[]>(
+        key: T,
+    ) => Promise<
+        | [T extends string ? string | null : (string | null)[], null]
+        | [null, string]
+    >;
+    put: <T extends string | Record<string, string | null>>(
+        ...args: T extends string ? [T, string | null] : [T]
     ) => Promise<[true, null] | [false, string]>;
-    delete: (key: string) => Promise<[true, null] | [false, string]>;
+    delete: (
+        keys: string | string[],
+    ) => Promise<[true, null] | [false, string]>;
+    list: (opts?: {
+        prefix?: string;
+        includes?: string[];
+        suffix?: string;
+        like?: string;
+        ilike?: string;
+        notlike?: string;
+        similarto?: string;
+        notsimilarto?: string;
+        cursor?: string;
+        limit?: number;
+    }) => Promise<
+        | [
+              {
+                  result: [string, string][];
+                  cursor: string | null;
+              },
+              null,
+          ]
+        | [null, string]
+    >;
+};
+
+const parseResponse = async <T extends z.ZodTypeAny>(
+    response: Response,
+    schema: T,
+): Promise<[z.infer<T>, null] | [null, string]> => {
+    try {
+        const json = await response.json();
+
+        const parseResult = await schema.safeParseAsync(json);
+
+        if (parseResult.success) {
+            return [parseResult.data, null];
+        }
+
+        if ('error' in json && typeof json.error === 'string') {
+            return [null, json.error];
+        }
+
+        if ('message' in json && typeof json.message === 'string') {
+            return [null, json.message];
+        }
+
+        return [null, 'Invalid server response'];
+    } catch (err) {
+        return [null, 'Invalid server response'];
+    }
 };
 
 const makeKvBinding = (env: KvBindingEnv): KvNamespace => {
-    return {
-        get: async (key: string) => {
-            try {
-                const response = await env.__admin.fetch(
-                    `http://dummy.com/__yukako/kv/${
-                        env.KV_DB_ID
-                    }/${encodeURIComponent(key)}`,
+    const namespace: KvNamespace = {
+        get: async (key) => {
+            if (typeof key === 'string') {
+                const url = `http://yukako.kv/__yukako/kv/${
+                    env.KV_DB_ID
+                }?key=${encodeURIComponent(key)}`;
+                const response = await env.__admin.fetch(url);
+
+                const [parsed, error] = await parseResponse(
+                    response,
+                    z.object({
+                        value: z.union([z.string(), z.null()]),
+                    }),
                 );
 
-                const json = await response.json();
+                if (error !== null) {
+                    return [null, error];
+                } else {
+                    return [parsed.value, null];
+                }
+            } else {
+                const jsonString = JSON.stringify(key);
+                const url = `http://yukako.kv/__yukako/kv/${
+                    env.KV_DB_ID
+                }?keys=${encodeURIComponent(jsonString)}`;
+                const response = await env.__admin.fetch(url);
 
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        return [null, null];
-                    } else {
-                        if ('error' in json && typeof json.error === 'string') {
-                            return [null, json.error];
-                        } else if (
-                            'message' in json &&
-                            typeof json.message === 'string'
-                        ) {
-                            return [null, json.message];
-                        } else {
-                            return [null, 'Internal server error'];
-                        }
-                    }
-                } else {
-                    if (typeof json.value === 'string') {
-                        return [json.value, null];
-                    } else {
-                        return [
-                            null,
-                            'Internal server error, value is not a string',
-                        ];
-                    }
-                }
-            } catch (err) {
-                if (err instanceof Error) {
-                    return [null, err.message];
-                } else if (typeof err === 'string') {
-                    return [null, err];
-                } else {
-                    return [null, 'Unknown error'];
-                }
-            }
-        },
-        put: async (key: string, value: string) => {
-            try {
-                const response = await env.__admin.fetch(
-                    `http://dummy.com/__yukako/kv/${
-                        env.KV_DB_ID
-                    }/${encodeURIComponent(key)}`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ value }),
-                    },
+                const [parsed, error] = await parseResponse(
+                    response,
+                    z.object({
+                        values: z.array(z.union([z.string(), z.null()])),
+                    }),
                 );
-                const json = await response.json();
-                if (!response.ok) {
-                    if ('error' in json && typeof json.error === 'string') {
-                        return [false, json.error];
-                    } else if (
-                        'message' in json &&
-                        typeof json.message === 'string'
-                    ) {
-                        return [false, json.message];
-                    } else {
-                        return [false, 'Internal server error'];
-                    }
+
+                if (error !== null) {
+                    return [null, error];
                 } else {
-                    return [true, null];
-                }
-            } catch (err) {
-                if (err instanceof Error) {
-                    return [false, err.message];
-                } else if (typeof err === 'string') {
-                    return [false, err];
-                } else {
-                    return [false, 'Unknown error'];
-                }
-            }
-        },
-        delete: async (key: string) => {
-            try {
-                const response = await env.__admin.fetch(
-                    `http://dummy.com/__yukako/kv/${
-                        env.KV_DB_ID
-                    }/${encodeURIComponent(key)}`,
-                    {
-                        method: 'DELETE',
-                    },
-                );
-                const json = await response.json();
-                if (!response.ok) {
-                    if ('error' in json && typeof json.error === 'string') {
-                        return [false, json.error];
-                    } else if (
-                        'message' in json &&
-                        typeof json.message === 'string'
-                    ) {
-                        return [false, json.message];
-                    } else {
-                        return [false, 'Internal server error'];
-                    }
-                } else {
-                    return [true, null];
-                }
-            } catch (err) {
-                if (err instanceof Error) {
-                    return [false, err.message];
-                } else if (typeof err === 'string') {
-                    return [false, err];
-                } else {
-                    return [false, 'Unknown error'];
+                    return [parsed.values, null];
                 }
             }
         },
     };
+
+    return namespace;
 };
 
 export default makeKvBinding;

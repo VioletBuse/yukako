@@ -36,6 +36,13 @@
       "when": 1705581412482,
       "tag": "0004_sharp_sleeper",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1707902324020,
+      "tag": "0005_tricky_giant_girl",
+      "breakpoints": true
     }
   ]
 }

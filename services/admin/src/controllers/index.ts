@@ -6,10 +6,7 @@ import versionsRouter from './versions';
 
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import {
-    handleThrownError,
-    respond,
-} from '../middleware/error-handling/throwable';
+import { handleThrownError } from '../middleware/error-handling/throwable';
 import { serve } from '../middleware/dashboard/serve';
 import yukakoInternalApiRouter from './__yukako_internal';
 import morgan from 'morgan';

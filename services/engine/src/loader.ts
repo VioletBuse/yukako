@@ -1,15 +1,15 @@
 import { getDatabase } from '@yukako/state';
 import { asc, desc } from 'drizzle-orm';
-import {
-    projectVersionBlobs,
-    projectVersions,
-} from '@yukako/state/src/db/schema';
 import * as util from 'util';
 import { test } from '@yukako/extensions';
 import { createHash } from 'crypto';
 import { BaseBindingData } from './configurator';
 import { base64ToDataView, base64Hash } from '@yukako/base64ops';
 import { ExternalServer } from './config';
+import {
+    projectVersionBlobs,
+    projectVersions,
+} from '@yukako/state/src/db/schema';
 
 export const loadProjects = async () => {
     const db = getDatabase();
