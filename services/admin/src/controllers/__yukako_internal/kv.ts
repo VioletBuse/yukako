@@ -3,10 +3,10 @@ import { respond } from '../../middleware/error-handling/throwable';
 
 const kvRouter = Router();
 
-kvRouter.get('/:kvId/:kvKey', (req, res) => {
-    console.log('kvRouter.get /:kvId');
-    console.log('req.params.kvId', req.params.kvId);
-    console.log('req.params.kvKey', req.params.kvKey);
+kvRouter.get('/:kvId', (req, res) => {
+    const kvid = req.params.kvId;
+    const keys = req.query.keys;
+    console.log('kvRouter.get /:kvId', kvid, keys);
 
     respond
         .status(200)
@@ -14,19 +14,19 @@ kvRouter.get('/:kvId/:kvKey', (req, res) => {
         .throw();
 });
 
-kvRouter.put('/:kvId/:kvKey', (req, res) => {
-    console.log('kvRouter.put /:kvId');
-    console.log('req.params.kvId', req.params.kvId);
-    console.log('req.params.kvKey', req.params.kvKey);
+kvRouter.put('/:kvId', (req, res) => {
+    const kvid = req.params.kvId;
+    const list = req.query.list;
+    console.log(
+        'kvRouter.put /:kvId',
+        kvid,
+        Object.fromEntries(JSON.parse(list as string)),
+    );
 
     respond.status(200).message({ success: true }).throw();
 });
 
-kvRouter.delete('/:kvId/:kvKey', (req, res) => {
-    console.log('kvRouter.delete /:kvId');
-    console.log('req.params.kvId', req.params.kvId);
-    console.log('req.params.kvKey', req.params.kvKey);
-
+kvRouter.delete('/:kvId', (req, res) => {
     respond.status(200).message({ success: true }).throw();
 });
 
