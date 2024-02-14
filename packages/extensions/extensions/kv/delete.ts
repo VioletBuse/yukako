@@ -1,4 +1,6 @@
 import { KvBindingEnv } from './index';
+import { KvDeleteParams, KvDeleteResponse, KvResponse } from '@yukako/types';
+import * as qs from 'qs';
 
 export type kvDeleteFxn = (
     keys: string | string[],
@@ -9,26 +11,23 @@ const internalDelete = async (
     env: KvBindingEnv,
 ): Promise<[true, null] | [false, string]> => {
     const list = Array.isArray(keys) ? keys : [keys];
-    const url = `http://dummy.kv/__yukako/kv/${
-        env.KV_DB_ID
-    }?keys=${encodeURIComponent(JSON.stringify(list))}`;
+
+    const params: KvDeleteParams = {
+        keys: list,
+    };
+
+    const url = `http://dummy.kv/__yukako/kv/${env.KV_DB_ID}?${qs.stringify(
+        params,
+    )}`;
     const response = await env.__admin.fetch(url, { method: 'DELETE' });
 
-    const json = await response.json();
+    const json = (await response.json()) as KvResponse<KvDeleteResponse>;
 
-    if (json.success === true) {
+    if (json.type === 'result') {
         return [true, null];
-    }
-
-    if (typeof json.error === 'string') {
+    } else {
         return [false, json.error];
     }
-
-    if (typeof json.message === 'string') {
-        return [false, json.message];
-    }
-
-    return [false, 'Invalid server response'];
 };
 
 export const kvDeleteFactory = (env: KvBindingEnv): kvDeleteFxn => {

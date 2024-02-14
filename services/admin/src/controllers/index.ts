@@ -8,7 +8,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { handleThrownError } from '../middleware/error-handling/throwable';
 import { serve } from '../middleware/dashboard/serve';
-import yukakoInternalApiRouter from './__yukako_internal';
+import yukakoInternalApiRouter from './__yukako';
 import morgan from 'morgan';
 
 const app = express();

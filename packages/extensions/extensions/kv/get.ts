@@ -1,4 +1,6 @@
 import { KvBindingEnv } from './index';
+import { KvGetParams, KvGetResponse, KvResponse } from '@yukako/types';
+import * as qs from 'qs';
 
 type _InternalReturnType<T extends string | string[]> =
     | (T extends string
@@ -14,47 +16,24 @@ const getInternal = async (
     list: string[],
     env: KvBindingEnv,
 ): Promise<_InternalReturnType<string[]>> => {
-    const url = `http://dummy.kv/__yukako/kv/${
-        env.KV_DB_ID
-    }?keys=${encodeURIComponent(JSON.stringify(list))}`;
+    const params: KvGetParams = {
+        keys: list,
+    };
+
+    const url = `http://dummy.kv/__yukako/kv/${env.KV_DB_ID}?${qs.stringify(
+        params,
+    )}`;
     const response = await env.__admin.fetch(url);
 
-    const json = await response.json();
+    const json = (await response.json()) as KvResponse<KvGetResponse>;
 
-    try {
-        if (Array.isArray(json.result)) {
-            const results = list.map((k, i) => {
-                if (json.result.length <= i) {
-                    return [k, null];
-                }
+    console.log('json', json);
 
-                const result = json.result[i];
-
-                if (typeof result === 'string' || result === null) {
-                    return [k, result];
-                } else {
-                    throw new Error('Invalid server response');
-                }
-            });
-
-            return [
-                Object.fromEntries(results) as Record<string, string | null>,
-                null,
-            ];
-        }
-    } catch (err) {
-        return [null, 'Invalid server response'];
-    }
-
-    if (typeof json.error === 'string') {
+    if (json.type === 'result') {
+        return [json.result.values, null];
+    } else {
         return [null, json.error];
     }
-
-    if (typeof json.message === 'string') {
-        return [null, json.message];
-    }
-
-    return [null, 'Invalid server response'];
 };
 
 const getForString = async <T extends string>(
@@ -62,10 +41,10 @@ const getForString = async <T extends string>(
     env: KvBindingEnv,
 ): Promise<_InternalReturnType<T>> => {
     const [res, err] = await getInternal([key], env);
-    if (err) {
+    if (err !== null) {
         return [null, err];
-    } else if (res) {
-        return [res[key], null] as _InternalReturnType<T>;
+    } else if (res !== null) {
+        return [res[key] ?? null, null] as _InternalReturnType<T>;
     } else {
         return [null, 'Invalid server response'];
     }

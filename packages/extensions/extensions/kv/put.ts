@@ -1,4 +1,6 @@
 import { KvBindingEnv } from './index';
+import { KvPutParams, KvPutResponse, KvResponse } from '@yukako/types';
+import * as qs from 'qs';
 
 export type KvPutFxn = <T extends string | Record<string, string | null>>(
     ...args: T extends string ? [T, string | null] : [T]
@@ -8,25 +10,21 @@ const internalPut = async (
     list: [string, string | null][],
     env: KvBindingEnv,
 ): Promise<[true, null] | [false, string]> => {
-    const baseUrl = `http://dummy.kv/__yukako/kv/${
-        env.KV_DB_ID
-    }?list=${encodeURIComponent(JSON.stringify(list))}`;
+    const params: KvPutParams = {
+        list,
+    };
+
+    const baseUrl = `http://dummy.kv/__yukako/kv/${env.KV_DB_ID}?${qs.stringify(
+        params,
+    )}`;
     const response = await env.__admin.fetch(baseUrl, { method: 'PUT' });
-    const json = await response.json();
+    const json = (await response.json()) as KvResponse<KvPutResponse>;
 
-    if (json.success === true) {
+    if (json.type === 'result') {
         return [true, null];
-    }
-
-    if (typeof json.error === 'string') {
+    } else {
         return [false, json.error];
     }
-
-    if (typeof json.message === 'string') {
-        return [false, json.message];
-    }
-
-    return [false, 'Invalid server response'];
 };
 
 const putForDict = async <T extends Record<string, string | null>>(
