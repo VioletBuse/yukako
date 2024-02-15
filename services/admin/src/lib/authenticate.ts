@@ -34,7 +34,7 @@ export const authenticate = async (
             XauthTokenHeader ||
             authTokenHeader;
 
-        console.log(`sessionId: ${sessionId}`);
+        // console.log(`sessionId: ${sessionId}`);
 
         if (typeof sessionId !== 'string') {
             // res.status(400).send({ error: 'Invalid session ID' });
@@ -43,7 +43,7 @@ export const authenticate = async (
                 .message({ error: 'Invalid login session ID' })
                 .throw();
 
-            console.log('post throw');
+            // console.log('post throw');
         }
 
         const db = getDatabase();

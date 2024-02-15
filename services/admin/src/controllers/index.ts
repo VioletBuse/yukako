@@ -16,7 +16,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(morgan('tiny'));
+// app.use(morgan('tiny'));
 
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectsRouter);

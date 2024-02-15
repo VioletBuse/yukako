@@ -12,7 +12,7 @@ export default {
 
         // console.log('json', json);
 
-        const kv = env.KV_BINDING;
+        const kv = env.KV_DATABASE;
 
         const getTest1 = await kv.get('test1');
         const getTest2 = await kv.get('test$%&%^&^&');

@@ -30,6 +30,7 @@ export const loadProjects = async () => {
                     textBindings: true,
                     jsonBindings: true,
                     dataBindings: true,
+                    kvDatabases: true,
                 },
             },
         },
@@ -80,16 +81,36 @@ export const loadProjects = async () => {
                 },
             );
 
-            const kvBindings: BaseBindingData[] = [
-                {
-                    name: 'KV_BINDING',
+            // const kvBindings: BaseBindingData[] = [
+            //     {
+            //         name: 'KV_BINDING',
+            //         type: 'wrapped',
+            //         module: 'kv-extension',
+            //         innerBindings: [
+            //             {
+            //                 type: 'text',
+            //                 name: 'KV_DB_ID',
+            //                 value: 'BASE_KV_DB_ID',
+            //             },
+            //             {
+            //                 type: 'service',
+            //                 name: '__admin',
+            //                 service: 'admin-service',
+            //             },
+            //         ],
+            //     },
+            // ];
+
+            const kvBindings: BaseBindingData[] =
+                project.projectVersions[0].kvDatabases.map((binding) => ({
+                    name: binding.name,
                     type: 'wrapped',
                     module: 'kv-extension',
                     innerBindings: [
                         {
                             type: 'text',
                             name: 'KV_DB_ID',
-                            value: 'BASE_KV_DB_ID',
+                            value: binding.kvDatabaseId,
                         },
                         {
                             type: 'service',
@@ -97,8 +118,7 @@ export const loadProjects = async () => {
                             service: 'admin-service',
                         },
                     ],
-                },
-            ];
+                }));
 
             const bindings = [
                 ...textBindings,
