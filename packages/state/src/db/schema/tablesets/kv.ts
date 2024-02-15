@@ -60,6 +60,7 @@ export const projectVersionKvDatabaseBinding = pgTable(
         projectVersionId: text('project_version_id')
             .notNull()
             .references(() => projectVersions.id),
+        name: text('name').notNull(),
     },
     (table) => ({
         pk: primaryKey({

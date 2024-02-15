@@ -46,6 +46,7 @@ versionsRouter.get('/', async (req, res) => {
                 textBindings: true,
                 jsonBindings: true,
                 dataBindings: true,
+                kvDatabases: true,
             },
             limit,
             offset: page * limit,
@@ -92,6 +93,13 @@ versionsRouter.get('/', async (req, res) => {
                     }),
                 );
 
+                const kvBindings = projectVersion.kvDatabases.map(
+                    (binding) => ({
+                        name: binding.name,
+                        kvDatabaseId: binding.kvDatabaseId,
+                    }),
+                );
+
                 return {
                     id: projectVersion.id,
                     version: projectVersion.version,
@@ -102,6 +110,7 @@ versionsRouter.get('/', async (req, res) => {
                     textBindings,
                     jsonBindings,
                     dataBindings,
+                    kvBindings,
                 };
             },
         );

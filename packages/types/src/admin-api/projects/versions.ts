@@ -48,6 +48,9 @@ export const NewProjectVersionRequestBodySchema = z.object({
             }),
         )
         .nullish(),
+    kvBindings: z
+        .array(z.object({ name: z.string(), kvDatabaseId: z.string() }))
+        .nullish(),
 });
 
 export type NewProjectVersionRequestBodyType = z.infer<
@@ -95,6 +98,12 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
         z.object({
             name: z.string(),
             digest: z.string(),
+        }),
+    ),
+    kvBindings: z.array(
+        z.object({
+            name: z.string(),
+            kvDatabaseId: z.string(),
         }),
     ),
 });

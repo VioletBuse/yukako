@@ -8,6 +8,7 @@ import {
     projectVersionBlobs,
     projectVersionDataBindings,
     projectVersionJsonBindings,
+    projectVersionKvDatabaseBinding,
     projectVersionRoutes,
     projectVersions,
     projectVersionTextBindings,
@@ -66,6 +67,7 @@ projectSpecificVersionsRouter.get(
                     textBindings: true,
                     jsonBindings: true,
                     dataBindings: true,
+                    kvDatabases: true,
                 },
                 limit,
                 offset: page * limit,
@@ -112,6 +114,11 @@ projectSpecificVersionsRouter.get(
                         }),
                     );
 
+                    const kvBindings = projectVersion.kvDatabases.map((kv) => ({
+                        name: kv.name,
+                        kvDatabaseId: kv.kvDatabaseId,
+                    }));
+
                     return {
                         id: projectVersion.id,
                         version: projectVersion.version,
@@ -122,6 +129,7 @@ projectSpecificVersionsRouter.get(
                         textBindings,
                         jsonBindings,
                         dataBindings,
+                        kvBindings,
                     };
                 },
             );
@@ -172,6 +180,7 @@ projectSpecificVersionsRouter.get(
                             textBindings: true,
                             jsonBindings: true,
                             dataBindings: true,
+                            kvDatabases: true,
                         },
                     },
                 },
@@ -226,6 +235,11 @@ projectSpecificVersionsRouter.get(
                 digest: base64Hash(binding.base64),
             }));
 
+            const kvBindings = projectVersion.kvDatabases.map((kv) => ({
+                name: kv.name,
+                kvDatabaseId: kv.kvDatabaseId,
+            }));
+
             const data: ProjectVersionsDataResponseBodyType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
@@ -236,6 +250,7 @@ projectSpecificVersionsRouter.get(
                 textBindings,
                 jsonBindings,
                 dataBindings,
+                kvBindings,
             };
 
             respond.status(200).message(data).throw();
@@ -370,6 +385,19 @@ projectSpecificVersionsRouter.post(
                           .returning()
                     : [];
 
+                const newKvBindings = data.kvBindings
+                    ? await txn
+                          .insert(projectVersionKvDatabaseBinding)
+                          .values(
+                              data.kvBindings.map((binding) => ({
+                                  kvDatabaseId: binding.kvDatabaseId,
+                                  projectVersionId: newProjectVersion[0].id,
+                                  name: binding.name,
+                              })),
+                          )
+                          .returning()
+                    : [];
+
                 const routes = newRoutes.map((route) => ({
                     id: route.id,
                     host: route.host,
@@ -401,6 +429,11 @@ projectSpecificVersionsRouter.post(
                     digest: base64Hash(binding.base64),
                 }));
 
+                const kvBindings = newKvBindings.map((kv) => ({
+                    name: kv.name,
+                    kvDatabaseId: kv.kvDatabaseId,
+                }));
+
                 _sql.notify('project_versions', 'reload');
 
                 const _data: ProjectVersionsDataResponseBodyType = {
@@ -413,6 +446,7 @@ projectSpecificVersionsRouter.post(
                     textBindings,
                     jsonBindings,
                     dataBindings,
+                    kvBindings,
                 };
 
                 return _data;
@@ -469,6 +503,7 @@ projectSpecificVersionsRouter.get(
                             textBindings: true,
                             jsonBindings: true,
                             dataBindings: true,
+                            kvDatabases: true,
                         },
                     },
                 },
@@ -526,6 +561,11 @@ projectSpecificVersionsRouter.get(
                 digest: base64Hash(binding.base64),
             }));
 
+            const kvBindings = projectVersion.kvDatabases.map((kv) => ({
+                name: kv.name,
+                kvDatabaseId: kv.kvDatabaseId,
+            }));
+
             const data: ProjectVersionsDataResponseBodyType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
@@ -536,6 +576,7 @@ projectSpecificVersionsRouter.get(
                 textBindings,
                 jsonBindings,
                 dataBindings,
+                kvBindings,
             };
 
             respond.status(200).message(data).throw();

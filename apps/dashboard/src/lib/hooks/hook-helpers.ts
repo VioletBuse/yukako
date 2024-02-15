@@ -45,6 +45,7 @@ export const useValidateSWRResponse = <T extends z.ZodTypeAny>(
 
     const processRes = (res: res): ValidatedResponse<T> => {
         const { data, error, mutate } = res;
+
         if (error) {
             let message = 'An unknown error occurred.';
 
@@ -62,6 +63,9 @@ export const useValidateSWRResponse = <T extends z.ZodTypeAny>(
             ]);
 
             const parseResult = dataSchema.safeParse(data);
+
+            console.log('success', parseResult.success);
+            console.log('parseResult', parseResult);
 
             if (!parseResult.success) {
                 let message = 'An unknown error occurred.';

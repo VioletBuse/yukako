@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { getEnginePath } from '../../lib/get-engine-path';
 import { respond } from '../../middleware/error-handling/throwable';
-import kvRouter from './kv';
+import internalKvRouter from './kv';
 
 export const yukakoInternalApiRouter = Router();
 
-yukakoInternalApiRouter.use('/kv', kvRouter);
+yukakoInternalApiRouter.use('/kv', internalKvRouter);
 
 yukakoInternalApiRouter.get('/', async (req, res) => {
     console.log('yukakoInternalApiRouter.get /');

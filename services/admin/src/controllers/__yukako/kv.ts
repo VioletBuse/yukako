@@ -13,15 +13,14 @@ import {
     KvDeleteParams,
 } from '@yukako/types';
 import { parseParams } from '../../lib/parse-params';
-import { parse } from 'url';
 import { getDatabase } from '@yukako/state';
 import { kvEntry } from '@yukako/state/src/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { inArray } from 'drizzle-orm/sql/expressions/conditions';
 
-const kvRouter = Router();
+const internalKvRouter = Router();
 
-kvRouter.get('/:kvId', async (req, res) => {
+internalKvRouter.get('/:kvId', async (req, res) => {
     try {
         const kvid = req.params.kvId;
         const params = parseParams<KvGetParams>(req);
@@ -73,7 +72,7 @@ kvRouter.get('/:kvId', async (req, res) => {
     }
 });
 
-kvRouter.put('/:kvId', (req, res) => {
+internalKvRouter.put('/:kvId', (req, res) => {
     const kvid = req.params.kvId;
     const params = parseParams<KvPutParams>(req);
 
@@ -89,7 +88,7 @@ kvRouter.put('/:kvId', (req, res) => {
     respond.status(200).message(result).throw();
 });
 
-kvRouter.delete('/:kvId', (req, res) => {
+internalKvRouter.delete('/:kvId', (req, res) => {
     const kvid = req.params.kvId;
     const params = parseParams<KvDeleteParams>(req);
 
@@ -105,8 +104,8 @@ kvRouter.delete('/:kvId', (req, res) => {
     respond.status(200).message(result).throw();
 });
 
-kvRouter.use(handleThrownError);
-kvRouter.use(
+internalKvRouter.use(handleThrownError);
+internalKvRouter.use(
     (err: unknown, req: Request, res: Response, next: NextFunction) => {
         let message = 'Internal Server Error';
 
@@ -120,4 +119,4 @@ kvRouter.use(
     },
 );
 
-export default kvRouter;
+export default internalKvRouter;

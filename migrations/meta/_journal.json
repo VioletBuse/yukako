@@ -43,6 +43,13 @@
       "when": 1707902324020,
       "tag": "0005_tricky_giant_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1707940427909,
+      "tag": "0006_small_mercury",
+      "breakpoints": true
     }
   ]
 }

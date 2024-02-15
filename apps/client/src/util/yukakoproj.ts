@@ -3,8 +3,9 @@ import * as path from 'path';
 import { parse as yamlParse } from 'yaml';
 import { parse as tomlParse } from 'toml';
 import { z } from 'zod';
+import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.ts';
 
-const configFileSchema = z.object({
+const baseConfigSchema = z.object({
     folder: z.string(),
     entrypoint: z.string(),
 
@@ -12,23 +13,6 @@ const configFileSchema = z.object({
         z.object({
             host: z.string(),
             paths: z.array(z.string()),
-        }),
-    ),
-
-    deployments: z.array(
-        z.object({
-            server: z.string(),
-            name: z.string(),
-            id: z.string(),
-
-            routes: z
-                .array(
-                    z.object({
-                        host: z.string(),
-                        paths: z.array(z.string()),
-                    }),
-                )
-                .optional(),
         }),
     ),
 
@@ -83,63 +67,30 @@ const configFileSchema = z.object({
             ]),
         )
         .optional(),
+
+    kv_bindings: z
+        .array(
+            z.object({
+                name: z.string(),
+                kv_database_id: z.string(),
+            }),
+        )
+        .optional(),
 });
 
-export type ProjectRoute = {
-    host: string;
-    paths: string[];
-};
+const baseDeploymentSchema = z.object({
+    server: z.string(),
+    name: z.string(),
+    id: z.string(),
+});
 
-export type ProjectDeployment = {
-    server: string;
-    name: string;
-    id: string;
+const deploymentSchema = baseDeploymentSchema.merge(baseConfigSchema.partial());
 
-    routes?: ProjectRoute[];
-};
+const deploymentFileSchema = z.object({
+    deployments: z.array(deploymentSchema),
+});
 
-export type ProjectTextBinding =
-    | {
-          name: string;
-          value: string;
-      }
-    | {
-          name: string;
-          file: string;
-      };
-
-export type ProjectJsonBinding =
-    | {
-          name: string;
-          value: any;
-      }
-    | {
-          name: string;
-          file: string;
-      };
-
-export type ProjectDataBinding =
-    | {
-          name: string;
-          base64: string;
-      }
-    | {
-          name: string;
-          file: string;
-      };
-
-export type Project = {
-    folder: string;
-    entrypoint: string;
-
-    routes: ProjectRoute[];
-
-    deployments: ProjectDeployment[];
-
-    text_bindings: ProjectTextBinding[];
-    json_bindings: ProjectJsonBinding[];
-    data_bindings: ProjectDataBinding[];
-};
+const configFileSchema = baseConfigSchema.merge(deploymentFileSchema);
 
 export const findAndParseFile = (): unknown => {
     const dir = process.cwd();
@@ -175,7 +126,21 @@ export const findAndParseFile = (): unknown => {
     }
 };
 
-export const readProjectFile = (): Project => {
+export const getDeployments = () => {
+    const project = findAndParseFile();
+
+    const parseResult = deploymentFileSchema.safeParse(project);
+
+    if (!parseResult.success) {
+        throw parseResult.error;
+    }
+
+    return parseResult.data.deployments;
+};
+
+export const getConfig = (
+    deploymentid: string,
+): z.infer<typeof baseConfigSchema> => {
     const project = findAndParseFile();
 
     const parseResult = configFileSchema.safeParse(project);
@@ -184,27 +149,205 @@ export const readProjectFile = (): Project => {
         throw parseResult.error;
     }
 
-    const routes: ProjectRoute[] = parseResult.data.routes ?? [];
+    const { deployments, ...config } = parseResult.data;
 
-    const deployments: ProjectDeployment[] = parseResult.data.deployments ?? [];
+    const deployment = deployments.find((d: any) => d.id === deploymentid);
 
-    const text_bindings: ProjectTextBinding[] =
-        parseResult.data.text_bindings ?? [];
-    const json_bindings: ProjectJsonBinding[] =
-        parseResult.data.json_bindings ?? [];
-    const data_bindings: ProjectDataBinding[] =
-        parseResult.data.data_bindings ?? [];
+    if (!deployment) {
+        throw new Error('Deployment not found');
+    }
 
-    return {
-        folder: process.cwd(),
-        entrypoint: parseResult.data.entrypoint,
+    const { server, name, id, ...rest } = deployment;
 
-        routes,
-
-        deployments,
-
-        text_bindings,
-        json_bindings,
-        data_bindings,
-    };
+    return { ...config, ...rest };
 };
+
+const resolveTextBindings = (
+    config: z.infer<typeof baseConfigSchema>,
+    folder: string,
+): NewProjectVersionRequestBodyType['textBindings'] => {
+    const textBindings: NewProjectVersionRequestBodyType['textBindings'] =
+        config.text_bindings?.map((binding) => {
+            if ('value' in binding) {
+                return {
+                    name: binding.name,
+                    value: binding.value,
+                };
+            } else {
+                const file = path.resolve(folder, binding.file);
+
+                if (!fs.existsSync(file)) {
+                    throw new Error(
+                        `File for text binding ${binding.name} does not exist`,
+                    );
+                }
+                try {
+                    const contents = fs.readFileSync(file, 'utf-8');
+
+                    return {
+                        name: binding.name,
+                        value: contents,
+                    };
+                } catch (e) {
+                    throw new Error(
+                        `File for text binding ${binding.name} does not exist`,
+                    );
+                }
+            }
+        }) ?? [];
+
+    return textBindings;
+};
+
+const resolveJsonBindings = (
+    config: z.infer<typeof baseConfigSchema>,
+    folder: string,
+): NewProjectVersionRequestBodyType['jsonBindings'] => {
+    const jsonBindings: NewProjectVersionRequestBodyType['jsonBindings'] =
+        config.json_bindings?.map((binding) => {
+            if ('value' in binding) {
+                return {
+                    name: binding.name,
+                    value: binding.value,
+                };
+            } else {
+                const file = path.resolve(folder, binding.file);
+
+                if (!fs.existsSync(file)) {
+                    throw new Error(
+                        `File for json binding ${binding.name} does not exist`,
+                    );
+                }
+
+                try {
+                    const contents = fs.readFileSync(file, 'utf-8');
+
+                    const parsed = JSON.parse(contents);
+
+                    return {
+                        name: binding.name,
+                        value: parsed,
+                    };
+                } catch (e) {
+                    throw new Error(
+                        `File for json binding ${binding.name} does not exist or is not valid JSON`,
+                    );
+                }
+            }
+        }) ?? [];
+
+    return jsonBindings;
+};
+
+const resolveDataBindings = (
+    config: z.infer<typeof baseConfigSchema>,
+    folder: string,
+): NewProjectVersionRequestBodyType['dataBindings'] => {
+    const dataBindings: NewProjectVersionRequestBodyType['dataBindings'] =
+        config.data_bindings?.map((binding) => {
+            if ('base64' in binding) {
+                return {
+                    name: binding.name,
+                    base64: binding.base64,
+                };
+            } else {
+                const file = path.resolve(folder, binding.file);
+
+                if (!fs.existsSync(file)) {
+                    throw new Error(
+                        `File for data binding ${binding.name} does not exist`,
+                    );
+                }
+
+                try {
+                    const contents = fs.readFileSync(file, 'base64');
+
+                    return {
+                        name: binding.name,
+                        base64: contents,
+                    };
+                } catch (e) {
+                    throw new Error(
+                        `File for data binding ${binding.name} does not exist or is not valid JSON`,
+                    );
+                }
+            }
+        }) ?? [];
+
+    return dataBindings;
+};
+
+export const configToVersionPush = (
+    input: z.infer<typeof baseConfigSchema>,
+): NewProjectVersionRequestBodyType => {
+    const folder = path.resolve(process.cwd(), input.folder);
+    const entrypoint = path.resolve(folder, input.entrypoint);
+
+    const entrypointExists = fs.existsSync(entrypoint);
+    const entrypointWithinFolder = entrypoint.startsWith(folder);
+
+    if (!entrypointExists || !entrypointWithinFolder) {
+        throw new Error(
+            'Entrypoint does not exist or is not within the folder',
+        );
+    }
+
+    const entrypointFile = fs.readFileSync(entrypoint, 'base64');
+
+    const result: NewProjectVersionRequestBodyType = {
+        blobs: [
+            {
+                type: 'esmodule',
+                data: entrypointFile,
+                filename: input.entrypoint,
+            },
+        ],
+        routes: input.routes.map((route) => ({
+            host: route.host,
+            basePaths: route.paths,
+        })),
+        kvBindings: input.kv_bindings?.map((binding) => ({
+            name: binding.name,
+            kvDatabaseId: binding.kv_database_id,
+        })),
+        textBindings: resolveTextBindings(input, folder),
+        jsonBindings: resolveJsonBindings(input, folder),
+        dataBindings: resolveDataBindings(input, folder),
+    };
+
+    return result;
+};
+
+// export const readProjectFile = (): Project => {
+//     const project = findAndParseFile();
+//
+//     const parseResult = configFileSchema.safeParse(project);
+//
+//     if (!parseResult.success) {
+//         throw parseResult.error;
+//     }
+//
+//     const routes: ProjectRoute[] = parseResult.data.routes ?? [];
+//
+//     const deployments: ProjectDeployment[] = parseResult.data.deployments ?? [];
+//
+//     const text_bindings: ProjectTextBinding[] =
+//         parseResult.data.text_bindings ?? [];
+//     const json_bindings: ProjectJsonBinding[] =
+//         parseResult.data.json_bindings ?? [];
+//     const data_bindings: ProjectDataBinding[] =
+//         parseResult.data.data_bindings ?? [];
+//
+//     return {
+//         folder: process.cwd(),
+//         entrypoint: parseResult.data.entrypoint,
+//
+//         routes,
+//
+//         deployments,
+//
+//         text_bindings,
+//         json_bindings,
+//         data_bindings,
+//     };
+// };
