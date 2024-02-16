@@ -1,4 +1,4 @@
-import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
+import { useListProjects } from '@/lib/hooks/data-hooks/projects/list-projects';
 import { useAuthToken, useServerUrl } from '@/lib/hooks/wrapper';
 import { Wrapper } from '@yukako/wrapper';
 import { useState } from 'react';

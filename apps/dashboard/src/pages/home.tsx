@@ -1,14 +1,14 @@
 import { useUser } from '@/lib/hooks/data-hooks/auth.ts';
 import { MainLayout } from '@/layouts/main.tsx';
-import { useGetRecentVersions } from '@/lib/hooks/data-hooks/get-recent-versions-pagted';
-import { useUsersList } from '@/lib/hooks/data-hooks/users';
+import { useGetRecentVersions } from '@/lib/hooks/data-hooks/versions/get-recent-versions-pagted';
+import { useUsersList } from '@/lib/hooks/data-hooks/users/users';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Link } from 'wouter';
-import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
+import { useListProjects } from '@/lib/hooks/data-hooks/projects/list-projects';
 import { useMemo } from 'react';
 import { ProjectVersionsDataResponseBodyType } from '@yukako/types';
-import { useGetProjectById } from '@/lib/hooks/data-hooks/get-project-by-id';
+import { useGetProjectById } from '@/lib/hooks/data-hooks/projects/get-project-by-id';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type HomePageCardProps = {

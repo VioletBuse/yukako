@@ -1,5 +1,5 @@
 import { MainLayout } from '@/layouts/main';
-import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
+import { useListProjects } from '@/lib/hooks/data-hooks/projects/list-projects';
 import {
     Card,
     CardContent,

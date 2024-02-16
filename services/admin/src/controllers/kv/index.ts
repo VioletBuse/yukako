@@ -21,9 +21,7 @@ const getProjects = async (
                     orderBy: desc(projectVersions.version),
                     limit: 1,
                     with: {
-                        kvDatabases: {
-                            where: eq(kvDatabase.id, kvId),
-                        },
+                        kvDatabases: true,
                     },
                 },
             },
@@ -42,6 +40,7 @@ const getProjects = async (
             .map((project): KvKvDataResponseBodyType['projects'][number] => ({
                 id: project.id,
                 name: project.name,
+                version: project.projectVersions[0].version,
             }));
     } catch (err) {
         respond.rethrow(err);
@@ -160,6 +159,7 @@ kvRouter.get('/', async (req) => {
                     .map((project) => ({
                         id: project.id,
                         name: project.name,
+                        version: project.projectVersions[0].version,
                     }));
 
                 return {
@@ -232,6 +232,8 @@ kvRouter.post('/:kvId', async (req, res) => {
             created_at: result.createdAt.getTime(),
             projects: await getProjects(kvId, db),
         };
+
+        respond.status(200).message(data).throw();
     } catch (err) {
         respond.rethrow(err);
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { MainLayout } from '@/layouts/main';
-import { useGetProjectById } from '@/lib/hooks/data-hooks/get-project-by-id';
+import { useGetProjectById } from '@/lib/hooks/data-hooks/projects/get-project-by-id';
 import {
     Card,
     CardContent,
@@ -11,11 +11,13 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, CornerDownRight, Loader2, Terminal } from 'lucide-react';
 import { useState } from 'react';
-import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/get-versions-per-proj-pagted';
+import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/versions/get-versions-per-proj-pagted';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ProjectVersionsDataResponseBodyType } from '@yukako/types';
-import { useSearch } from 'wouter';
+import { Link, useSearch } from 'wouter';
+import { useListKvDatabases } from '@/lib/hooks/data-hooks/kv/list-kv-databases';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type VersionsCardArtifactsProps = {
     artifacts: ProjectVersionsDataResponseBodyType['blobs'];
@@ -29,7 +31,7 @@ const VersionsCardArtifacts: React.FC<VersionsCardArtifactsProps> = ({
             <h1 className='text-lg font-medium'>Artifacts</h1>
             {artifacts.map((artifact) => (
                 <React.Fragment key={artifact.id}>
-                    <div className='border border-border p-2'>
+                    <div className='border border-border p-2 bg-background'>
                         <p className='text-md font-medium'>
                             {artifact.filename}
                         </p>
@@ -54,7 +56,7 @@ const VersionsCardRoutes: React.FC<VersionsCardRoutesProps> = ({ routes }) => {
                     route.basePaths.length > 0 ? route.basePaths : ['/'];
 
                 return (
-                    <div className='border border-border p-2'>
+                    <div className='border border-border p-2 bg-background'>
                         <p className='text-md font-medium'>{route.host}</p>
                         <div className='pl-2'>
                             {paths.map((path) => (
@@ -67,6 +69,50 @@ const VersionsCardRoutes: React.FC<VersionsCardRoutesProps> = ({ routes }) => {
                     </div>
                 );
             })}
+        </div>
+    );
+};
+
+type VersionsCardKvDatabasesProps = {
+    kvDatabases: ProjectVersionsDataResponseBodyType['kvBindings'];
+};
+
+const VersionsCardKvDatabases: React.FC<VersionsCardKvDatabasesProps> = ({
+    kvDatabases,
+}) => {
+    const [databases, databaseFetchError, loadingDatabases] =
+        useListKvDatabases();
+
+    return (
+        <div className='flex flex-col gap-y-2 border border-border p-2'>
+            <h1 className='text-lg font-medium'>KV Databases</h1>
+            {kvDatabases.map((kv) => (
+                <Link href={`/kv/${kv.kvDatabaseId}`}>
+                    <div className='border border-border p-2 bg-background hover:bg-accent/40 hover:animate-pulse'>
+                        <p className='text-md font-medium'>{kv.name}</p>
+                        {loadingDatabases && (
+                            <Skeleton className='h-8 w-full' />
+                        )}
+                        {databaseFetchError && (
+                            <p className='text-md text-destructive-foreground bg-destructive p-2 font-normal'>
+                                Error fetching database info
+                            </p>
+                        )}
+                        {databases && (
+                            <p className='text-md font-normal'>
+                                {databases.find(
+                                    (db) => db.id === kv.kvDatabaseId,
+                                )?.name ?? 'Unknown Database'}
+                            </p>
+                        )}
+                    </div>
+                </Link>
+            ))}
+            {kvDatabases.length === 0 && (
+                <p className='text-md font-normal'>
+                    This version has no KV Databases.
+                </p>
+            )}
         </div>
     );
 };
@@ -99,7 +145,7 @@ const VersionsCardBindings: React.FC<VersionsCardBindingsProps> = ({
                 <div className='border border-border flex flex-col gap-y-2 p-2'>
                     <h2 className='text-md font-medium'>Json Bindings</h2>
                     {jsonBindings.map((binding) => (
-                        <div className='border border-border p-2'>
+                        <div className='border border-border p-2 bg-background'>
                             <p className='text-md font-medium'>
                                 {binding.name}
                             </p>
@@ -114,7 +160,7 @@ const VersionsCardBindings: React.FC<VersionsCardBindingsProps> = ({
                 <div className='border border-border flex flex-col gap-y-2 p-2'>
                     <h2 className='text-md font-medium'>Text Bindings</h2>
                     {textBindings.map((binding) => (
-                        <div className='border border-border p-2'>
+                        <div className='border border-border p-2 bg-background'>
                             <p className='text-md font-medium'>
                                 {binding.name}
                             </p>
@@ -131,7 +177,7 @@ const VersionsCardBindings: React.FC<VersionsCardBindingsProps> = ({
                         Binary/Data Bindings
                     </h2>
                     {dataBindings.map((binding) => (
-                        <div className='border border-border p-2'>
+                        <div className='border border-border p-2 bg-background'>
                             <p className='text-md font-medium'>
                                 {binding.name}
                             </p>
@@ -193,6 +239,7 @@ const VersionCard: React.FC<VersionCardProps> = ({ data: version, badges }) => {
                 <CardContent className='flex flex-col gap-y-2'>
                     <VersionsCardArtifacts artifacts={version.blobs} />
                     <VersionsCardRoutes routes={version.routes} />
+                    <VersionsCardKvDatabases kvDatabases={version.kvBindings} />
                     <VersionsCardBindings
                         jsonBindings={version.jsonBindings}
                         textBindings={version.textBindings}

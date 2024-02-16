@@ -1,5 +1,5 @@
 import { MainLayout } from '@/layouts/main';
-import { useUsersList } from '@/lib/hooks/data-hooks/users';
+import { useUsersList } from '@/lib/hooks/data-hooks/users/users';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import {
     Table,

@@ -8,6 +8,8 @@ import { ProjectsPage } from '@/pages/projects';
 import { NotFoundPage } from '@/pages/not-found';
 import { ProjectByIdPage } from '@/pages/projects/[projectid]';
 import { SpecificUserPage } from '@/pages/users/[userid]';
+import { KvMainPage } from '@/pages/kv';
+import { KvByIdPage } from '@/pages/kv/[kvid]';
 
 function App() {
     return (
@@ -28,6 +30,11 @@ function App() {
                     <Route path='/projects' component={ProjectsPage}></Route>
                     <Route path='/projects/:id'>
                         {(params) => <ProjectByIdPage id={params.id} />}
+                    </Route>
+
+                    <Route path='/kv' component={KvMainPage}></Route>
+                    <Route path='/kv/:kvid'>
+                        {(params) => <KvByIdPage id={params.kvid} />}
                     </Route>
 
                     <Route path='/auth' component={AuthPage}></Route>

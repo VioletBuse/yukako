@@ -8,6 +8,7 @@ export const KvKvDataResponseBodySchema = z.object({
         z.object({
             id: z.string(),
             name: z.string(),
+            version: z.number(),
         }),
     ),
 });

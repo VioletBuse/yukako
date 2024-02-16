@@ -1,5 +1,5 @@
 import { MainLayout } from '@/layouts/main';
-import { useGetUserById } from '@/lib/hooks/data-hooks/get-user-by-id';
+import { useGetUserById } from '@/lib/hooks/data-hooks/users/get-user-by-id';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Link } from 'wouter';

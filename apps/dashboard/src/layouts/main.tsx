@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import {
     CircleUserRound,
+    DatabaseZap,
     FolderGit2,
     Github,
     HomeIcon,
@@ -42,8 +43,8 @@ import {
     CommandList,
     CommandSeparator,
 } from '@/components/ui/command';
-import { useListProjects } from '@/lib/hooks/data-hooks/list-projects';
-import { useUsersList } from '@/lib/hooks/data-hooks/users';
+import { useListProjects } from '@/lib/hooks/data-hooks/projects/list-projects';
+import { useUsersList } from '@/lib/hooks/data-hooks/users/users';
 import { CommandLoading } from 'cmdk';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from '@/components/theme-provider';
@@ -161,7 +162,7 @@ const CommandBar: React.FC<CommandBarProps> = ({ open, onChangeOpen }) => {
 
 type Props = {
     children: React.ReactNode;
-    selectedTab?: 'home' | 'projects' | 'users';
+    selectedTab?: 'home' | 'projects' | 'users' | 'kv';
     breadcrumbs: (
         | {
               name: string;
@@ -298,6 +299,19 @@ export const MainLayout = (props: Props) => {
                                 <Link href='/users'>
                                     <Users className='mr-2 w-4 h-4' />
                                     Users
+                                </Link>
+                            </Button>
+                            <Button
+                                className='justify-start'
+                                variant={
+                                    props.selectedTab === 'kv'
+                                        ? undefined
+                                        : 'ghost'
+                                }
+                                asChild>
+                                <Link href='/kv'>
+                                    <DatabaseZap className='mr-2 w-4 h-4' />
+                                    KV
                                 </Link>
                             </Button>
                         </div>
