@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as esbuild from 'esbuild';
 import { parse as yamlParse } from 'yaml';
 import { parse as tomlParse } from 'toml';
 import { z } from 'zod';
@@ -277,9 +278,9 @@ const resolveDataBindings = (
     return dataBindings;
 };
 
-export const configToVersionPush = (
+export const configToVersionPush = async (
     input: z.infer<typeof baseConfigSchema>,
-): NewProjectVersionRequestBodyType => {
+): Promise<NewProjectVersionRequestBodyType> => {
     const folder = path.resolve(process.cwd(), input.folder);
     const entrypoint = path.resolve(folder, input.entrypoint);
 
@@ -292,13 +293,40 @@ export const configToVersionPush = (
         );
     }
 
-    const entrypointFile = fs.readFileSync(entrypoint, 'base64');
+    // const entrypointFile = fs.readFileSync(entrypoint, 'base64');
+
+    const yukakofolder = path.resolve(folder, './.yukako_cli');
+    await fs.ensureDir(yukakofolder);
+
+    const yukakobuild = path.resolve(yukakofolder, './build.js');
+
+    console.log('yukakobuild', yukakobuild);
+
+    try {
+        await esbuild.build({
+            entryPoints: [entrypoint],
+            bundle: true,
+            format: 'esm',
+            outfile: yukakobuild,
+        });
+    } catch (err) {
+        let message = 'Error building entrypoint';
+
+        if (err instanceof Error) {
+            message = err.message;
+        }
+
+        console.error('Error building entrypoint', message);
+        throw new Error(message);
+    }
+
+    const builtEntrypoint = fs.readFileSync(yukakobuild, 'base64');
 
     const result: NewProjectVersionRequestBodyType = {
         blobs: [
             {
                 type: 'esmodule',
-                data: entrypointFile,
+                data: builtEntrypoint,
                 filename: input.entrypoint,
             },
         ],

@@ -1,6 +1,6 @@
 ---
 folder: "."
-entrypoint: testworker.js
+entrypoint: testworker.ts
 routes:
   - host: newproject.localhost:8080
     paths:
@@ -25,6 +25,19 @@ deployments:
         paths:
           - "/"
       - host: test.localhost:8080
+        paths:
+          - "/"
+  - server: http://localhost:8080
+    name: test-2
+    id: WVZ8zGV5bYc8Aqv99GU4N
+    kv_bindings:
+      - name: KV_DATABASE
+        kv_database_id: "PntF9VlSKBqP386sQIrUD"
+    routes:
+      - host: test-2.localhost:8080
+        paths:
+          - "/"
+      - host: test-2.localhost:8080
         paths:
           - "/"
 text_bindings:

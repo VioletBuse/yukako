@@ -1,3 +1,5 @@
+import { KvNamespace } from '@yukako/extensions/extensions/kv';
+
 export default {
     fetch: async (req, env) => {
         // console.log('Hello from the newproject worker!');
@@ -12,7 +14,7 @@ export default {
 
         // console.log('json', json);
 
-        const kv = env.KV_DATABASE;
+        const kv = env.KV_DATABASE as KvNamespace;
 
         const put1 = await kv.put('key_1', 'value_1');
         const get1 = await kv.get('key_1');
@@ -49,7 +51,7 @@ export default {
 
         const stringifiedResult = JSON.stringify(result);
 
-        console.log('stringifiedResult', stringifiedResult);
+        // console.log('stringifiedResult', stringifiedResult);
 
         return new Response(stringifiedResult, {
             status: 200,

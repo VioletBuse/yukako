@@ -348,7 +348,7 @@ const deploy = new Command()
                 spinner.start('Deploying project...');
                 const projectDeploymentConfig = getConfig(deployment.id);
 
-                const versionPushData = configToVersionPush(
+                const versionPushData = await configToVersionPush(
                     projectDeploymentConfig,
                 );
 

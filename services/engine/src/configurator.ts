@@ -645,6 +645,9 @@ export class Configurator {
         bindings: BaseBindingData[];
     }) {
         const adjustedWorker = produce(_worker, (draft) => {
+            draft.name =
+                draft.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() +
+                Math.floor(Math.random() * 1000);
             draft.modules[0].importName = './_entrypoint.js';
             draft.modules.unshift({
                 type: 'esmodule',
