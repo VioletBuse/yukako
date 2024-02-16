@@ -172,7 +172,7 @@ export const WorkerdSupervisor = {
 
         workerd.stdout.on('data', handleStdOut());
         workerd.stderr.on('data', handleStdErr());
-        workerd.on('exit', handleExit());
+        workerd.on('exit', handleExit({ sockets: opts?.sockets }));
         workerd.on('error', handleError());
 
         workerdProcess = workerd;

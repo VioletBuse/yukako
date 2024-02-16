@@ -7,8 +7,8 @@ export const parseParams = <T extends any>(req: Request): T => {
         ignoreQueryPrefix: true,
         strictNullHandling: true,
     }) as T;
-    console.log('search', decodeURIComponent(url.search));
-    console.log('params', result);
+    // console.log('search', decodeURIComponent(url.search));
+    // console.log('params', result);
 
     return result;
 };

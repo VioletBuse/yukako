@@ -57,7 +57,7 @@ internalKvRouter.get('/:kvId', async (req, res) => {
             },
         };
 
-        console.log('result', result);
+        // console.log('result', result);
 
         respond.status(200).message(result).throw();
     } catch (err) {
