@@ -343,60 +343,64 @@ projectSpecificVersionsRouter.post(
                     })),
                 );
 
-                const newTextBindings = data.textBindings
-                    ? await txn
-                          .insert(projectVersionTextBindings)
-                          .values(
-                              data.textBindings.map((binding) => ({
-                                  id: nanoid(),
-                                  name: binding.name,
-                                  value: binding.value,
-                                  projectVersionId: newProjectVersion[0].id,
-                              })),
-                          )
-                          .returning()
-                    : [];
+                const newTextBindings =
+                    data.textBindings && data.textBindings.length > 0
+                        ? await txn
+                              .insert(projectVersionTextBindings)
+                              .values(
+                                  data.textBindings.map((binding) => ({
+                                      id: nanoid(),
+                                      name: binding.name,
+                                      value: binding.value,
+                                      projectVersionId: newProjectVersion[0].id,
+                                  })),
+                              )
+                              .returning()
+                        : [];
 
-                const newJsonBindings = data.jsonBindings
-                    ? await txn
-                          .insert(projectVersionJsonBindings)
-                          .values(
-                              data.jsonBindings.map((binding) => ({
-                                  id: nanoid(),
-                                  name: binding.name,
-                                  value: binding.value,
-                                  projectVersionId: newProjectVersion[0].id,
-                              })),
-                          )
-                          .returning()
-                    : [];
+                const newJsonBindings =
+                    data.jsonBindings && data.jsonBindings.length > 0
+                        ? await txn
+                              .insert(projectVersionJsonBindings)
+                              .values(
+                                  data.jsonBindings.map((binding) => ({
+                                      id: nanoid(),
+                                      name: binding.name,
+                                      value: binding.value,
+                                      projectVersionId: newProjectVersion[0].id,
+                                  })),
+                              )
+                              .returning()
+                        : [];
 
-                const newDataBindings = data.dataBindings
-                    ? await txn
-                          .insert(projectVersionDataBindings)
-                          .values(
-                              data.dataBindings.map((binding) => ({
-                                  id: nanoid(),
-                                  name: binding.name,
-                                  base64: binding.base64,
-                                  projectVersionId: newProjectVersion[0].id,
-                              })),
-                          )
-                          .returning()
-                    : [];
+                const newDataBindings =
+                    data.dataBindings && data.dataBindings.length > 0
+                        ? await txn
+                              .insert(projectVersionDataBindings)
+                              .values(
+                                  data.dataBindings.map((binding) => ({
+                                      id: nanoid(),
+                                      name: binding.name,
+                                      base64: binding.base64,
+                                      projectVersionId: newProjectVersion[0].id,
+                                  })),
+                              )
+                              .returning()
+                        : [];
 
-                const newKvBindings = data.kvBindings
-                    ? await txn
-                          .insert(projectVersionKvDatabaseBinding)
-                          .values(
-                              data.kvBindings.map((binding) => ({
-                                  kvDatabaseId: binding.kvDatabaseId,
-                                  projectVersionId: newProjectVersion[0].id,
-                                  name: binding.name,
-                              })),
-                          )
-                          .returning()
-                    : [];
+                const newKvBindings =
+                    data.kvBindings && data.kvBindings.length > 0
+                        ? await txn
+                              .insert(projectVersionKvDatabaseBinding)
+                              .values(
+                                  data.kvBindings.map((binding) => ({
+                                      kvDatabaseId: binding.kvDatabaseId,
+                                      projectVersionId: newProjectVersion[0].id,
+                                      name: binding.name,
+                                  })),
+                              )
+                              .returning()
+                        : [];
 
                 const routes = newRoutes.map((route) => ({
                     id: route.id,
@@ -457,6 +461,7 @@ projectSpecificVersionsRouter.post(
                 return;
             }
         } catch (e) {
+            // console.log('e', e);
             respond.rethrow(e);
 
             if (e instanceof ZodError) {

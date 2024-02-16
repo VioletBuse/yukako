@@ -300,7 +300,7 @@ export const configToVersionPush = async (
 
     const yukakobuild = path.resolve(yukakofolder, './build.js');
 
-    console.log('yukakobuild', yukakobuild);
+    // console.log('yukakobuild', yukakobuild);
 
     try {
         await esbuild.build({
