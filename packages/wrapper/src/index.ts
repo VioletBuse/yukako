@@ -2,6 +2,7 @@ import { AuthWrapper } from './auth';
 import { ProjectsWrapper } from './projects';
 import { UsersWrapper } from './users';
 import { VersionsWrapper } from './versions';
+import { KvWrapper } from './kv';
 
 export type Options = {
     passthroughResult?: boolean;
@@ -16,6 +17,7 @@ export const BaseWrapper = (
     projects: ProjectsWrapper(server, sessionId),
     users: UsersWrapper(server, sessionId),
     versions: VersionsWrapper(server, sessionId),
+    kv: KvWrapper(server, sessionId),
 });
 
 export const WrapperWithoutSession = (server: string, opts?: Options) => ({
@@ -46,4 +48,5 @@ export const PassthroughWrapper = (server: string, sessionId: string) => ({
     projects: ProjectsWrapper(server, sessionId, { passthroughResult: true }),
     users: UsersWrapper(server, sessionId, { passthroughResult: true }),
     versions: VersionsWrapper(server, sessionId, { passthroughResult: true }),
+    kv: KvWrapper(server, sessionId, { passthroughResult: true }),
 });
