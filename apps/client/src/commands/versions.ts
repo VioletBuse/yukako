@@ -70,30 +70,6 @@ const details = new Command()
                 const wrapper = Wrapper(server, authToken);
                 const [projectsResponse, err] = await wrapper.projects.list();
 
-                // if (!projectsResponse.ok) {
-                //     throw new Error('Failed to fetch list of projects');
-                // } else {
-                //     spinner.succeed('Fetched list of projects');
-                //
-                //     const projects = await projectsResponse.json();
-                //
-                //     id = await select({
-                //         message: 'Select a project',
-                //         choices: projects.map(
-                //             (project: { id: string; name: string }) => {
-                //                 return {
-                //                     name: project.name,
-                //                     value: project.id,
-                //                 };
-                //             },
-                //         ),
-                //     });
-                //
-                //     if (typeof id !== 'string') {
-                //         throw new Error('You must select a project');
-                //     }
-                // }
-
                 if (err) {
                     throw new Error(err);
                 } else {
@@ -134,7 +110,7 @@ const details = new Command()
                         throw new Error('Project has no deployed versions.');
                     }
 
-                    latestVersion = projectDetails?.latest_version;
+                    latestVersion = projectDetails?.latest_version.version;
                 }
 
                 version = await input({
@@ -228,6 +204,16 @@ const details = new Command()
                     chunks.push(`  ${chalk.bold(blob.filename)}`);
                     chunks.push(`    id: ${chalk(blob.id)}`);
                     chunks.push(`    file-type: ${chalk(blob.type)}`);
+                }
+
+                chunks.push(``);
+                chunks.push(`----------------------------------------`);
+                chunks.push(``);
+                chunks.push(`Kv Databases:`);
+
+                for (const db of versionDetails.kvBindings) {
+                    chunks.push(`  ${chalk.bold(db.name)}`);
+                    chunks.push(`    id: ${chalk(db.kvDatabaseId)}`);
                 }
 
                 chunks.push(``);
