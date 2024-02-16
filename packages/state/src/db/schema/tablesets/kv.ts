@@ -23,7 +23,6 @@ export const kvDatabaseRelations = relations(kvDatabase, ({ many }) => ({
 export const kvEntry = pgTable(
     'kv_entry',
     {
-        id: text('id').notNull().primaryKey(),
         key: text('key').notNull(),
         value: text('value').notNull(),
         createdAt: timestamp('created_at').defaultNow(),
@@ -33,6 +32,9 @@ export const kvEntry = pgTable(
             .references(() => kvDatabase.id),
     },
     (table) => ({
+        compositePrimaryKey: primaryKey({
+            columns: [table.key, table.kvDatabaseId],
+        }),
         keyIsUnique: unique('kv_entry_key_unique').on(
             table.key,
             table.kvDatabaseId,

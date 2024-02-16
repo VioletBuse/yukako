@@ -6,7 +6,7 @@ import morgan from 'morgan';
 
 export const yukakoInternalApiRouter = Router();
 
-yukakoInternalApiRouter.use(morgan('tiny'));
+// yukakoInternalApiRouter.use(morgan('tiny'));
 
 yukakoInternalApiRouter.use('/kv', internalKvRouter);
 

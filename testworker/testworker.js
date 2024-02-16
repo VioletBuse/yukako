@@ -14,49 +14,42 @@ export default {
 
         const kv = env.KV_DATABASE;
 
-        const getTest1 = await kv.get('test1');
-        const getTest2 = await kv.get('test$%&%^&^&');
-        const getTest3 = await kv.get(['test1', 'test2', 'test2']);
-        const getTest4 = await kv.get([
-            'test{"L"DE@#$',
-            'test%$&%^$$SD',
-            'te$%$',
-        ]);
+        const put1 = await kv.put('key_1', 'value_1');
+        const get1 = await kv.get('key_1');
+        const del1 = await kv.delete('key_1');
 
-        const putTest1 = await kv.put('test1', 'test1');
-        const putTest2 = await kv.put('t#$%^$%^&', 'test2');
-        const putTest3 = await kv.put({ key1: 'val1', key2: 'val2' });
-        const putTest4 = await kv.put({ '$%^$%#$^#': 'val3' });
-
-        const deleteTest1 = await kv.delete('test1');
-        const deleteTest2 = await kv.delete('t#$%^$%^&');
-        const deleteTest3 = await kv.delete(['key1', 'key2']);
-        const deleteTest4 = await kv.delete(['$%^$%#$^#']);
+        const put2 = await kv.put('key_2', 'value_2');
+        const get2 = await kv.get('key_2');
+        const put3 = await kv.put({ key3: 'value_3', key4: 'value_4' });
+        const get3 = await kv.get(['key3', 'key4']);
+        const put4 = await kv.put({ key2: null, key3: 'value_30' });
+        const get4 = await kv.get(['key2', 'key3']);
+        const delete2 = await kv.delete(['key2', 'key3', 'key4']);
 
         const result = {
-            get: {
-                getTest1,
-                getTest2,
-                getTest3,
-                getTest4,
+            test1: {
+                put: put1,
+                get: get1,
+                del: del1,
             },
-            put: {
-                putTest1,
-                putTest2,
-                putTest3,
-                putTest4,
+            test2: {
+                put: put2,
+                get: get2,
             },
-            delete: {
-                deleteTest1,
-                deleteTest2,
-                deleteTest3,
-                deleteTest4,
+            test3: {
+                put: put3,
+                get: get3,
+            },
+            test4: {
+                put: put4,
+                get: get4,
+                del: delete2,
             },
         };
 
         const stringifiedResult = JSON.stringify(result);
 
-        // console.log('stringifiedResult', stringifiedResult);
+        console.log('stringifiedResult', stringifiedResult);
 
         return new Response(stringifiedResult, {
             status: 200,
