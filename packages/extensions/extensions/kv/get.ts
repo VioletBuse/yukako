@@ -1,6 +1,7 @@
 import { KvBindingEnv } from './index';
 import { KvGetParams, KvGetResponse, KvResponse } from '@yukako/types';
 import * as qs from 'qs';
+import { qss } from './lib/stringify-params';
 
 type _InternalReturnType<T extends string | string[]> =
     | (T extends string
@@ -20,14 +21,12 @@ const getInternal = async (
         keys: list,
     };
 
-    const url = `http://dummy.kv/__yukako/kv/${env.KV_DB_ID}?${qs.stringify(
-        params,
-    )}`;
+    const url = `http://d.kv/__yukako/kv/${env.KV_DB_ID}?${qss(params)}`;
     const response = await env.__admin.fetch(url);
 
     const json = (await response.json()) as KvResponse<KvGetResponse>;
 
-    console.log('json', json);
+    // console.log('json', json);
 
     if (json.type === 'result') {
         return [json.result.values, null];

@@ -1,6 +1,7 @@
 import { KvBindingEnv } from './index';
 import { KvPutParams, KvPutResponse, KvResponse } from '@yukako/types';
 import * as qs from 'qs';
+import { qss } from './lib/stringify-params';
 
 export type KvPutFxn = <T extends string | Record<string, string | null>>(
     ...args: T extends string ? [T, string | null] : [T]
@@ -14,9 +15,7 @@ const internalPut = async (
         list,
     };
 
-    const baseUrl = `http://dummy.kv/__yukako/kv/${env.KV_DB_ID}?${qs.stringify(
-        params,
-    )}`;
+    const baseUrl = `http://d.kv/__yukako/kv/${env.KV_DB_ID}?${qss(params)}`;
     const response = await env.__admin.fetch(baseUrl, { method: 'PUT' });
     const json = (await response.json()) as KvResponse<KvPutResponse>;
 

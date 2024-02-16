@@ -1,6 +1,7 @@
 import { KvBindingEnv } from './index';
 import { KvDeleteParams, KvDeleteResponse, KvResponse } from '@yukako/types';
 import * as qs from 'qs';
+import { qss } from './lib/stringify-params';
 
 export type kvDeleteFxn = (
     keys: string | string[],
@@ -16,9 +17,7 @@ const internalDelete = async (
         keys: list,
     };
 
-    const url = `http://dummy.kv/__yukako/kv/${env.KV_DB_ID}?${qs.stringify(
-        params,
-    )}`;
+    const url = `http://d.kv/__yukako/kv/${env.KV_DB_ID}?${qss(params)}`;
     const response = await env.__admin.fetch(url, { method: 'DELETE' });
 
     const json = (await response.json()) as KvResponse<KvDeleteResponse>;
