@@ -119,7 +119,7 @@ const VersionsCardSpecificVersionCard: React.FC<
 const VersionsCard: React.FC = () => {
     const [recentVersionsList, versionsFetchError, loadingVersions] =
         useGetRecentVersions({
-            limit: 10,
+            limit: 15,
             page: 1,
         });
 
@@ -265,14 +265,6 @@ const UsersCard: React.FC = () => {
 };
 
 export const HomePage: React.FC = () => {
-    const [recentVersions, fetchVersionsError, loadingRecentVersions] =
-        useGetRecentVersions({
-            limit: 20,
-            page: 1,
-        });
-
-    console.log(recentVersions, fetchVersionsError, loadingRecentVersions);
-
     return (
         <>
             <MainLayout
