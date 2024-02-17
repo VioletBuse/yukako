@@ -11,11 +11,13 @@ import {
     KvPutResponse,
     KvPutParams,
     KvDeleteParams,
+    KvListParams,
+    KvListResponse,
 } from '@yukako/types';
 import { parseParams } from '../../lib/parse-params';
 import { getDatabase } from '@yukako/state';
 import { kvEntry } from '@yukako/state/src/db/schema';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, like, lt, not, sql } from 'drizzle-orm';
 import { inArray } from 'drizzle-orm/sql/expressions/conditions';
 
 const internalKvRouter = Router();
@@ -60,6 +62,87 @@ internalKvRouter.get('/:kvId', async (req, res) => {
         // console.log('result', result);
 
         respond.status(200).message(result).throw();
+    } catch (err) {
+        respond.rethrow(err);
+
+        let message = 'Internal Server Error';
+
+        if (err instanceof Error) {
+            message = err.message;
+        } else if (typeof err === 'string') {
+            message = err;
+        }
+
+        respond.status(500).message({ type: 'error', error: message }).throw();
+    }
+});
+
+internalKvRouter.get('/:kvId/list', async (req) => {
+    try {
+        const kvid = req.params.kvId;
+        const params = parseParams<KvListParams>(req);
+
+        const db = getDatabase();
+
+        const limit = parseInt(params.limit, 10);
+        const cursor = params.cursor;
+        const prefix = params.prefix;
+        const suffix = params.suffix;
+        const includes = params.includes;
+        const excludes = params.excludes;
+
+        const prefixLike = prefix ? `${prefix}%` : null;
+        const suffixLike = suffix ? `%${suffix}` : null;
+        const includesLike = includes ? `%${includes}%` : null;
+        const excludesLike = excludes ? `%${excludes}%` : null;
+
+        const conditions = [];
+
+        if (cursor) {
+            conditions.push(
+                lt(kvEntry.updatedAt, new Date(parseInt(cursor, 10))),
+            );
+        }
+
+        if (prefixLike) {
+            conditions.push(like(kvEntry.key, prefixLike));
+        }
+
+        if (suffixLike) {
+            conditions.push(like(kvEntry.key, suffixLike));
+        }
+
+        if (includesLike) {
+            conditions.push(like(kvEntry.key, includesLike));
+        }
+
+        if (excludesLike) {
+            conditions.push(not(like(kvEntry.key, excludesLike)));
+        }
+
+        const entries = await db
+            .select({ key: kvEntry.key, updatedAt: kvEntry.updatedAt })
+            .from(kvEntry)
+            .where(and(eq(kvEntry.kvDatabaseId, kvid), ...conditions))
+            .limit(limit)
+            .orderBy(desc(kvEntry.updatedAt));
+
+        const cursorEntry = entries[entries.length - 1];
+        const cursorValue = cursorEntry
+            ? cursorEntry.updatedAt.getTime()
+            : null;
+
+        const value: KvResponse<KvListResponse> = {
+            type: 'result',
+            result: {
+                list: entries.map((entry) => ({
+                    key: entry.key,
+                })),
+                cursor: cursorValue,
+            },
+        };
+
+        respond.status(200).message(value).throw();
     } catch (err) {
         respond.rethrow(err);
 

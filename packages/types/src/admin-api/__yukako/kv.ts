@@ -16,6 +16,20 @@ export type KvGetResponse = {
     values: Record<string, string | null>;
 };
 
+export type KvListParams = {
+    limit: string;
+    cursor: string | null;
+    prefix: string | null;
+    suffix: string | null;
+    includes: string | null;
+    excludes: string | null;
+};
+
+export type KvListResponse = {
+    list: { key: string }[];
+    cursor: number | null;
+};
+
 export type KvPutParams = {
     list: [string, string | null][];
 };

@@ -1,6 +1,7 @@
 import { kvGetFactory, KvGetFxn } from './get';
 import { kvPutFactory, KvPutFxn } from './put';
 import { kvDeleteFactory, kvDeleteFxn } from './delete';
+import { kvListFactory, KvListFxn } from './list';
 
 export type KvBindingEnv = {
     KV_DB_ID: string;
@@ -16,6 +17,7 @@ export type KvNamespace = {
     get: KvGetFxn;
     put: KvPutFxn;
     delete: kvDeleteFxn;
+    list: KvListFxn;
 };
 
 const makeKvBinding = (env: KvBindingEnv): KvNamespace => {
@@ -23,6 +25,7 @@ const makeKvBinding = (env: KvBindingEnv): KvNamespace => {
         get: kvGetFactory(env),
         put: kvPutFactory(env),
         delete: kvDeleteFactory(env),
+        list: kvListFactory(env),
     };
 
     return namespace;

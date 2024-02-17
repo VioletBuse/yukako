@@ -25,8 +25,8 @@ export const kvEntry = pgTable(
     {
         key: text('key').notNull(),
         value: text('value').notNull(),
-        createdAt: timestamp('created_at').defaultNow(),
-        updatedAt: timestamp('updated_at').defaultNow(),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
+        updatedAt: timestamp('updated_at').notNull().defaultNow(),
         kvDatabaseId: text('kv_database_id')
             .notNull()
             .references(() => kvDatabase.id),
