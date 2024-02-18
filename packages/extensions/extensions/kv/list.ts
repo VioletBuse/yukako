@@ -3,12 +3,12 @@ import { KvBindingEnv } from './index';
 import { qss } from './lib/stringify-params';
 
 export type KvListFxn = (opts: {
-    limit: number;
-    cursor: number | null;
-    prefix: string | null;
-    suffix: string | null;
-    includes: string | null;
-    excludes: string | null;
+    limit?: number;
+    cursor?: number | null;
+    prefix?: string | null;
+    suffix?: string | null;
+    includes?: string | null;
+    excludes?: string | null;
 }) => Promise<
     | [
           {
@@ -38,12 +38,12 @@ export const kvListFactory = (env: KvBindingEnv): KvListFxn => {
     return async (opts) => {
         return listInternal(
             {
-                limit: opts.limit.toString(),
+                limit: opts.limit?.toString() ?? '1000',
                 cursor: opts.cursor?.toString() ?? null,
-                prefix: opts.prefix,
-                suffix: opts.suffix,
-                includes: opts.includes,
-                excludes: opts.excludes,
+                prefix: opts.prefix ?? null,
+                suffix: opts.suffix ?? null,
+                includes: opts.includes ?? null,
+                excludes: opts.excludes ?? null,
             },
             env,
         );
