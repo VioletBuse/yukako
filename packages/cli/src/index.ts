@@ -59,8 +59,15 @@ const helptext = `
 		$ yukako -a 'admin.localhost'
 `;
 
+const postgresProtocols = ['postgres:', 'postgresql:', 'postgresql+ssl:'];
+
 export const run = (): Result => {
     const args = process.argv.slice(2);
+
+    if (args.includes('--help') || args.includes('-h')) {
+        console.log(helptext);
+        process.exit(0);
+    }
 
     // console.log('args', args);
 
@@ -91,11 +98,7 @@ export const run = (): Result => {
         process.exit(1);
     }
 
-    if (
-        new URL(postgres).protocol !== 'postgres:' &&
-        new URL(postgres).protocol !== 'postgresql:' &&
-        new URL(postgres).protocol !== 'postgresql+ssl:'
-    ) {
+    if (!postgresProtocols.includes(new URL(postgres).protocol)) {
         console.error(
             'Postgres URL must start with postgres:// or postgresql://',
         );
@@ -104,11 +107,7 @@ export const run = (): Result => {
         process.exit(1);
     }
 
-    if (
-        new URL(readonlyUrl).protocol !== 'postgres:' &&
-        new URL(readonlyUrl).protocol !== 'postgresql:' &&
-        new URL(readonlyUrl).protocol !== 'postgresql+ssl:'
-    ) {
+    if (!postgresProtocols.includes(new URL(readonlyUrl).protocol)) {
         console.error(
             'Postgres read-only URL must start with postgres:// or postgresql://',
         );
