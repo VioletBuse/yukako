@@ -67,7 +67,7 @@ const create = new Command()
 
             const [res, err] = await wrapper.projects.create(name);
 
-            if (err) {
+            if (!res) {
                 spinner.fail('Failed to create project');
             } else {
                 spinner.succeed(`Created project ${name} (id: ${res.id})`);
@@ -112,21 +112,23 @@ const list = new Command()
 
             const [res, err] = await wrapper.projects.list();
 
-            if (err) {
+            if (res === null) {
                 spinner.fail('Failed to list projects');
             } else {
                 const chunks = res.map(
                     (project: {
                         id: string;
                         name: string;
-                        latest_version: number | null;
+                        latest_version: { id: string; version: number } | null;
                     }) => {
                         let str = '';
                         str += `${chalk.bold(project.name)}\n`;
                         str += `------------------------------\n`;
                         str += `ID: ${project.id}\n`;
                         str += `Latest version: ${
-                            project.latest_version ?? 'none'
+                            project.latest_version
+                                ? project.latest_version.version
+                                : 'Not deployed'
                         }\n`;
 
                         return str;
@@ -194,7 +196,7 @@ const details = new Command()
                     auth_token,
                 ).projects.list();
 
-                if (err) {
+                if (projects === null) {
                     spinner.fail('Failed to get projects');
                     throw new Error('Failed to get projects');
                 } else {
@@ -361,7 +363,7 @@ const deploy = new Command()
                     versionPushData,
                 );
 
-                if (err) {
+                if (!res) {
                     spinner.fail('Failed to deploy project');
                     console.error(err);
                 } else {

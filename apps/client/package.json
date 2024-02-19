@@ -1,25 +1,26 @@
 {
-	"name": "@yukako/client",
-	"type": "module",
-	"version": "1.0.0",
-	"description": "",
-	"bin": {
-		"yukactl": "./dist/index.js"
-	},
-	"files": [
-		"dist"
-	],
-	"main": "src/index.ts",
-	"scripts": {
-		"build": "node scripts/build.mjs",
-		"build:watch": "node scripts/build.mjs --watch",
-		"dev": "npm run build:watch"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"dependencies": {
-		"@yukako/types": "*",
-		"@yukako/wrapper": "*"
-	}
+  "name": "@yukako/client",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "bin": {
+	"yukactl": "./dist/index.js"
+  },
+  "files": [
+	"dist"
+  ],
+  "main": "src/index.ts",
+  "scripts": {
+	"typecheck": "tsc --noEmit",
+	"build": "node scripts/build.mjs",
+	"build:watch": "node scripts/build.mjs --watch",
+	"dev": "npm run build:watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+	"@yukako/types": "*",
+	"@yukako/wrapper": "*"
+  }
 }

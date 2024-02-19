@@ -1,13 +1,15 @@
 {
-	"name": "@yukako/proxy",
-	"main": "src/index.ts",
-	"types": "src/index.ts",
-	"scripts": {},
-	"devDependencies": {
-		"typescript": "latest"
-	},
-	"dependencies": {
-		"@yukako/extensions": "*",
-		"@yukako/cli": "*"
-	}
+  "name": "@yukako/proxy",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+	"typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+	"typescript": "latest"
+  },
+  "dependencies": {
+	"@yukako/extensions": "*",
+	"@yukako/cli": "*"
+  }
 }

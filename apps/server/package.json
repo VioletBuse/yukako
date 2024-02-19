@@ -8,6 +8,7 @@
 	"dist"
   ],
   "scripts": {
+	"typecheck": "tsc --noEmit",
 	"build": "node scripts/build.mjs",
 	"build:watch": "node scripts/build.mjs -w",
 	"start": "node --enable-source-maps dist/index.mjs -c off",

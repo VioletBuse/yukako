@@ -70,7 +70,7 @@ const details = new Command()
                 const wrapper = Wrapper(server, authToken);
                 const [projectsResponse, err] = await wrapper.projects.list();
 
-                if (err) {
+                if (!projectsResponse) {
                     throw new Error(err);
                 } else {
                     spinner.succeed('Fetched list of projects');
@@ -166,7 +166,7 @@ const details = new Command()
                 version,
             );
 
-            if (err) {
+            if (!res) {
                 throw new Error(err);
             } else {
                 spinner.succeed('Fetched version details');

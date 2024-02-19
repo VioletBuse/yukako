@@ -3,7 +3,7 @@ import {
     KvKvDataResponseBodySchema,
     KvKvDataResponseBodyType,
 } from '@yukako/types';
-import { handleResponse } from '../util/responseHandler';
+import { handleResponse } from '../util/responseHandler.js';
 import { z } from 'zod';
 
 export const KvWrapper = (

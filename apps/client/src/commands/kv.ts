@@ -97,8 +97,9 @@ const list = new Command()
 
             const [res, err] = await wrapper.kv.list();
 
-            if (err) {
+            if (!res) {
                 spinner.fail('Failed to list databases');
+                spinner.fail(err);
             } else {
                 spinner.succeed('Fetched databases');
 

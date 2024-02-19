@@ -37,7 +37,7 @@ const list = new Command()
 
             const [users, error] = await wrapper.users.list();
 
-            if (error) {
+            if (users === null) {
                 spinner.fail(error);
                 process.exit(1);
             } else {
@@ -50,9 +50,12 @@ const list = new Command()
                     chunks.push('-----------------------------------');
                     chunks.push('ID: ' + users[i].uid);
                     chunks.push('Username: ' + users[i].username);
-                    if (users[i].invitedBy !== null) {
+
+                    const invitedBy = users[i].invitedBy;
+
+                    if (invitedBy !== null) {
                         chunks.push(
-                            `Invited by: ${users[i].invitedBy.username} (${users[i].invitedBy.uid})`,
+                            `Invited by: ${invitedBy.username} (${invitedBy.uid})`,
                         );
                     }
 

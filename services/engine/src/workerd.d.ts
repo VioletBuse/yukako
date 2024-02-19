@@ -1,4 +1,4 @@
-declare module 'workerd' {
+declare module 'src/workerd' {
     const bin: string;
     export default bin;
 }

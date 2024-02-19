@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "typecheck": "turbo run typecheck",
     "build": "turbo run build",
     "dev": "turbo run dev --concurrency 20",
     "lint": "turbo run lint",

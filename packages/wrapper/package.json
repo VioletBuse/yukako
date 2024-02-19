@@ -1,13 +1,15 @@
 {
-	"name": "@yukako/wrapper",
-	"main": "src/index.ts",
-	"types": "src/index.ts",
-	"type": "module",
-	"scripts": {},
-	"dependencies": {
-		"@yukako/types": "*"
-	},
-	"devDependencies": {
-		"typescript": "latest"
-	}
+  "name": "@yukako/wrapper",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "type": "module",
+  "scripts": {
+	"typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+	"@yukako/types": "*"
+  },
+  "devDependencies": {
+	"typescript": "latest"
+  }
 }

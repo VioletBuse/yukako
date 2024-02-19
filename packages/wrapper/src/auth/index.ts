@@ -8,8 +8,8 @@ import {
     AuthNewAuthTokenResponseBodySchema,
     AuthMeResponseBodySchema,
 } from '@yukako/types';
-import { handleResponse } from '../util/responseHandler';
-import { Options } from '../index';
+import { handleResponse } from '../util/responseHandler.js';
+import { Options } from '../index.js';
 
 export const AuthWrapper = (
     server: string,

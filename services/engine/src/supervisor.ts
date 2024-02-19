@@ -2,6 +2,7 @@ import * as path from 'path';
 import { nanoid } from 'nanoid';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import chalk from 'chalk';
+// @ts-ignore
 import bin from 'workerd';
 import * as util from 'util';
 import prexit from 'prexit';

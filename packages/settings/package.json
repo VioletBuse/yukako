@@ -1,9 +1,11 @@
 {
-	"name": "@yukako/settings",
-	"main": "src/index.ts",
-	"types": "src/index.ts",
-	"scripts": {},
-	"devDependencies": {
-		"typescript": "latest"
-	}
+  "name": "@yukako/settings",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+	"typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+	"typescript": "latest"
+  }
 }

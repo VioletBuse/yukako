@@ -1,8 +1,8 @@
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { getReadonlySql, getSql } from './init';
+import { getDatabase, getReadonlySql, getSql } from './init';
 import { run } from '@yukako/cli';
 
-export const testDB = async (db: PostgresJsDatabase) => {
+export const testDB = async (db: ReturnType<typeof getDatabase>) => {
     try {
         const sql = getSql();
         await sql`SELECT 1`;

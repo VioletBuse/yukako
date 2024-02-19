@@ -10,8 +10,8 @@ import { ProxyService } from '@yukako/proxy';
 import path from 'path';
 import fs from 'fs-extra';
 import { LeaderService } from '@yukako/leader';
-import { getDatabase } from '@yukako/state/src/db/init.js';
-import { testDB } from '@yukako/state/src/db/test.js';
+import { getDatabase } from '@yukako/state/src/db/init';
+import { testDB } from '@yukako/state/src/db/test';
 
 const cli = run();
 const db = getDatabase();

@@ -1,8 +1,8 @@
-import { AuthWrapper } from './auth';
-import { ProjectsWrapper } from './projects';
-import { UsersWrapper } from './users';
-import { VersionsWrapper } from './versions';
-import { KvWrapper } from './kv';
+import { AuthWrapper } from './auth/index.js';
+import { ProjectsWrapper } from './projects/index.js';
+import { UsersWrapper } from './users/index.js';
+import { VersionsWrapper } from './versions/index.js';
+import { KvWrapper } from './kv/index.js';
 
 export type Options = {
     passthroughResult?: boolean;

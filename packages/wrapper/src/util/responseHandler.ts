@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Options } from '../index';
+import { Options } from '../index.js';
 
 export const handleResponse = async <T extends z.ZodTypeAny>(
     schema: T,

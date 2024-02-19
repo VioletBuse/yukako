@@ -3,9 +3,9 @@ import {
     ProjectVersionsDataResponseBodySchema,
     ProjectVersionsDataResponseBodyType,
 } from '@yukako/types';
-import { handleResponse } from '../util/responseHandler';
+import { handleResponse } from '../util/responseHandler.js';
 import { z } from 'zod';
-import { Options } from '../index';
+import { Options } from '../index.js';
 
 export const ProjectSpecificVersionsWrapper = (
     server: string,
