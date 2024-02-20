@@ -7,6 +7,7 @@ import {
     projectVersionTextBindings,
 } from './basic-bindings';
 import { projectVersionKvDatabaseBinding } from './kv';
+import { sites } from './sites';
 
 export const dataBlobType = pgEnum('data_blob_type', [
     'esmodule',
@@ -98,5 +99,6 @@ export const projectVersionRelations = relations(
         jsonBindings: many(projectVersionJsonBindings),
         dataBindings: many(projectVersionDataBindings),
         kvDatabases: many(projectVersionKvDatabaseBinding),
+        sites: many(sites),
     }),
 );
