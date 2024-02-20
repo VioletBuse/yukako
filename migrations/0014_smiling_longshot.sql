@@ -1,0 +1,1 @@
+ALTER TABLE "project_version_kv_database_binding" DROP CONSTRAINT "project_version_kv_database_binding_kv_database_id_project_version_id_pk";

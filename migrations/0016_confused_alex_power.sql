@@ -1,0 +1,1 @@
+ALTER TABLE "project_version_kv_database_bindings" ADD CONSTRAINT "project_version_kv_database_bindings_kv_database_id_project_version_id_pk" PRIMARY KEY("kv_database_id","project_version_id");

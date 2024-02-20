@@ -1,0 +1,1 @@
+ALTER TABLE "kv_entries" ADD CONSTRAINT "kv_entries_key_kv_database_id_pk" PRIMARY KEY("key","kv_database_id");

@@ -9,7 +9,7 @@ import {
 import { relations } from 'drizzle-orm';
 import { projectVersions } from './versions';
 
-export const kvDatabase = pgTable('kv_database', {
+export const kvDatabase = pgTable('kv_databases', {
     id: text('id').notNull().primaryKey(),
     name: text('name').notNull().unique(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -21,7 +21,7 @@ export const kvDatabaseRelations = relations(kvDatabase, ({ many }) => ({
 }));
 
 export const kvEntry = pgTable(
-    'kv_entry',
+    'kv_entries',
     {
         key: text('key').notNull(),
         value: text('value').notNull(),
@@ -54,7 +54,7 @@ export const kvEntryRelations = relations(kvEntry, ({ one }) => ({
 }));
 
 export const projectVersionKvDatabaseBinding = pgTable(
-    'project_version_kv_database_binding',
+    'project_version_kv_database_bindings',
     {
         kvDatabaseId: text('kv_database_id')
             .notNull()
