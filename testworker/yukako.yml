@@ -5,6 +5,9 @@ routes:
   - host: test.localhost:8080
     paths:
       - "/"
+sites:
+  - name: SITE
+    folder: "./testsite"
 deployments:
   - server: http://localhost:8080
     name: test

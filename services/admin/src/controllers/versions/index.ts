@@ -47,6 +47,11 @@ versionsRouter.get('/', async (req, res) => {
                 jsonBindings: true,
                 dataBindings: true,
                 kvDatabases: true,
+                sites: {
+                    with: {
+                        files: true,
+                    },
+                },
             },
             limit,
             offset: page * limit,
@@ -100,6 +105,14 @@ versionsRouter.get('/', async (req, res) => {
                     }),
                 );
 
+                const siteBindings = projectVersion.sites.map((site) => ({
+                    name: site.name,
+                    files: site.files.map((file) => ({
+                        path: file.path,
+                        digest: base64Hash(file.base64),
+                    })),
+                }));
+
                 return {
                     id: projectVersion.id,
                     version: projectVersion.version,
@@ -111,6 +124,7 @@ versionsRouter.get('/', async (req, res) => {
                     jsonBindings,
                     dataBindings,
                     kvBindings,
+                    siteBindings,
                 };
             },
         );

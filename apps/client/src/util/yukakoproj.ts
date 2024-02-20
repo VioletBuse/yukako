@@ -5,6 +5,7 @@ import { parse as yamlParse } from 'yaml';
 import { parse as tomlParse } from 'toml';
 import { z } from 'zod';
 import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.ts';
+import * as util from 'util';
 
 const baseConfigSchema = z.object({
     folder: z.string(),
@@ -74,6 +75,15 @@ const baseConfigSchema = z.object({
             z.object({
                 name: z.string(),
                 kv_database_id: z.string(),
+            }),
+        )
+        .optional(),
+
+    sites: z
+        .array(
+            z.object({
+                name: z.string(),
+                folder: z.string(),
             }),
         )
         .optional(),
@@ -278,6 +288,70 @@ const resolveDataBindings = (
     return dataBindings;
 };
 
+const recursiveRead = (
+    folder: string,
+    opts?: {
+        removeFromPath?: string;
+    },
+): {
+    path: string;
+    base64: string;
+}[] => {
+    const files = fs.readdirSync(folder);
+    const result: { path: string; base64: string }[] = [];
+
+    for (const file of files) {
+        const fullPath = path.resolve(folder, file);
+        const stats = fs.statSync(fullPath);
+
+        if (stats.isDirectory()) {
+            result.push(...recursiveRead(fullPath, opts));
+        } else {
+            const contents = fs.readFileSync(fullPath, 'base64');
+
+            let pathToUse = fullPath;
+
+            if (opts?.removeFromPath) {
+                pathToUse = pathToUse.replace(opts.removeFromPath, '');
+            }
+
+            result.push({
+                path: pathToUse,
+                base64: contents,
+            });
+        }
+    }
+
+    return result;
+};
+
+const resolveSites = (
+    config: z.infer<typeof baseConfigSchema>,
+    folder: string,
+): NewProjectVersionRequestBodyType['sites'] => {
+    const sites: NewProjectVersionRequestBodyType['sites'] =
+        config.sites?.map(
+            (
+                site,
+            ): NonNullable<
+                NewProjectVersionRequestBodyType['sites']
+            >[number] => {
+                const siteFolder = path.resolve(folder, site.folder);
+
+                const files = recursiveRead(siteFolder, {
+                    removeFromPath: folder,
+                });
+
+                return {
+                    name: site.name,
+                    files,
+                };
+            },
+        ) ?? [];
+
+    return sites;
+};
+
 export const configToVersionPush = async (
     input: z.infer<typeof baseConfigSchema>,
 ): Promise<NewProjectVersionRequestBodyType> => {
@@ -341,6 +415,7 @@ export const configToVersionPush = async (
         textBindings: resolveTextBindings(input, folder),
         jsonBindings: resolveJsonBindings(input, folder),
         dataBindings: resolveDataBindings(input, folder),
+        sites: resolveSites(input, folder),
     };
 
     return result;

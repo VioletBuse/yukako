@@ -12,6 +12,8 @@ import {
     projectVersionRoutes,
     projectVersions,
     projectVersionTextBindings,
+    siteFiles,
+    sites,
 } from '@yukako/state/src/db/schema';
 import { respond } from '../../middleware/error-handling/throwable';
 import { getSql } from '@yukako/state/src/db/init';
@@ -68,6 +70,11 @@ projectSpecificVersionsRouter.get(
                     jsonBindings: true,
                     dataBindings: true,
                     kvDatabases: true,
+                    sites: {
+                        with: {
+                            files: true,
+                        },
+                    },
                 },
                 limit,
                 offset: page * limit,
@@ -119,6 +126,14 @@ projectSpecificVersionsRouter.get(
                         kvDatabaseId: kv.kvDatabaseId,
                     }));
 
+                    const siteBindings = projectVersion.sites.map((site) => ({
+                        name: site.name,
+                        files: site.files.map((file) => ({
+                            path: file.path,
+                            digest: base64Hash(file.base64),
+                        })),
+                    }));
+
                     return {
                         id: projectVersion.id,
                         version: projectVersion.version,
@@ -130,6 +145,7 @@ projectSpecificVersionsRouter.get(
                         jsonBindings,
                         dataBindings,
                         kvBindings,
+                        siteBindings,
                     };
                 },
             );
@@ -181,6 +197,11 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
+                            sites: {
+                                with: {
+                                    files: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -240,6 +261,14 @@ projectSpecificVersionsRouter.get(
                 kvDatabaseId: kv.kvDatabaseId,
             }));
 
+            const siteBindings = projectVersion.sites.map((site) => ({
+                name: site.name,
+                files: site.files.map((file) => ({
+                    path: file.path,
+                    digest: base64Hash(file.base64),
+                })),
+            }));
+
             const data: ProjectVersionsDataResponseBodyType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
@@ -251,6 +280,7 @@ projectSpecificVersionsRouter.get(
                 jsonBindings,
                 dataBindings,
                 kvBindings,
+                siteBindings,
             };
 
             respond.status(200).message(data).throw();
@@ -402,6 +432,41 @@ projectSpecificVersionsRouter.post(
                               .returning()
                         : [];
 
+                const sitesValues =
+                    data.sites?.map((site) => ({
+                        id: nanoid(),
+                        name: site.name,
+                        createdAt: new Date(),
+                        versionId: newProjectVersion[0].id,
+                        files: site.files,
+                    })) || [];
+
+                const newSites =
+                    data.sites && data.sites.length > 0
+                        ? await txn
+                              .insert(sites)
+                              .values(
+                                  sitesValues.map(({ files, ...site }) => ({
+                                      ...site,
+                                  })),
+                              )
+                              .returning()
+                        : [];
+
+                const files = sitesValues.flatMap((site) =>
+                    site.files.map((file) => ({
+                        ...file,
+                        siteId: site.id,
+                        id: nanoid(),
+                        createdAt: new Date(),
+                    })),
+                );
+
+                const newSiteFiles =
+                    files.length > 0
+                        ? await txn.insert(siteFiles).values(files).returning()
+                        : [];
+
                 const routes = newRoutes.map((route) => ({
                     id: route.id,
                     host: route.host,
@@ -438,6 +503,16 @@ projectSpecificVersionsRouter.post(
                     kvDatabaseId: kv.kvDatabaseId,
                 }));
 
+                const siteBindings = newSites.map((site) => ({
+                    name: site.name,
+                    files: newSiteFiles
+                        .filter((file) => file.siteId === site.id)
+                        .map((file) => ({
+                            path: file.path,
+                            digest: base64Hash(file.base64),
+                        })),
+                }));
+
                 _sql.notify('project_versions', 'reload');
 
                 const _data: ProjectVersionsDataResponseBodyType = {
@@ -451,6 +526,7 @@ projectSpecificVersionsRouter.post(
                     jsonBindings,
                     dataBindings,
                     kvBindings,
+                    siteBindings,
                 };
 
                 return _data;
@@ -509,13 +585,15 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
+                            sites: {
+                                with: {
+                                    files: true,
+                                },
+                            },
                         },
                     },
                 },
             });
-
-            console.log('project');
-            console.log(project);
 
             if (!project) {
                 respond
@@ -571,6 +649,14 @@ projectSpecificVersionsRouter.get(
                 kvDatabaseId: kv.kvDatabaseId,
             }));
 
+            const siteBindings = projectVersion.sites.map((site) => ({
+                name: site.name,
+                files: site.files.map((file) => ({
+                    path: file.path,
+                    digest: base64Hash(file.base64),
+                })),
+            }));
+
             const data: ProjectVersionsDataResponseBodyType = {
                 id: projectVersion.id,
                 version: projectVersion.version,
@@ -582,6 +668,7 @@ projectSpecificVersionsRouter.get(
                 jsonBindings,
                 dataBindings,
                 kvBindings,
+                siteBindings,
             };
 
             respond.status(200).message(data).throw();

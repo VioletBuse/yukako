@@ -22,6 +22,7 @@ export const sitesRelations = relations(sites, ({ one, many }) => ({
 export const siteFiles = pgTable('site_files', {
     id: text('id').notNull().primaryKey(),
     base64: text('base64').notNull(),
+    path: text('path').notNull(),
     siteId: text('site_id')
         .notNull()
         .references(() => sites.id),

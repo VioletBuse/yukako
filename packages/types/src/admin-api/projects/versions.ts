@@ -51,6 +51,19 @@ export const NewProjectVersionRequestBodySchema = z.object({
     kvBindings: z
         .array(z.object({ name: z.string(), kvDatabaseId: z.string() }))
         .nullish(),
+    sites: z
+        .array(
+            z.object({
+                name: z.string(),
+                files: z.array(
+                    z.object({
+                        path: z.string(),
+                        base64: z.string(),
+                    }),
+                ),
+            }),
+        )
+        .nullish(),
 });
 
 export type NewProjectVersionRequestBodyType = z.infer<
@@ -104,6 +117,17 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
         z.object({
             name: z.string(),
             kvDatabaseId: z.string(),
+        }),
+    ),
+    siteBindings: z.array(
+        z.object({
+            name: z.string(),
+            files: z.array(
+                z.object({
+                    path: z.string(),
+                    digest: z.string(),
+                }),
+            ),
         }),
     ),
 });
