@@ -10,7 +10,8 @@ const modules = [
 	{ out: "entrypoint", in: "modules/entrypoint/index.ts" }
 ];
 const extensions = [
-	{ out: "kv-extension", in: "extensions/kv/index.ts" }
+	{ out: "kv-extension", in: "extensions/kv/index.ts" },
+	{ out: "sites-extension", in: "extensions/sites/index.ts" }
 ];
 
 await esbuild.build({
@@ -28,6 +29,7 @@ const test = await fs.readFile("dist/test.js", "utf-8");
 const entrypoint = await fs.readFile("dist/entrypoint.js", "utf-8");
 
 const kvExtension = await fs.readFile("dist/kv-extension.js", "utf-8");
+const sitesExtension = await fs.readFile("dist/sites-extension.js", "utf-8");
 
 const final = `
 
@@ -45,6 +47,9 @@ export const entrypoint = ${JSON.stringify(entrypoint)};
 
 // Path: packages/extensions/extensions/kv/index.ts
 export const kvExtension = ${JSON.stringify(kvExtension)};
+
+// Path: packages/extensions/extensions/sites/index.ts
+export const sitesExtension = ${JSON.stringify(sitesExtension)};
 `;
 
 await fs.writeFile("src/dist.ts", final);

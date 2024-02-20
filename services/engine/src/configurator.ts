@@ -35,6 +35,7 @@ import {
     router,
     kvExtension,
     RouterMeta,
+    sitesExtension,
 } from '@yukako/extensions';
 import * as path from 'path';
 import { match, P } from 'ts-pattern';
@@ -53,6 +54,7 @@ export type BaseBindingData =
           type: 'data';
           name: string;
           value: DataView;
+          customDataFileName?: string;
       }
     | {
           type: 'json';
@@ -228,7 +230,9 @@ export class Configurator {
                     .setValue(CapnpText.new(binding.value)),
             )
             .with({ type: 'data' }, (binding) => {
-                const dataFileName = `${binding.name}_${nanoid()}.data`;
+                const dataFileName =
+                    binding.customDataFileName ??
+                    `${binding.name}_${nanoid()}.data`;
 
                 this.artifacts.addFile('__yukako_data_binding_data', {
                     content: binding.value,
@@ -270,8 +274,8 @@ export class Configurator {
                     .setModuleName(binding.module)
                     .setEntrypoint(binding.entrypoint ?? 'default')
                     .setInnerBindings(
-                        binding.innerBindings.map(
-                            this.baseBindingDataToBinding,
+                        binding.innerBindings.map((innerBinding) =>
+                            this.baseBindingDataToBinding(innerBinding),
                         ),
                     );
             })
@@ -580,8 +584,32 @@ export class Configurator {
         this.config._extensions.push(_kvExtension);
     }
 
+    private initializeSitesExtension() {
+        this.artifacts.addFile('__yukako_internal_extensions', {
+            name: 'sites-extension-module.js',
+            content: sitesExtension,
+            meta: {
+                type: 'esmodule',
+            },
+        });
+
+        const _sitesExtension = Extension.new().setModules([
+            ExtensionModule.new()
+                .setName('sites-extension')
+                .setInternal(true)
+                .setEsModule(
+                    CapnpEmbed.new(
+                        'artifacts/__yukako_internal_extensions/sites-extension-module.js',
+                    ),
+                ),
+        ]);
+
+        this.config._extensions.push(_sitesExtension);
+    }
+
     private initializeExtensions() {
         this.initializeKvExtension();
+        this.initializeSitesExtension();
     }
 
     public static new(opts: {

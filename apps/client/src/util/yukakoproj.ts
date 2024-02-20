@@ -339,7 +339,7 @@ const resolveSites = (
                 const siteFolder = path.resolve(folder, site.folder);
 
                 const files = recursiveRead(siteFolder, {
-                    removeFromPath: folder,
+                    removeFromPath: siteFolder,
                 });
 
                 return {

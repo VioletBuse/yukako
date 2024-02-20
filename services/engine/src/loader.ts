@@ -31,6 +31,11 @@ export const loadProjects = async () => {
                     jsonBindings: true,
                     dataBindings: true,
                     kvDatabases: true,
+                    sites: {
+                        with: {
+                            files: true,
+                        },
+                    },
                 },
             },
         },
@@ -65,18 +70,10 @@ export const loadProjects = async () => {
 
             const dataBindings = project.projectVersions[0].dataBindings.map(
                 (binding): BaseBindingData => {
-                    const base64 = binding.base64;
-                    const buffer = Buffer.from(base64, 'base64');
-                    const dataview = new DataView(
-                        buffer.buffer,
-                        buffer.byteOffset,
-                        buffer.byteLength,
-                    );
-
                     return {
                         type: 'data',
                         name: binding.name,
-                        value: dataview,
+                        value: base64ToDataView(binding.base64),
                     };
                 },
             );
@@ -120,11 +117,31 @@ export const loadProjects = async () => {
                     ],
                 }));
 
+            const sitesBindings: BaseBindingData[] =
+                project.projectVersions[0].sites.map((site) => {
+                    return {
+                        name: site.name,
+                        type: 'wrapped',
+                        module: 'sites-extension',
+                        innerBindings: [
+                            ...site.files.map(
+                                (file): BaseBindingData => ({
+                                    type: 'data',
+                                    name: file.path,
+                                    value: base64ToDataView(file.base64),
+                                    customDataFileName: base64Hash(file.base64),
+                                }),
+                            ),
+                        ],
+                    };
+                });
+
             const bindings = [
                 ...textBindings,
                 ...jsonBindings,
                 ...dataBindings,
                 ...kvBindings,
+                ...sitesBindings,
             ];
 
             // console.log('Reloading project with bindings:');
