@@ -107,6 +107,22 @@ type BaseServiceData =
           allowDotFiles?: boolean;
       };
 
+export type AddWorkerData = {
+    name: string;
+    compatibilityDate?: string;
+    modules: {
+        importName: string;
+        fileName: string;
+        fileContent: string | DataView;
+        type: 'esmodule' | 'wasm' | 'json' | 'text' | 'data';
+    }[];
+    routing: {
+        host: string;
+        basePaths: string[];
+    }[];
+    bindings: BaseBindingData[];
+};
+
 type File = {
     name: string;
     content: string | DataView;
@@ -166,17 +182,17 @@ export class Configurator {
 
         const routerSocket = this.getRouterSocket();
 
-        routerSocket.setAddress(address);
+        routerSocket.setAddress(`unix:${address}`);
 
         return this;
     }
 
     private setAdminApiAddress(address: string) {
-        this.adminApiAddress = address;
+        this.adminApiAddress = `unix:${address}`;
 
         const adminApiService = this.getAdminApiService() as ExternalServer;
 
-        adminApiService.setAddress(address);
+        adminApiService.setAddress(`unix:${address}`);
 
         return this;
     }
@@ -539,7 +555,7 @@ export class Configurator {
 
         return this.baseCreateService({
             type: 'external',
-            address: opts.adminApiAddress,
+            address: `unix:${opts.adminApiAddress}`,
             name: 'defaultAdminApiService',
             httpOptions: {
                 type: 'host',
@@ -657,21 +673,7 @@ export class Configurator {
         return this;
     }
 
-    public addWorker(_worker: {
-        name: string;
-        compatibilityDate?: string;
-        modules: {
-            importName: string;
-            fileName: string;
-            fileContent: string | DataView;
-            type: 'esmodule' | 'wasm' | 'json' | 'text' | 'data';
-        }[];
-        routing: {
-            host: string;
-            basePaths: string[];
-        }[];
-        bindings: BaseBindingData[];
-    }) {
+    public addWorker(_worker: AddWorkerData) {
         const adjustedWorker = produce(_worker, (draft) => {
             draft.name =
                 draft.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() +

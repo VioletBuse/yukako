@@ -3,9 +3,8 @@ import { asc, desc } from 'drizzle-orm';
 import * as util from 'util';
 import { test } from '@yukako/extensions';
 import { createHash } from 'crypto';
-import { BaseBindingData } from './configurator';
+import { BaseBindingData } from '@yukako/engineer/src/configurator';
 import { base64ToDataView, base64Hash } from '@yukako/base64ops';
-import { ExternalServer } from './config';
 import {
     projectVersionBlobs,
     projectVersions,

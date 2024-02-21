@@ -2,8 +2,6 @@ import * as path from 'path';
 import { nanoid } from 'nanoid';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import chalk from 'chalk';
-// @ts-ignore
-import bin from 'workerd';
 import * as util from 'util';
 import prexit from 'prexit';
 import * as fs from 'fs-extra';
@@ -89,13 +87,9 @@ const handleStdOut = () => {
 
         const log = parseLog(str);
 
-        // console.log(
-        //     `[workerd][${name}][${log.type}][id:${
-        //         log.id ?? 'no log id provided'
-        //     }] ${log.value.trimEnd()}`,
-        // );
+        console.log(`[workerd][${name}][${log.type}] ${log.value.trimEnd()}`);
 
-        console.log(util.inspect(log, false, null, true /* enable colors */));
+        // console.log(util.inspect(log, false, null, true /* enable colors */));
     };
 };
 
@@ -105,9 +99,9 @@ const handleStdErr = () => {
 
         const log = parseLog(str);
 
-        // console.error(`[${chalk.red('workerd')}][${name}] ${str.trimEnd()}`);
+        console.error(`[${chalk.red('workerd')}][${name}] ${str.trimEnd()}`);
 
-        console.error(util.inspect(log, false, null, true /* enable colors */));
+        // console.error(util.inspect(log, false, null, true /* enable colors */));
     };
 };
 
@@ -123,38 +117,33 @@ const handleExit = (opts?: { sockets?: string[] }) => {
         if (code !== 0) {
             console.error(chalk.red(`[workerd][${name}] exited.`));
         } else {
-            console.log(`[workerd][${name}] exited.`);
+            console.log(`[workerd][${name}] exited with code ${code}`);
         }
 
-        console.log(`manual termination: ${manualTermination}`);
-        if (!manualTermination) {
+        // console.log(`manual termination in exit handler: ${manualTermination}`);
+        if (code !== 0) {
             console.log(
-                chalk.red.bold(`[${name}] Restarting workerd in 1s...`),
+                chalk.red.bold(
+                    `[workerd][${name}] Exited unexpectedly. Exiting...`,
+                ),
             );
-            workerdProcess?.kill();
-            workerdProcess = null;
-            // this.start();
-            setTimeout(() => {
-                WorkerdSupervisor.start(configLocation);
-            }, 1000);
+            process.exit(1);
         }
     };
 };
 
 const handleError = () => {
     return (err: Error) => {
-        console.error(err);
-
         if (!manualTermination) {
-            console.log(
-                chalk.red.bold(`[${name}] Restarting workerd in 1s...`),
-            );
+            console.log(chalk.red.bold(`[workerd][${name}] Error. Exiting...`));
+            manualTermination = true;
             workerdProcess?.kill();
             workerdProcess = null;
-            // this.start();
-            setTimeout(() => {
-                WorkerdSupervisor.start(configLocation);
-            }, 1000);
+            process.exit(1);
+        } else {
+            console.error(
+                chalk.red(`[workerd][${name}] Error: ${err.message}`),
+            );
         }
     };
 };
@@ -162,14 +151,25 @@ const handleError = () => {
 export const WorkerdSupervisor = {
     start: (
         _configlocation: string,
+        workerid: string,
         opts?: {
             sockets?: string[];
         },
     ) => {
+        name = workerid;
         configLocation = _configlocation;
         manualTermination = false;
         console.log(chalk.bold(`Starting workerd process ${name}`));
-        const workerd = spawn(bin, ['serve', configLocation, '--verbose']);
+
+        const binpath = require.resolve('workerd/bin/workerd');
+        const workerd = spawn(binpath, ['serve', configLocation, '--verbose']);
+
+        if (opts?.sockets) {
+            opts.sockets.forEach((socket) => {
+                // console.log(chalk.bold(`Creating socket ${socket}`));
+                // fs.ensureFileSync(socket);
+            });
+        }
 
         workerd.stdout.on('data', handleStdOut());
         workerd.stderr.on('data', handleStdErr());
@@ -179,47 +179,17 @@ export const WorkerdSupervisor = {
         workerdProcess = workerd;
     },
     stop: (opts?: { sockets?: string[] }) => {
-        if (opts?.sockets) {
-            opts.sockets.forEach((socket) => {
-                console.log(chalk.bold(`Removing socket ${socket}`));
-                fs.rmSync(socket, { recursive: true, force: true });
-            });
-        }
-
         manualTermination = true;
-        workerdProcess?.kill();
-        workerdProcess = null;
-    },
-    restart: (
-        _configLocation: string = configLocation,
-        opts?: {
-            sockets?: string[];
-        },
-    ) => {
-        configLocation = _configLocation;
-        manualTermination = true;
-
-        console.log(`manual termination: ${manualTermination}`);
-
+        // console.log('manualTermination in stop', manualTermination);
         workerdProcess?.kill();
         workerdProcess = null;
 
         if (opts?.sockets) {
             opts.sockets.forEach((socket) => {
-                console.log(chalk.bold(`Removing socket ${socket}`));
+                // console.log(chalk.bold(`Removing socket ${socket}`));
                 fs.rmSync(socket, { recursive: true, force: true });
             });
         }
-
-        setTimeout(() => {
-            WorkerdSupervisor.start(_configLocation);
-        }, 1000);
-    },
-    setConfigLocation: (_configLocation: string) => {
-        configLocation = _configLocation;
-    },
-    setName: (_name: string) => {
-        name = _name;
     },
 };
 

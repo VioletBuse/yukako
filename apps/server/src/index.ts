@@ -19,7 +19,7 @@ await testDB(db);
 await migrate(db);
 
 const isMaster = cluster.isPrimary || cluster.isMaster;
-const workers = 1;
+const workers = cli.workerCount;
 
 const id = cluster.worker?.id.toString() || nanoid();
 
@@ -34,12 +34,6 @@ if (isMaster) {
     ProxyService.start(id);
 }
 
-// prexit(() => {
-//     const workdir = path.join(process.cwd(), './.yukako/', id);
-//     console.log(`Cleaning up ${workdir}`);
-//     fs.rmSync(workdir, { recursive: true, force: true });
-// });
-
 const exitHandler = (
     opts: {
         cleanup?: boolean;
@@ -48,9 +42,9 @@ const exitHandler = (
     exitCode: number,
 ) => {
     if (opts.cleanup) {
-        const workdir = path.join(process.cwd(), './.yukako/', id);
-        console.log(`Cleaning up ${workdir}`);
-        fs.rmSync(workdir, { recursive: true, force: true });
+        // const workdir = path.join(process.cwd(), './.yukako/', id);
+        // console.log(`Cleaning up ${workdir}`);
+        // fs.rmSync(workdir, { recursive: true, force: true });
     }
 
     if (exitCode || exitCode === 0) {

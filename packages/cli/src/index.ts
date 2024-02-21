@@ -1,3 +1,6 @@
+// import os for cpu count
+import os from 'os';
+
 const getArg = (long: string, short: string): string | null => {
     const basicIndexLong = process.argv.indexOf(long);
     const basicIndexShort = process.argv.indexOf(short);
@@ -42,6 +45,7 @@ type Result = {
     adminHost: string;
     port: number;
     secret: string;
+    workerCount: number;
 };
 
 const helptext = `
@@ -53,6 +57,7 @@ const helptext = `
 		--admin-host, -a	Admin api/dashboard host, $YUKAKO_ADMIN_HOST, defaults to localhost
 		--port, -o			Port, $YUKAKO_PORT, defaults to 8080
 		--secret, -s		Secret, $YUKAKO_SECRET, defaults to 'secret'
+		--cluster, -c 		Number of cluster workers, $YUKAKO_CLUSTER either a number, or 'auto' to use the number of CPU cores, defaults to 1
 
 	Examples:
 		$ yukako --postgres postgres://postgres:postgres@localhost:5432/postgres --admin-host localhost --port 8080 --secret secret
@@ -79,6 +84,8 @@ export const run = (): Result => {
 
     const secretArg = getArg('--secret', '-s');
 
+    const clusterArg = getArg('--cluster', '-c');
+
     const postgres =
         postgresArg ||
         process.env.YUKAKO_POSTGRES_URL ||
@@ -90,6 +97,8 @@ export const run = (): Result => {
     const adminHost =
         adminHostArg || process.env.YUKAKO_ADMIN_HOST || 'localhost';
     const port = portArg || process.env.YUKAKO_PORT || '8080';
+
+    const cluster = clusterArg || process.env.YUKAKO_CLUSTER || '1';
 
     if (isNaN(parseInt(port))) {
         console.error('Port must be a number');
@@ -116,7 +125,16 @@ export const run = (): Result => {
         process.exit(1);
     }
 
+    if (isNaN(parseInt(cluster)) && cluster !== 'auto') {
+        console.error('Cluster must be a number or "auto"');
+        console.error(helptext);
+
+        process.exit(1);
+    }
+
     const secret = secretArg || process.env.YUKAKO_SECRET || 'secret';
+    const clusterWorkerCount =
+        cluster === 'auto' ? os.cpus().length : parseInt(cluster);
 
     return {
         postgres: {
@@ -127,5 +145,6 @@ export const run = (): Result => {
         adminHost,
         port: parseInt(port),
         secret,
+        workerCount: clusterWorkerCount,
     };
 };

@@ -9,6 +9,7 @@
 	"typescript": "latest"
   },
   "dependencies": {
+	"@yukako/engineer": "*",
 	"@yukako/extensions": "*",
 	"@yukako/state": "*",
 	"@yukako/base64ops": "*",
