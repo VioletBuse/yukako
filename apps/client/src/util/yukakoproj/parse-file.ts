@@ -3,6 +3,33 @@ import * as fs from 'fs-extra';
 import { parse as yamlParse } from 'yaml';
 import { parse as tomlParse } from 'toml';
 
+export const findFile = (): string => {
+    const dir = process.cwd();
+
+    const jsonProjectFile = path.join(dir, 'yukako.json');
+    const yamlProjectFile = path.join(dir, 'yukako.yaml');
+    const ymlProjectFile = path.join(dir, 'yukako.yml');
+    const tomlProjectFile = path.join(dir, 'yukako.toml');
+
+    if (fs.existsSync(jsonProjectFile)) {
+        return jsonProjectFile;
+    }
+
+    if (fs.existsSync(yamlProjectFile)) {
+        return yamlProjectFile;
+    }
+
+    if (fs.existsSync(ymlProjectFile)) {
+        return ymlProjectFile;
+    }
+
+    if (fs.existsSync(tomlProjectFile)) {
+        return tomlProjectFile;
+    }
+
+    throw new Error('Project file does not exist.');
+};
+
 export const findAndParseFile = (): unknown => {
     const dir = process.cwd();
 

@@ -19,7 +19,7 @@ export const getDeployments = () => {
 };
 
 export const getConfig = (
-    deploymentid: string,
+    deploymentid?: string,
 ): z.infer<typeof baseConfigSchema> => {
     const project = findAndParseFile();
 
@@ -27,6 +27,10 @@ export const getConfig = (
 
     if (!parseResult.success) {
         throw parseResult.error;
+    }
+
+    if (!deploymentid) {
+        return parseResult.data;
     }
 
     const { deployments, ...config } = parseResult.data;
