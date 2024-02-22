@@ -70,6 +70,7 @@
     "commander": "^11.1.0",
     "conf": "^12.0.0",
     "cookie-parser": "^1.4.6",
+    "debounce": "^2.0.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.2",
     "esbuild-wasm": "^0.19.11",

@@ -55,7 +55,7 @@ const opts = {
 	target: "node16",
 	format: "esm",
 	banner: { js: banner },
-	external: ["esbuild"],
+	external: ["esbuild", "fsevents"],
 	outdir: dist
 };
 

@@ -2,24 +2,12 @@ import { Command } from 'commander';
 import ora from 'ora';
 import { readConfig } from '../util/main-config.js';
 import { input, select } from '@inquirer/prompts';
-import * as util from 'util';
 import chalk from 'chalk';
-import {
-    configToVersionPush,
-    getConfig,
-    getDeployments,
-} from '../util/yukakoproj.js';
-import * as fs from 'fs-extra';
-import path from 'path';
-import {
-    ProjectFolderFile,
-    recursivelyReadFolder,
-} from '../util/read-folder.js';
+import { configToVersionPush } from '../util/yukakoproj';
 import { versions } from './versions.js';
-import { NewProjectVersionRequestBodyType } from '@yukako/types/src/admin-api/projects/versions.js';
-import { z } from 'zod';
 import { selectServer, validateServerString } from '../util/server-select.js';
 import { Wrapper } from '@yukako/wrapper';
+import { getConfig, getDeployments } from '../util/yukakoproj/get-data';
 
 const create = new Command()
     .command('create')
@@ -356,6 +344,10 @@ const deploy = new Command()
 
                 const versionPushData = await configToVersionPush(
                     projectDeploymentConfig,
+                    {
+                        watch: false,
+                        onChange: null,
+                    },
                 );
 
                 const [res, err] = await wrapper.projects.versions.new(
