@@ -9,7 +9,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, CornerDownRight, Loader2, Terminal } from 'lucide-react';
+import {
+    AlertCircle,
+    CornerDownRight,
+    File,
+    Loader2,
+    Terminal,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useGetVersionsForProject } from '@/lib/hooks/data-hooks/versions/get-versions-per-proj-pagted';
 import { Button } from '@/components/ui/button';
@@ -111,6 +117,38 @@ const VersionsCardKvDatabases: React.FC<VersionsCardKvDatabasesProps> = ({
             {kvDatabases.length === 0 && (
                 <p className='text-md font-normal'>
                     This version has no KV Databases.
+                </p>
+            )}
+        </div>
+    );
+};
+
+type VersionsCardSitesProps = {
+    sites: ProjectVersionsDataResponseBodyType['siteBindings'];
+};
+
+const VersionsCardSites: React.FC<VersionsCardSitesProps> = ({ sites }) => {
+    return (
+        <div className='flex flex-col gap-y-2 border border-border p-2'>
+            <h1 className='text-lg font-medium'>Sites</h1>
+            {sites.map((site) => (
+                <div className='border border-border p-2 bg-background'>
+                    <p className='text-md font-medium'>{site.name}</p>
+                    <p className='text-md font-normal'>
+                        {site.files.map((file) => (
+                            <p
+                                className='ml-4 flex flex-row items-center'
+                                key={file.path}>
+                                <File className='w-4 h-4 mr-2' />
+                                {file.path}
+                            </p>
+                        ))}
+                    </p>
+                </div>
+            ))}
+            {sites.length === 0 && (
+                <p className='text-md font-normal'>
+                    This version has no sites.
                 </p>
             )}
         </div>
@@ -240,6 +278,7 @@ const VersionCard: React.FC<VersionCardProps> = ({ data: version, badges }) => {
                     <VersionsCardArtifacts artifacts={version.blobs} />
                     <VersionsCardRoutes routes={version.routes} />
                     <VersionsCardKvDatabases kvDatabases={version.kvBindings} />
+                    <VersionsCardSites sites={version.siteBindings} />
                     <VersionsCardBindings
                         jsonBindings={version.jsonBindings}
                         textBindings={version.textBindings}

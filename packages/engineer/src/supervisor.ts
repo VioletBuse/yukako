@@ -120,7 +120,6 @@ const handleExit = (opts?: { sockets?: string[] }) => {
             console.log(`[workerd][${name}] exited with code ${code}`);
         }
 
-        // console.log(`manual termination in exit handler: ${manualTermination}`);
         if (code !== 0) {
             console.log(
                 chalk.red.bold(
@@ -134,17 +133,7 @@ const handleExit = (opts?: { sockets?: string[] }) => {
 
 const handleError = () => {
     return (err: Error) => {
-        if (!manualTermination) {
-            console.log(chalk.red.bold(`[workerd][${name}] Error. Exiting...`));
-            manualTermination = true;
-            workerdProcess?.kill();
-            workerdProcess = null;
-            process.exit(1);
-        } else {
-            console.error(
-                chalk.red(`[workerd][${name}] Error: ${err.message}`),
-            );
-        }
+        console.error(chalk.red(`[workerd][${name}] Error: ${err.message}`));
     };
 };
 
@@ -179,8 +168,6 @@ export const WorkerdSupervisor = {
         workerdProcess = workerd;
     },
     stop: (opts?: { sockets?: string[] }) => {
-        manualTermination = true;
-        // console.log('manualTermination in stop', manualTermination);
         workerdProcess?.kill();
         workerdProcess = null;
 
