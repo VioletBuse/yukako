@@ -4,12 +4,45 @@ import { select } from '@inquirer/prompts';
 import { configToVersionPush } from '../util/yukakoproj';
 import { watchConfig } from '../util/yukakoproj/watch-config';
 import chalk from 'chalk';
+import { NewProjectVersionRequestBodyType } from '@yukako/types';
+import { AddWorkerData, Engineer } from '@yukako/engineer';
+import path from 'path';
+import { base64Hash, base64ToDataView } from '@yukako/base64ops';
 
 export const dev = new Command()
     .command('dev')
     .description('dev server')
     .action(async () => {
         try {
+            const workdir = process.cwd();
+            const dir = path.join(workdir, '.yukako_cli');
+            const engineDirectory = path.join(dir, 'engine');
+            const adminDirectory = path.join(dir, 'admin');
+            const workerId = 'dev-worker';
+
+            const configToWorkers = (
+                val: NewProjectVersionRequestBodyType,
+            ): AddWorkerData => {
+                return {
+                    name: 'dev-worker',
+                    modules: val.blobs.map(
+                        (blob): AddWorkerData['modules'][number] => ({
+                            importName: blob.filename,
+                            fileName: base64Hash(blob.data),
+                            fileContent: base64ToDataView(blob.data),
+                            type: blob.type,
+                        }),
+                    ),
+                    bindings: [],
+                    routing: val.routes.map(
+                        (route): AddWorkerData['routing'][number] => ({
+                            host: 'localhost',
+                            basePaths: route.basePaths,
+                        }),
+                    ),
+                };
+            };
+
             let stopWatchProject: () => void;
             let deploymentId: string | undefined;
             const { stop: stopWatch } = watchConfig(async () => {
@@ -53,7 +86,14 @@ export const dev = new Command()
                     {
                         watch: true,
                         onChange: (val) => {
-                            console.log('new config');
+                            const worker = configToWorkers(val);
+                            Engineer.stop({ engineDirectory });
+                            Engineer.start({
+                                workerId,
+                                engineDirectory,
+                                adminDirectory,
+                                workers: [worker],
+                            });
                         },
                     },
                 );

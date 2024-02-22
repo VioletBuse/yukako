@@ -21,6 +21,8 @@
   "license": "ISC",
   "dependencies": {
 	"@yukako/types": "*",
-	"@yukako/wrapper": "*"
+	"@yukako/wrapper": "*",
+	"@yukako/engineer": "*",
+	"@yukako/base64ops": "*"
   }
 }

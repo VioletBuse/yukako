@@ -2,6 +2,8 @@ import { WorkerdSupervisor } from './supervisor';
 import { AddWorkerData, Configurator } from './configurator';
 import path from 'path';
 
+export type { AddWorkerData } from './configurator';
+
 export const Engineer = {
     start: (opts: {
         workerId: string;
