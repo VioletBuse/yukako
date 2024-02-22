@@ -39,7 +39,7 @@ export default {
 
         const routesMatchingHost = Object.values(env.__meta.routes).filter(
             (route) => {
-                return route.host === host;
+                return route.host === host || route.host === '*';
             },
         );
 

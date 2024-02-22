@@ -36,7 +36,7 @@ export const dev = new Command()
                     bindings: [],
                     routing: val.routes.map(
                         (route): AddWorkerData['routing'][number] => ({
-                            host: 'localhost',
+                            host: '*',
                             basePaths: route.basePaths,
                         }),
                     ),

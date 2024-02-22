@@ -21,8 +21,8 @@ const config :Workerd.Config = (
                 )
         	)
         ), (
-        	name = "devworker908",
-        	worker = .devworker908
+        	name = "devworker105",
+        	worker = .devworker105
         )
     ],
 	sockets = [
@@ -65,18 +65,18 @@ const defaultRouter :Workerd.Worker = (
     bindings = [
         (
             name = "__meta",
-            json = "{\"routes\":[{\"host\":\"localhost\",\"paths\":[\"/\",\"/test\"],\"service\":\"devworker908\"}],\"id\":\"dev-worker\"}"
+            json = "{\"routes\":[{\"host\":\"*\",\"paths\":[\"/\",\"/test\"],\"service\":\"devworker105\"}],\"id\":\"dev-worker\"}"
         ), (
-            name = "devworker908",
-            service = "devworker908"
+            name = "devworker105",
+            service = "devworker105"
         )
     ]
 );
 
-const devworker908 :Workerd.Worker = (
+const devworker105 :Workerd.Worker = (
     modules = [
-        ( name = "__yukako_entrypoint.js", esModule = embed "artifacts/devworker908/__yukako_entrypoint.js" ),
-        ( name = "./_entrypoint.js", esModule = embed "artifacts/devworker908/4d87d1ced93f4fe8d0a81cf86c3929272dd0e484d5c4c1db9386c2cb02f4841f" )
+        ( name = "__yukako_entrypoint.js", esModule = embed "artifacts/devworker105/__yukako_entrypoint.js" ),
+        ( name = "./_entrypoint.js", esModule = embed "artifacts/devworker105/4d87d1ced93f4fe8d0a81cf86c3929272dd0e484d5c4c1db9386c2cb02f4841f" )
     ],
     compatibilityDate = "2023-01-01",
     compatibilityFlags = [
