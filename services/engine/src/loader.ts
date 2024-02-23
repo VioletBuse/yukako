@@ -9,6 +9,8 @@ import {
     projectVersionBlobs,
     projectVersions,
 } from '@yukako/state/src/db/schema';
+import { generateKvBinding } from '@yukako/engineer/src/util/bindings/kv';
+import { generateSiteBinding } from '@yukako/engineer/src/util/bindings/site';
 
 export const loadProjects = async () => {
     const db = getDatabase();
@@ -77,63 +79,15 @@ export const loadProjects = async () => {
                 },
             );
 
-            // const kvBindings: BaseBindingData[] = [
-            //     {
-            //         name: 'KV_BINDING',
-            //         type: 'wrapped',
-            //         module: 'kv-extension',
-            //         innerBindings: [
-            //             {
-            //                 type: 'text',
-            //                 name: 'KV_DB_ID',
-            //                 value: 'BASE_KV_DB_ID',
-            //             },
-            //             {
-            //                 type: 'service',
-            //                 name: '__admin',
-            //                 service: 'admin-service',
-            //             },
-            //         ],
-            //     },
-            // ];
-
             const kvBindings: BaseBindingData[] =
-                project.projectVersions[0].kvDatabases.map((binding) => ({
-                    name: binding.name,
-                    type: 'wrapped',
-                    module: 'kv-extension',
-                    innerBindings: [
-                        {
-                            type: 'text',
-                            name: 'KV_DB_ID',
-                            value: binding.kvDatabaseId,
-                        },
-                        {
-                            type: 'service',
-                            name: '__admin',
-                            service: 'admin-service',
-                        },
-                    ],
-                }));
+                project.projectVersions[0].kvDatabases.map((binding) =>
+                    generateKvBinding(binding.name, binding.kvDatabaseId),
+                );
 
             const sitesBindings: BaseBindingData[] =
-                project.projectVersions[0].sites.map((site) => {
-                    return {
-                        name: site.name,
-                        type: 'wrapped',
-                        module: 'sites-extension',
-                        innerBindings: [
-                            ...site.files.map(
-                                (file): BaseBindingData => ({
-                                    type: 'data',
-                                    name: file.path,
-                                    value: base64ToDataView(file.base64),
-                                    customDataFileName: base64Hash(file.base64),
-                                }),
-                            ),
-                        ],
-                    };
-                });
+                project.projectVersions[0].sites.map((site) =>
+                    generateSiteBinding(site.name, site.files),
+                );
 
             const bindings = [
                 ...textBindings,

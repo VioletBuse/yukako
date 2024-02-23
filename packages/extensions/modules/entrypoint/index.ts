@@ -114,7 +114,7 @@ export default {
             if (err instanceof Error && err.message === 'Invalid meta') {
                 return new Response('Invalid meta', { status: 400 });
             } else {
-                console.error(err);
+                console.log(err);
 
                 let message = 'Internal server error';
 
