@@ -17,6 +17,8 @@ dist.ts
 
 
 .yukako
+.yukako_cli
+.yukactl
 .artifacts
 
 # misc
