@@ -30,7 +30,7 @@ export default {
         const url = new URL(req.url);
 
         console.log(
-            `[router] ${req.method} ${url.pathname}${url.search} ${host}`,
+            `[router] ${req.method} ${host} ${url.pathname}${url.search}`,
         );
 
         if (!host) {
