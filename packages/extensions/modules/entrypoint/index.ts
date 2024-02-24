@@ -46,6 +46,7 @@ export default {
                         if (!_entrypoint.scheduled) {
                             return new Response('scheduled handler undefined', {
                                 status: 404,
+                                headers: { 'Content-Type': 'application/json' },
                             });
                         }
 
@@ -63,7 +64,12 @@ export default {
                                     JSON.stringify({
                                         error: 'Invalid request body for scheduled event',
                                     }),
-                                    { status: 400 },
+                                    {
+                                        status: 400,
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                    },
                                 );
                             }
 
@@ -95,20 +101,39 @@ export default {
                                 JSON.stringify({
                                     error: message,
                                 }),
-                                { status: 500 },
+                                {
+                                    status: 500,
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                },
                             );
                         }
                     }
                     default: {
-                        return new Response('Not found', { status: 404 });
+                        return new Response(
+                            JSON.stringify({
+                                error: 'Internal Yukako Function not found',
+                            }),
+                            {
+                                status: 404,
+                                headers: { 'Content-Type': 'application/json' },
+                            },
+                        );
                     }
                 }
             }
 
             if (_entrypoint.fetch) {
-                return _entrypoint.fetch(req, env, ctx);
+                return await _entrypoint.fetch(req, env, ctx);
             } else {
-                return new Response('fetch handler undefined');
+                return new Response(
+                    JSON.stringify({ error: 'No fetch handler found' }),
+                    {
+                        status: 404,
+                        headers: { 'Content-Type': 'application/json' },
+                    },
+                );
             }
         } catch (err) {
             if (err instanceof Error && err.message === 'Invalid meta') {
@@ -128,7 +153,12 @@ export default {
                     JSON.stringify({
                         error: message,
                     }),
-                    { status: 500 },
+                    {
+                        status: 500,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    },
                 );
             }
         }

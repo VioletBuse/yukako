@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import * as util from 'util';
 import prexit from 'prexit';
 import * as fs from 'fs-extra';
+import { match } from 'ts-pattern';
 
 let name = 'workerd-instance';
 let configLocation: string = path.join(
@@ -21,8 +22,10 @@ const parseLog = (str: string) => {
     );
     if (isWorkerdLog) {
         return {
-            type: 'workerd',
+            type: 'workerd' as const,
             value: str,
+            id: null,
+            name: null,
         };
     }
 
@@ -35,10 +38,10 @@ const parseLog = (str: string) => {
         console.error('Received invalid log data from workerd');
         console.error(_data, log);
         return {
-            type: 'workerd',
+            type: 'workerd' as const,
             value: 'Received invalid log data from workerd: ' + _data,
-            id: 'no log id provided',
-            name: 'no log name provided',
+            id: null,
+            name: null,
         };
     };
 
@@ -61,7 +64,7 @@ const parseLog = (str: string) => {
     switch (type) {
         case 'worker': {
             return {
-                type: 'client-worker',
+                type: 'client-worker' as const,
                 value: log,
                 id,
                 name,
@@ -69,7 +72,7 @@ const parseLog = (str: string) => {
         }
         case 'router': {
             return {
-                type: 'router',
+                type: 'router' as const,
                 value: log,
                 id,
                 name,
@@ -81,13 +84,30 @@ const parseLog = (str: string) => {
     }
 };
 
+const printLog = (
+    log: ReturnType<typeof parseLog>,
+    type: 'stdout' | 'stderr' = 'stdout',
+) => {
+    const prefix = match(log)
+        .with({ type: 'workerd' }, () => `[workerd]`)
+        .with({ type: 'router' }, (log) => `[${log.id}]`)
+        .with({ type: 'client-worker' }, (log) => `[${log.name}][${log.id}]`)
+        .exhaustive();
+
+    if (type === 'stdout') {
+        console.log(`${prefix} ${log.value.trimEnd()}`);
+    } else {
+        console.error(`${prefix} ${log.value.trimEnd()}`);
+    }
+};
+
 const handleStdOut = () => {
     return (data: string | Buffer) => {
         const str = data.toString();
 
         const log = parseLog(str);
 
-        console.log(`[workerd][${name}][${log.type}] ${log.value.trimEnd()}`);
+        printLog(log);
 
         // console.log(util.inspect(log, false, null, true /* enable colors */));
     };
@@ -99,7 +119,7 @@ const handleStdErr = () => {
 
         const log = parseLog(str);
 
-        console.error(`[${chalk.red('workerd')}][${name}] ${str.trimEnd()}`);
+        printLog(log, 'stderr');
 
         // console.error(util.inspect(log, false, null, true /* enable colors */));
     };
