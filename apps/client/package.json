@@ -12,6 +12,7 @@
   "main": "src/index.ts",
   "scripts": {
 	"typecheck": "tsc --noEmit",
+	"generate": "drizzle-kit generate:sqlite",
 	"build": "node scripts/build.mjs",
 	"build:watch": "node scripts/build.mjs --watch",
 	"dev": "npm run build:watch"

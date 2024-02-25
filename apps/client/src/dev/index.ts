@@ -11,7 +11,6 @@ import { configToWorkers } from './new-version-config-to-worker';
 import { startAdminMock, stopAdminMock } from './mocks/admin';
 import { startLeaderMock, stopLeaderMock } from './mocks/leader';
 import { startProxyMock, stopProxyMock } from './mocks/proxy';
-import { mockKv } from './mocks/admin/db/kv';
 import * as fs from 'fs-extra';
 
 export const startDevServer = async () => {
@@ -103,7 +102,6 @@ export const startDevServer = async () => {
             stopAdminMock();
             stopLeaderMock();
             stopProxyMock();
-            mockKv.serializeKvs();
             fs.rmSync(engineDirectory, { recursive: true, force: true });
 
             process.exit(0);

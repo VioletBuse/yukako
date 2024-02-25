@@ -1,7 +1,6 @@
 import app from './routes';
 import * as fs from 'fs-extra';
 import path from 'path';
-import { mockKv } from './db/kv';
 
 let server: ReturnType<(typeof app)['listen']> | null = null;
 let adminSocket: string | null = null;
@@ -17,10 +16,6 @@ export const startAdminMock = (_workerSocket: string, _adminSocket: string) => {
 
     const kvDir = path.join(directory, 'kv');
     fs.ensureDirSync(kvDir);
-    const kvFile = path.join(kvDir, 'kvs.json');
-    fs.ensureFileSync(kvFile);
-    mockKv.setKvPath(kvFile);
-    mockKv.loadKvs();
 
     server = app.listen(_adminSocket);
     adminSocket = _adminSocket;
