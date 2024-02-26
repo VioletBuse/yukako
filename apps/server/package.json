@@ -12,7 +12,7 @@
 	"build": "node scripts/build.mjs",
 	"build:watch": "node scripts/build.mjs -w",
 	"start": "node --enable-source-maps dist/index.mjs -c 1",
-	"start:watch": "NODE_OPTIONS=\"--enable-source-maps\" nodemon dist/index.mjs -- -c 1 -s 'secret'",
+	"start:watch": "NODE_OPTIONS=\"--enable-source-maps\" nodemon dist/index.mjs -- -c 4 -s 'secret'",
 	"dev": "concurrently -n build,run \"npm run build:watch\" \"npm run start:watch\""
   },
   "dependencies": {

@@ -12,6 +12,7 @@
 	"@yukako/extensions": "*",
 	"@yukako/settings": "*",
 	"@yukako/cli": "*",
-	"@yukako/types": "*"
+	"@yukako/types": "*",
+	"@yukako/state": "*"
   }
 }

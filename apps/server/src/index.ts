@@ -27,11 +27,11 @@ if (isMaster) {
     for (let i = 0; i < workers; i++) {
         cluster.fork();
     }
-    LeaderService.start(id);
 } else {
     AdminService.start(id);
     EngineService.start(id);
     ProxyService.start(id);
+    LeaderService.start(id);
 }
 
 const exitHandler = (
