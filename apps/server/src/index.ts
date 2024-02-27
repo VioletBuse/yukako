@@ -21,9 +21,13 @@ const id = cluster.worker?.id.toString() || nanoid();
 if (isMaster) {
     console.log(`Starting node ${cli.nodeId}`);
 
-    const db = getDatabase();
-    await testDB(db);
-    await migrate(db);
+    try {
+        const db = getDatabase();
+        await testDB(db);
+        await migrate(db);
+    } catch (err) {
+        console.error('Error migrating database', err);
+    }
 
     for (let i = 0; i < workers; i++) {
         cluster.fork();

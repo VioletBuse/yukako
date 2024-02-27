@@ -24,11 +24,13 @@ const refreshNodeRegistrationTask = new AsyncTask(
             .values({
                 id: cli.nodeId,
                 lastOnline: new Date(),
+                workerCount: cli.workerCount,
             })
             .onConflictDoUpdate({
                 target: yukakoNode.id,
                 set: {
                     lastOnline: new Date(),
+                    workerCount: cli.workerCount,
                 },
             });
     },
