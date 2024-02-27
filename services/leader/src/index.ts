@@ -1,11 +1,12 @@
-import { aquireLock, checkLock, releaseLock } from './leader';
+import { NodeRegistrationManager } from './registration';
 
 export const LeaderService = {
     start: (id: string) => {
-        checkLock('test-id');
         console.log('Starting leader service...');
+        NodeRegistrationManager.start();
     },
     stop: () => {
         console.log('Stopping leader service...');
+        NodeRegistrationManager.stop();
     },
 };

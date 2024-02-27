@@ -1,5 +1,6 @@
 // import os for cpu count
 import os from 'os';
+import path from 'path';
 
 const getArg = (long: string, short: string): string | null => {
     const basicIndexLong = process.argv.indexOf(long);
@@ -46,18 +47,23 @@ type Result = {
     port: number;
     secret: string;
     workerCount: number;
+    nodeId: string;
+    directory: string;
 };
 
 const helptext = `
 	$ yukako [options]
 
 	Options:
+		--node-id, -n		Node ID, $YUKAKO_NODE_ID, defaults to hostname
 		--postgres, -p,		Postgres URL, $YUKAKO_POSTGRES_URL, defaults to postgres://postgres:postgres@localhost:5432/postgres
 		--postgres-ro, -r	Postgres read-only URL, $YUKAKO_POSTGRES_RO_URL, defaults to rw URL
 		--admin-host, -a	Admin api/dashboard host, $YUKAKO_ADMIN_HOST, defaults to localhost
 		--port, -o			Port, $YUKAKO_PORT, defaults to 8080
 		--secret, -s		Secret, $YUKAKO_SECRET, defaults to 'secret'
 		--cluster, -c 		Number of cluster workers, $YUKAKO_CLUSTER either a number, or 'auto' to use the number of CPU cores, defaults to 1
+		--directory, -d		Directory, $YUKAKO_DIRECTORY, defaults to cwd/.yukako
+		--help, -h			Show this help text
 
 	Examples:
 		$ yukako --postgres postgres://postgres:postgres@localhost:5432/postgres --admin-host localhost --port 8080 --secret secret
@@ -86,6 +92,10 @@ export const run = (): Result => {
 
     const clusterArg = getArg('--cluster', '-c');
 
+    const nodeIdArg = getArg('--node-id', '-n');
+
+    const directoryArg = getArg('--directory', '-d');
+
     const postgres =
         postgresArg ||
         process.env.YUKAKO_POSTGRES_URL ||
@@ -99,6 +109,16 @@ export const run = (): Result => {
     const port = portArg || process.env.YUKAKO_PORT || '8080';
 
     const cluster = clusterArg || process.env.YUKAKO_CLUSTER || '1';
+
+    const nodeId = nodeIdArg || process.env.YUKAKO_NODE_ID || os.hostname();
+
+    const _directory =
+        directoryArg ||
+        process.env.YUKAKO_DIRECTORY ||
+        path.join(process.cwd(), '.yukako');
+    const directory = path.isAbsolute(_directory)
+        ? _directory
+        : path.join(process.cwd(), _directory);
 
     if (isNaN(parseInt(port))) {
         console.error('Port must be a number');
@@ -146,5 +166,7 @@ export const run = (): Result => {
         port: parseInt(port),
         secret,
         workerCount: clusterWorkerCount,
+        nodeId,
+        directory,
     };
 };

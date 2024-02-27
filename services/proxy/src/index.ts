@@ -9,15 +9,15 @@ export const ProxyService = {
     start: (workerId: string) => {
         console.log('Starting proxy service...');
 
-        const workerPath = path.join(process.cwd(), './.yukako', workerId);
+        const cli = run();
+
+        const workerPath = path.join(cli.directory, workerId);
 
         const enginePath = path.join(workerPath, './engine');
         const adminPath = path.join(workerPath, './admin');
 
         const engineSocket = path.join(enginePath, './engine.sock');
         const adminSocket = path.join(adminPath, './admin.sock');
-
-        const cli = run();
 
         const adminHost = cli.adminHost as string;
         const port = cli.port as number;

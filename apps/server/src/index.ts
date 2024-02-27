@@ -7,16 +7,11 @@ import { nanoid } from 'nanoid';
 import { AdminService } from '@yukako/admin';
 import { EngineService } from '@yukako/engine';
 import { ProxyService } from '@yukako/proxy';
-import path from 'path';
-import fs from 'fs-extra';
 import { LeaderService } from '@yukako/leader';
 import { getDatabase } from '@yukako/state/src/db/init';
 import { testDB } from '@yukako/state/src/db/test';
 
 const cli = run();
-const db = getDatabase();
-await testDB(db);
-await migrate(db);
 
 const isMaster = cluster.isPrimary || cluster.isMaster;
 const workers = cli.workerCount;
@@ -24,14 +19,20 @@ const workers = cli.workerCount;
 const id = cluster.worker?.id.toString() || nanoid();
 
 if (isMaster) {
+    console.log(`Starting node ${cli.nodeId}`);
+
+    const db = getDatabase();
+    await testDB(db);
+    await migrate(db);
+
     for (let i = 0; i < workers; i++) {
         cluster.fork();
+        LeaderService.start('1');
     }
 } else {
     AdminService.start(id);
     EngineService.start(id);
     ProxyService.start(id);
-    LeaderService.start(id);
 }
 
 const exitHandler = (

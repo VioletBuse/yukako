@@ -15,7 +15,7 @@ build
 dist
 dist.ts
 
-
+.testcluster
 .yukako
 .yukako_cli
 .yukactl

@@ -1,0 +1,1 @@
+ALTER TABLE "yukako_nodes" ADD COLUMN "online_since" timestamp DEFAULT now() NOT NULL;

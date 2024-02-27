@@ -6,9 +6,8 @@ const handleError = async (err: unknown) => {
     await resetConnection();
 };
 
-export const checkLock = async (projectId: string) => {
+export const checkLock = async (lock: string) => {
     try {
-        const lock = `leader:project:${projectId}:lock`;
         const lockId = stringHash(lock);
         const connection = await getConnection();
         const res: { pg_try_advisory_lock: boolean }[] =
@@ -25,11 +24,11 @@ export const checkLock = async (projectId: string) => {
         }
 
         if (res[0].pg_try_advisory_lock) {
-            console.log(`Acquired lock for project ${projectId}`);
+            console.log(`Acquired lock ${lock}`);
             return true;
         }
 
-        console.log(`Failed to acquire lock for project ${projectId}`);
+        console.log(`Failed to acquire lock ${lock}`);
         return false;
     } catch (err) {
         await handleError(err);

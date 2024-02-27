@@ -3,12 +3,15 @@ import * as http from 'http';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import express from 'express';
+import { run } from '@yukako/cli';
 
 let server: http.Server | null = null;
 
 export const AdminService = {
     start: (workerId: string) => {
-        const workerPath = path.join(process.cwd(), './.yukako', workerId);
+        const cli = run();
+
+        const workerPath = path.join(cli.directory, workerId);
         const adminPath = path.join(workerPath, './admin');
         const adminSocket = path.join(adminPath, './admin.sock');
 

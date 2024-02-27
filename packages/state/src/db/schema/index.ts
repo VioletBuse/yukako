@@ -4,3 +4,4 @@ export * from './tablesets/projects';
 export * from './tablesets/versions';
 export * from './tablesets/kv';
 export * from './tablesets/sites';
+export * from './tablesets/node-registration';
