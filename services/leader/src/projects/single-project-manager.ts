@@ -31,7 +31,7 @@ export class SingleProjectManager {
         const checkProjectLockStatus = new AsyncTask(
             'Check Project Lock Status',
             async () => {
-                const minimumWait = 1000;
+                const minimumWait = 500;
                 const maximumWait = 5000;
 
                 const waitSeconds =
@@ -48,11 +48,11 @@ export class SingleProjectManager {
 
         const checkProjectLockStatusJob = new SimpleIntervalJob(
             {
-                seconds: 30,
+                seconds: 20,
                 runImmediately: true,
             },
             checkProjectLockStatus,
-            { id: 'checkProjectLockStatusJob' },
+            { id: 'checkProjectLockStatusJob', preventOverrun: true },
         );
 
         this.scheduler.addSimpleIntervalJob(checkProjectLockStatusJob);
