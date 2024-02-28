@@ -29,14 +29,15 @@ if (isMaster) {
         console.error('Error migrating database', err);
     }
 
+    await LeaderService.start('1');
+
     for (let i = 0; i < workers; i++) {
         cluster.fork();
-        LeaderService.start('1');
     }
 } else {
-    AdminService.start(id);
-    EngineService.start(id);
-    ProxyService.start(id);
+    await AdminService.start(id);
+    await EngineService.start(id);
+    await ProxyService.start(id);
 }
 
 const exitHandler = (

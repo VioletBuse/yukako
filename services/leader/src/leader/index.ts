@@ -24,11 +24,11 @@ export const checkLock = async (lock: string) => {
         }
 
         if (res[0].pg_try_advisory_lock) {
-            console.log(`Acquired lock ${lock}`);
+            // console.log(`Acquired lock ${lock}`);
             return true;
         }
 
-        console.log(`Failed to acquire lock ${lock}`);
+        // console.log(`Failed to acquire lock ${lock}`);
         return false;
     } catch (err) {
         await handleError(err);

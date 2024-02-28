@@ -5,6 +5,9 @@ import { getSql } from '@yukako/state/src/db/init';
 import * as util from 'util';
 import fs from 'fs-extra';
 import { run } from '@yukako/cli';
+import postgres from 'postgres';
+
+let listen: postgres.ListenMeta | null = null;
 
 export const EngineService = {
     start: async (workerId: string) => {
@@ -32,15 +35,17 @@ export const EngineService = {
 
         const sql = getSql();
 
-        sql.listen('project_versions', reload, reload);
+        listen = await sql.listen('project_versions', reload, reload);
 
         console.log('Starting engine service...');
     },
-    stop: (workerId: string) => {
+    stop: async (workerId: string) => {
         const cli = run();
         const workerPath = path.join(cli.directory, workerId);
         const enginePath = path.join(workerPath, './engine');
 
         Engineer.stop({ engineDirectory: enginePath });
+
+        await listen?.unlisten();
     },
 };

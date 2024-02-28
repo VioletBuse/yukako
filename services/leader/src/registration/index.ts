@@ -9,8 +9,11 @@ import { getDatabase } from '@yukako/state';
 import { yukakoNode } from '@yukako/state/src/db/schema';
 import { lt } from 'drizzle-orm';
 import { run } from '@yukako/cli';
+import { SidecarProjectsManager } from '../projects';
 
 const scheduler = new ToadScheduler();
+
+let hasManagerLock = false;
 
 const refreshNodeRegistrationTask = new AsyncTask(
     'Refresh Node Registration',
@@ -19,18 +22,26 @@ const refreshNodeRegistrationTask = new AsyncTask(
 
         const db = getDatabase();
 
+        const projectLocks = SidecarProjectsManager.locks();
+
+        console.log('projectLocks:', projectLocks);
+
         await db
             .insert(yukakoNode)
             .values({
                 id: cli.nodeId,
                 lastOnline: new Date(),
                 workerCount: cli.workerCount,
+                nodeRegistrationManagerLock: hasManagerLock,
+                projectLocks: projectLocks,
             })
             .onConflictDoUpdate({
                 target: yukakoNode.id,
                 set: {
                     lastOnline: new Date(),
                     workerCount: cli.workerCount,
+                    nodeRegistrationManagerLock: hasManagerLock,
+                    projectLocks: projectLocks,
                 },
             });
     },
@@ -47,7 +58,12 @@ const cleanupNodeRegistrationTask = new AsyncTask(
     async () => {
         const lock = await checkLock('leader:node-registration-cleanup');
 
-        if (!lock) return;
+        if (!lock) {
+            hasManagerLock = false;
+            return;
+        } else {
+            hasManagerLock = true;
+        }
 
         const db = getDatabase();
 
