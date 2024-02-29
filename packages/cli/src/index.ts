@@ -156,6 +156,18 @@ export const run = (): Result => {
     const clusterWorkerCount =
         cluster === 'auto' ? os.cpus().length : parseInt(cluster);
 
+    if (isNaN(clusterWorkerCount)) {
+        console.error('Cluster worker count must be a number');
+        console.error(helptext);
+        process.exit(1);
+    }
+
+    if (clusterWorkerCount < 1) {
+        console.error('Cluster worker count must be at least 1');
+        console.error(helptext);
+        process.exit(1);
+    }
+
     return {
         postgres: {
             url: postgres,
