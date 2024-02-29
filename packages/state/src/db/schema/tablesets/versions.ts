@@ -8,7 +8,6 @@ import {
 } from './basic-bindings';
 import { projectVersionKvDatabaseBinding } from './kv';
 import { sites } from './sites';
-import { cronJobBindings } from './cron-jobs';
 
 export const dataBlobType = pgEnum('data_blob_type', [
     'esmodule',
@@ -101,6 +100,5 @@ export const projectVersionRelations = relations(
         dataBindings: many(projectVersionDataBindings),
         kvDatabases: many(projectVersionKvDatabaseBinding),
         sites: many(sites),
-        cronJobBindings: many(cronJobBindings),
     }),
 );

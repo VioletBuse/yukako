@@ -1,0 +1,1 @@
+ALTER TABLE "cron_jobs" ADD COLUMN "enabled" boolean DEFAULT true NOT NULL;
