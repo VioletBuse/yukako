@@ -3,6 +3,9 @@ var testworker_default = {
   fetch: async (req, env) => {
     const site = env.SITE;
     return site.serve(req);
+  },
+  scheduled: async () => {
+    console.log("scheduled");
   }
 };
 export {

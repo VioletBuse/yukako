@@ -40,6 +40,7 @@ const resolveResult = (
         jsonBindings: resolveJsonBindings(input, folder),
         dataBindings: resolveDataBindings(input, folder),
         sites: resolveSites(input, folder),
+        cronJobs: input.cron_jobs,
     };
 
     return result;

@@ -64,6 +64,14 @@ export const NewProjectVersionRequestBodySchema = z.object({
             }),
         )
         .nullish(),
+    cronJobs: z
+        .array(
+            z.object({
+                name: z.string(),
+                cron: z.string(),
+            }),
+        )
+        .nullish(),
 });
 
 export type NewProjectVersionRequestBodyType = z.infer<

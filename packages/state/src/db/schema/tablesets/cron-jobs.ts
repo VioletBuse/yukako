@@ -26,8 +26,12 @@ export const cronJobs = pgTable(
     }),
 );
 
-export const cronJobRelations = relations(cronJobs, ({ many }) => ({
+export const cronJobRelations = relations(cronJobs, ({ many, one }) => ({
     logs: many(cronJobLogs),
+    project: one(projects, {
+        fields: [cronJobs.projectId],
+        references: [projects.id],
+    }),
 }));
 
 export const cronJobStatuses = pgEnum('cron_job_status', [

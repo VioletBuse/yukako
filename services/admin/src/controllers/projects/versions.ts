@@ -1,8 +1,9 @@
 import { Router, Request } from 'express';
 import { getDatabase } from '@yukako/state';
 import { authenticate } from '../../lib/authenticate';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import {
+    cronJobs,
     dataBlobs,
     projects,
     projectVersionBlobs,
@@ -466,6 +467,105 @@ projectSpecificVersionsRouter.post(
                     files.length > 0
                         ? await txn.insert(siteFiles).values(files).returning()
                         : [];
+
+                const existingCronJobs = await txn.query.cronJobs.findMany({
+                    where: eq(
+                        cronJobs.projectId,
+                        newProjectVersion[0].projectId,
+                    ),
+                });
+
+                const deploymentCronJobs = data.cronJobs || [];
+
+                const newCronJobs = deploymentCronJobs.filter((cronJob) => {
+                    return !existingCronJobs.some((existingCronJob) => {
+                        return existingCronJob.name === cronJob.name;
+                    });
+                });
+
+                for (const cronJob of newCronJobs) {
+                    await txn.insert(cronJobs).values({
+                        name: cronJob.name,
+                        cron: cronJob.cron,
+                        projectId: newProjectVersion[0].projectId,
+                    });
+                }
+
+                const cronJobsToDisable = existingCronJobs.filter(
+                    (existingCronJob) => {
+                        return !deploymentCronJobs.some((cronJob) => {
+                            return cronJob.name === existingCronJob.name;
+                        });
+                    },
+                );
+
+                for (const cronJob of cronJobsToDisable) {
+                    await txn
+                        .update(cronJobs)
+                        .set({
+                            enabled: false,
+                        })
+                        .where(
+                            and(
+                                eq(cronJobs.name, cronJob.name),
+                                eq(cronJobs.projectId, cronJob.projectId),
+                            ),
+                        );
+                }
+
+                const cronJobsToEnable = existingCronJobs.filter(
+                    (existingCronJob) => {
+                        return deploymentCronJobs.some((cronJob) => {
+                            return cronJob.name === existingCronJob.name;
+                        });
+                    },
+                );
+
+                for (const cronJob of cronJobsToEnable) {
+                    await txn
+                        .update(cronJobs)
+                        .set({
+                            enabled: true,
+                            cron:
+                                deploymentCronJobs.find(
+                                    (c) => c.name === cronJob.name,
+                                )?.cron || cronJob.cron,
+                        })
+                        .where(
+                            and(
+                                eq(cronJobs.name, cronJob.name),
+                                eq(cronJobs.projectId, cronJob.projectId),
+                            ),
+                        );
+                }
+
+                // all the other cron jobs that have different crons than the ones in the deployment
+                const cronJobsToUpdate = existingCronJobs.filter(
+                    (existingCronJob) => {
+                        return deploymentCronJobs.some((cronJob) => {
+                            return (
+                                cronJob.name === existingCronJob.name &&
+                                cronJob.cron !== existingCronJob.cron
+                            );
+                        });
+                    },
+                );
+
+                for (const cronJob of cronJobsToUpdate) {
+                    await txn
+                        .update(cronJobs)
+                        .set({
+                            cron: deploymentCronJobs.find(
+                                (c) => c.name === cronJob.name,
+                            )?.cron,
+                        })
+                        .where(
+                            and(
+                                eq(cronJobs.name, cronJob.name),
+                                eq(cronJobs.projectId, cronJob.projectId),
+                            ),
+                        );
+                }
 
                 const routes = newRoutes.map((route) => ({
                     id: route.id,

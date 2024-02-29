@@ -80,6 +80,15 @@ export const baseConfigSchema = z.object({
             }),
         )
         .optional(),
+
+    cron_jobs: z
+        .array(
+            z.object({
+                name: z.string(),
+                cron: z.string(),
+            }),
+        )
+        .optional(),
 });
 
 export const baseDeploymentSchema = z.object({

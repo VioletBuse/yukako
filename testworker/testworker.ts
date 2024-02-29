@@ -103,4 +103,7 @@ export default {
 
         return site.serve(req);
     },
+    scheduled: async () => {
+        console.log('scheduled');
+    },
 };
