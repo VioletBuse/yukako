@@ -4,7 +4,8 @@ var testworker_default = {
     const site = env.SITE;
     return site.serve(req);
   },
-  scheduled: async () => {
+  scheduled: async (event) => {
+    console.log(event);
     console.log("scheduled");
   }
 };

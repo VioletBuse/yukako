@@ -56,6 +56,7 @@ export default {
                             const parse = z
                                 .object({
                                     cron: z.string(),
+                                    name: z.string(),
                                 })
                                 .safeParse(body);
 
@@ -76,6 +77,7 @@ export default {
                             const event = {
                                 type: 'scheduled' as const,
                                 cron: parse.data.cron,
+                                name: parse.data.name,
                             };
 
                             await _entrypoint.scheduled(event, env, ctx);

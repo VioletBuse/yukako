@@ -487,12 +487,14 @@ export class Configurator {
         meta: {
             host: string;
             paths: string[];
+            workerName: string;
         },
     ) {
         this.routerMeta.routes.push({
             host: meta.host,
             paths: meta.paths,
             service: worker._name,
+            worker_name: meta.workerName,
         });
 
         let router = this.config.worker('defaultRouter');
@@ -729,6 +731,7 @@ export class Configurator {
             this.addWorkerRouterReference(worker, service, {
                 host: route.host,
                 paths: route.basePaths,
+                workerName: _worker.name,
             });
         });
 

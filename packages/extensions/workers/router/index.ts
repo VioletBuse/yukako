@@ -11,6 +11,7 @@ export type RouterEnv = {
             host: string;
             paths: string[];
             service: string;
+            worker_name: string;
         }[];
     };
 } & Record<string, ServiceBinding | undefined>;
@@ -22,6 +23,8 @@ export default {
             type: 'router',
             name: 'yukako-router',
         });
+
+        const workername = req.headers.get('x-forwarded-to-worker');
 
         const host =
             req.headers.get('x-forwarded-host') ||
@@ -39,7 +42,11 @@ export default {
 
         const routesMatchingHost = Object.values(env.__meta.routes).filter(
             (route) => {
-                return route.host === host || route.host === '*';
+                return (
+                    route.host === host ||
+                    route.host === '*' ||
+                    route.worker_name === workername
+                );
             },
         );
 
@@ -53,6 +60,11 @@ export default {
             }
 
             const url = new URL(req.url);
+
+            if (url.pathname.startsWith('/__yukako')) {
+                return true;
+            }
+
             for (const path of route.paths) {
                 if (url.pathname.startsWith(path)) {
                     return true;

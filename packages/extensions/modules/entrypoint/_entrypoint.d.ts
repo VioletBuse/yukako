@@ -5,6 +5,7 @@ export type Event = {
 export type ScheduledEvent = {
     type: 'scheduled';
     cron: string;
+    name: string;
 };
 
 export type Batch<T> = {
