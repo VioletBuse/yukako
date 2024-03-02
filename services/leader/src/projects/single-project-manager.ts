@@ -2,7 +2,7 @@ import { AsyncTask, ToadScheduler, SimpleIntervalJob } from 'toad-scheduler';
 import { checkLock } from '../leader';
 import wait from 'wait';
 import { getDatabase } from '@yukako/state';
-import { and, asc, desc, eq, isNotNull, or } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, isNotNull, or } from 'drizzle-orm';
 import {
     cronJobLogs,
     cronJobs,
@@ -16,6 +16,7 @@ import * as util from 'util';
 import { run } from '@yukako/cli';
 import path from 'path';
 import * as http from 'http';
+import retry from 'async-retry';
 
 export class SingleProjectManager {
     private projectId: string;
@@ -181,24 +182,57 @@ export class SingleProjectManager {
                 // );
 
                 if (scheduledToCreate.length > 0) {
-                    await txn.insert(cronJobLogs).values(
-                        scheduledToCreate.map((scheduledAt) => ({
-                            id: nanoid(),
-                            cronJobProjectId: cronJob.projectId,
-                            cronJobName: cronJob.name,
-                            scheduledAt,
-                            status: 'scheduled' as const,
-                        })),
-                    );
+                    const created = await txn
+                        .insert(cronJobLogs)
+                        .values(
+                            scheduledToCreate.map((scheduledAt) => ({
+                                id: nanoid(),
+                                cronJobProjectId: cronJob.projectId,
+                                cronJobName: cronJob.name,
+                                scheduledAt,
+                                status: 'scheduled' as const,
+                            })),
+                        )
+                        .returning();
                 }
 
                 if (scheduledToDelete.length > 0) {
-                    await txn.delete(cronJobLogs).where(
-                        inArray(
-                            cronJobLogs.id,
-                            scheduledToDelete.map((log) => log.id),
+                    const deleted = await txn
+                        .delete(cronJobLogs)
+                        .where(
+                            inArray(
+                                cronJobLogs.id,
+                                scheduledToDelete.map((log) => log.id),
+                            ),
+                        )
+                        .returning();
+
+                    if (deleted.length > 0) {
+                        this.nextJobInvocations[cronJob.name] = null;
+                    }
+                }
+
+                const changed = await txn
+                    .update(cronJobLogs)
+                    .set({
+                        ranAt: null,
+                        status: 'scheduled' as const,
+                    })
+                    .where(
+                        and(
+                            eq(cronJobLogs.status, 'running'),
+                            eq(cronJobLogs.cronJobName, cronJob.name),
+                            eq(cronJobLogs.cronJobProjectId, cronJob.projectId),
+                            gt(
+                                cronJobLogs.ranAt,
+                                new Date(Date.now() + 1000 * 60),
+                            ),
                         ),
-                    );
+                    )
+                    .returning();
+
+                if (changed.length > 0) {
+                    this.nextJobInvocations[cronJob.name] = null;
                 }
             }
         });
@@ -216,6 +250,16 @@ export class SingleProjectManager {
             preventOverrun: true,
         },
     );
+
+    nextJobInvocations: Record<
+        string,
+        | {
+              id: string;
+              scheduledAt: Date;
+          }
+        | null
+        | undefined
+    > = {};
 
     private runCronJobs = async () => {
         if (!this.weHaveLock) return;
@@ -236,18 +280,21 @@ export class SingleProjectManager {
         for (const cronJob of this.cronJobs) {
             try {
                 await db.$primary.transaction(async (txn) => {
-                    const nextJobInvocation =
-                        await txn.query.cronJobLogs.findFirst({
-                            where: and(
-                                eq(cronJobLogs.cronJobName, cronJob.name),
-                                eq(
-                                    cronJobLogs.cronJobProjectId,
-                                    cronJob.projectId,
-                                ),
-                                eq(cronJobLogs.status, 'scheduled'),
-                            ),
-                            orderBy: asc(cronJobLogs.scheduledAt),
-                        });
+                    let nextJobInvocation = this.nextJobInvocations[
+                        cronJob.name
+                    ]
+                        ? this.nextJobInvocations[cronJob.name]
+                        : await txn.query.cronJobLogs.findFirst({
+                              where: and(
+                                  eq(cronJobLogs.cronJobName, cronJob.name),
+                                  eq(
+                                      cronJobLogs.cronJobProjectId,
+                                      cronJob.projectId,
+                                  ),
+                                  eq(cronJobLogs.status, 'scheduled'),
+                              ),
+                              orderBy: asc(cronJobLogs.scheduledAt),
+                          });
 
                     if (!nextJobInvocation) return;
 
@@ -329,6 +376,8 @@ export class SingleProjectManager {
                         })
                         .where(eq(cronJobLogs.id, nextJobInvocation.id))
                         .returning();
+
+                    this.nextJobInvocations[cronJob.name] = null;
 
                     console.log(util.inspect(newLog, true, 4, true));
                     console.log(res);

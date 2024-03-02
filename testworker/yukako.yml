@@ -10,7 +10,7 @@ sites:
     folder: "./testsite"
 cron_jobs:
   - name: test-cron-job
-    cron: "*/20 * * * * *"
+    cron: "* * * * *"
 deployments:
   - server: http://localhost:8080
     name: test
