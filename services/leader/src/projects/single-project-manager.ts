@@ -2,13 +2,8 @@ import { AsyncTask, ToadScheduler, SimpleIntervalJob } from 'toad-scheduler';
 import { checkLock } from '../leader';
 import wait from 'wait';
 import { getDatabase } from '@yukako/state';
-import { and, asc, desc, eq, gt, isNotNull, or } from 'drizzle-orm';
-import {
-    cronJobLogs,
-    cronJobs,
-    cronJobStatuses,
-    projects,
-} from '@yukako/state/src/db/schema';
+import { and, asc, desc, eq, gt } from 'drizzle-orm';
+import { cronJobLogs, projects } from '@yukako/state/src/db/schema';
 import Cron from 'croner';
 import { nanoid } from 'nanoid';
 import { inArray } from 'drizzle-orm/sql/expressions/conditions';
@@ -16,7 +11,6 @@ import * as util from 'util';
 import { run } from '@yukako/cli';
 import path from 'path';
 import * as http from 'http';
-import retry from 'async-retry';
 
 export class SingleProjectManager {
     private projectId: string;
