@@ -28,7 +28,7 @@ type EntrypointScheduled = (
     event: ScheduledEvent,
     env: any,
     ctx: Context,
-) => Promise<void>;
+) => Promise<any>;
 
 type EntrypointQueue = (
     event: Batch<Event>,
