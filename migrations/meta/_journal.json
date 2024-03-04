@@ -197,6 +197,13 @@
       "when": 1709202872301,
       "tag": "0027_high_squirrel_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1709585227068,
+      "tag": "0028_complete_jubilee",
+      "breakpoints": true
     }
   ]
 }

@@ -6,3 +6,4 @@ export * from './tablesets/kv';
 export * from './tablesets/sites';
 export * from './tablesets/node-registration';
 export * from './tablesets/cron-jobs';
+export * from './tablesets/secrets';
