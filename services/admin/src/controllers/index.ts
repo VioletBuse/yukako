@@ -11,6 +11,7 @@ import { serve } from '../middleware/dashboard/serve';
 import yukakoInternalApiRouter from './__yukako';
 import morgan from 'morgan';
 import kvRouter from './kv';
+import secretsRouter from './secrets';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/projects', projectsRouter);
 app.use('/api/versions', versionsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/kv', kvRouter);
+app.use('/api/secrets', secretsRouter);
 app.use('/__yukako', yukakoInternalApiRouter);
 
 app.use(serve());

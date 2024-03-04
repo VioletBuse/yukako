@@ -1,4 +1,10 @@
-import { boolean, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
+import {
+    boolean,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+} from 'drizzle-orm/pg-core';
 import { projects } from './projects';
 import { relations } from 'drizzle-orm';
 import { projectVersions } from './versions';
@@ -10,6 +16,7 @@ export const secrets = pgTable(
         projectId: text('projectId').references(() => projects.id),
         value: text('value'),
         disabled: boolean('disabled').notNull().default(false),
+        createdAt: timestamp('created_at').notNull().defaultNow(),
     },
     (table) => ({
         composite_primarykey: primaryKey({
@@ -37,6 +44,7 @@ export const secretBindings = pgTable('secret_bindings', {
     versionId: text('version_id')
         .notNull()
         .references(() => projects.id),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
 export const secretBindingRelations = relations(secretBindings, ({ one }) => ({
