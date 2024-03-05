@@ -6,7 +6,7 @@ export const SecretsNewSecretRequestBodySchema = z.object({
     projectId: z.string(),
 });
 
-export const SecretsNewSecretRequestBodyType = z.infer<
+export type SecretsNewSecretRequestBodyType = z.infer<
     typeof SecretsNewSecretRequestBodySchema
 >;
 
