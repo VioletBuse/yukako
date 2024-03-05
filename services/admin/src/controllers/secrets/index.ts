@@ -3,7 +3,10 @@ import { respond } from '../../middleware/error-handling/throwable';
 import { ZodError } from 'zod';
 import { getDatabase } from '@yukako/state';
 import { authenticate } from '../../lib/authenticate';
-import { SecretsNewSecretRequestBodySchema } from '@yukako/types';
+import {
+    SecretsNewSecretRequestBodySchema,
+    SecretsSecretDataResponseBodyType,
+} from '@yukako/types';
 import { and, desc, eq } from 'drizzle-orm';
 import {
     secrets,
@@ -13,6 +16,7 @@ import {
 } from '@yukako/state/src/db/schema';
 import { nanoid } from 'nanoid';
 import { getSql } from '@yukako/state/src/db/init';
+import { createHash } from 'crypto';
 
 const secretsRouter = Router();
 
@@ -38,6 +42,7 @@ secretsRouter.post('/', async (req, res) => {
                     target: [secrets.name, secrets.projectId],
                     set: {
                         value,
+                        disabled: false,
                     },
                 });
 
@@ -67,7 +72,15 @@ secretsRouter.post('/', async (req, res) => {
             _sql.notify('project_versions', 'reload');
         });
 
-        const data: SecretsSecretDataResponseBody = {};
+        const data: SecretsSecretDataResponseBodyType = {
+            name,
+            projectId,
+            digest: createHash('sha256')
+                .update(new Buffer(value))
+                .digest('hex'),
+            disabled: false,
+            createdAt: Date.now(),
+        };
     } catch (err) {
         respond.rethrow(err);
 
