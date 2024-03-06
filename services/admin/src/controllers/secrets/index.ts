@@ -93,4 +93,38 @@ secretsRouter.post('/', async (req, res) => {
     }
 });
 
+secretsRouter.get('/projects/:projectId/:secretName', async (req, res) => {
+  	try {
+		const db = getDatabase();
+
+		await authenticate(req);
+
+		const { projectId, secretName } = req.params;
+
+		const secretData = await db.query.secrets.findFirst({
+			where: and(
+				eq(secrets.projectId, projectId),
+				eq(secrets.name, secretName),
+			),
+		});
+
+		if (!secretData) {
+			respond.status(404).message({ error: 'Secret not found' }).throw();
+			return;
+		}
+
+		const data: SecretsSecretDataResponseBodyType = {
+			name: secretData.name,
+			projectId: secretData.projectId,
+			digest: createHash('sha256')
+				.update(new Buffer(secretData.value))
+				.digest('hex'),
+			disabled: secretData.disabled,
+			createdAt: secretData.createdAt.getTime(),
+		};
+
+		respond.status(200).message(data).throw();
+	}
+})
+
 export default secretsRouter;
