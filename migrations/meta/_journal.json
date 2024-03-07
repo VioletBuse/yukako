@@ -204,13 +204,6 @@
       "when": 1709585227068,
       "tag": "0028_complete_jubilee",
       "breakpoints": true
-    },
-    {
-      "idx": 29,
-      "version": "5",
-      "when": 1709764319225,
-      "tag": "0029_safe_annihilus",
-      "breakpoints": true
     }
   ]
 }

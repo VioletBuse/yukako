@@ -12,11 +12,9 @@ import { projectVersions } from './versions';
 export const secrets = pgTable(
     'secrets',
     {
-        name: text('name').notNull(),
-        projectId: text('projectId')
-            .notNull()
-            .references(() => projects.id),
-        value: text('value').notNull(),
+        name: text('name'),
+        projectId: text('projectId').references(() => projects.id),
+        value: text('value'),
         disabled: boolean('disabled').notNull().default(false),
         createdAt: timestamp('created_at').notNull().defaultNow(),
     },
