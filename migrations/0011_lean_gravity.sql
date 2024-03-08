@@ -1,1 +1,0 @@
-ALTER TABLE "kv_entry" DROP CONSTRAINT "kv_entry_key_kv_database_id_pk";

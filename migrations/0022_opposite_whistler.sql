@@ -1,2 +1,0 @@
-ALTER TABLE "yukako_nodes" ADD COLUMN "node_registration_manager_lock" boolean DEFAULT false NOT NULL;--> statement-breakpoint
-ALTER TABLE "yukako_nodes" ADD COLUMN "project_locks" jsonb DEFAULT '[]' NOT NULL;

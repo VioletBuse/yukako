@@ -1,1 +1,0 @@
-ALTER TABLE "project_version_kv_database_binding" ADD COLUMN "name" text NOT NULL;

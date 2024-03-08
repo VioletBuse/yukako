@@ -1,1 +1,0 @@
-ALTER TABLE "site_files" ADD COLUMN "path" text NOT NULL;

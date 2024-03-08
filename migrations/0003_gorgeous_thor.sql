@@ -1,1 +1,0 @@
-ALTER TABLE "project_version_routes" ALTER COLUMN "project_version_id" SET NOT NULL;
