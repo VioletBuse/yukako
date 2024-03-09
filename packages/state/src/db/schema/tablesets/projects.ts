@@ -2,7 +2,6 @@ import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 import { projectVersions } from '../index';
 import { cronJobs } from './cron-jobs';
-import { secrets } from './secrets';
 
 export const projects = pgTable('projects', {
     id: text('id').notNull().primaryKey(),
@@ -15,5 +14,4 @@ export const projects = pgTable('projects', {
 export const projectRelations = relations(projects, ({ one, many }) => ({
     projectVersions: many(projectVersions),
     cronJobs: many(cronJobs),
-    secrets: many(secrets),
 }));
