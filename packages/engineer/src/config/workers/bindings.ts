@@ -141,6 +141,40 @@ export class ServiceBinding implements WorkerBinding {
     }
 }
 
+export class FromEnvironmentBinding implements WorkerBinding {
+    public _name!: string;
+    public _envVar!: string;
+
+    private constructor() {}
+
+    static new(name?: string, envVar?: string) {
+        const binding = new FromEnvironmentBinding();
+        if (name) binding.setName(name);
+        if (envVar) binding.setEnvVar(envVar);
+        return binding;
+    }
+
+    setName(name: string) {
+        this._name = name;
+        return this;
+    }
+
+    setEnvVar(envVar: string) {
+        this._envVar = envVar;
+        return this;
+    }
+
+    render() {
+        if (!this._name) throw new Error('Name is required');
+        if (!this._envVar) throw new Error('Environment variable is required');
+
+        return `(
+	name = "${this._name}",
+	fromEnvironment = "${this._envVar}"
+)`;
+    }
+}
+
 export class WrappedBinding implements WorkerBinding {
     public _name!: string;
     public _moduleName!: string;

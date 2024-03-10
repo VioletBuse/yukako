@@ -10,6 +10,7 @@ import {
     Extension,
     ExtensionModule,
     ExternalServer,
+    FromEnvironmentBinding,
     Header,
     HttpOptions,
     JSONBinding,
@@ -65,6 +66,11 @@ export type BaseBindingData =
           type: 'service';
           name: string;
           service: Service | 'admin-service' | 'router-service';
+      }
+    | {
+          type: 'from-environment';
+          name: string;
+          envVar: string;
       }
     | {
           type: 'wrapped';
@@ -283,6 +289,11 @@ export class Configurator {
                 return ServiceBinding.new()
                     .setName(binding.name)
                     .setService(ServiceDesignator.new(serviceName));
+            })
+            .with({ type: 'from-environment' }, (binding) => {
+                return FromEnvironmentBinding.new()
+                    .setName(binding.name)
+                    .setEnvVar(binding.envVar);
             })
             .with({ type: 'wrapped' }, (binding) => {
                 return WrappedBinding.new()
