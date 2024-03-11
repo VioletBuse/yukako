@@ -8,6 +8,13 @@
       "when": 1710018130571,
       "tag": "0000_glamorous_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1710192847352,
+      "tag": "0001_hard_penance",
+      "breakpoints": true
     }
   ]
 }

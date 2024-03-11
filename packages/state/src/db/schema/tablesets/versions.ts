@@ -3,6 +3,7 @@ import { relations, sql } from 'drizzle-orm';
 import { projects } from './projects';
 import {
     projectVersionDataBindings,
+    projectVersionEnvironmentBindings,
     projectVersionJsonBindings,
     projectVersionTextBindings,
 } from './basic-bindings';
@@ -98,6 +99,7 @@ export const projectVersionRelations = relations(
         textBindings: many(projectVersionTextBindings),
         jsonBindings: many(projectVersionJsonBindings),
         dataBindings: many(projectVersionDataBindings),
+        envVarBindings: many(projectVersionEnvironmentBindings),
         kvDatabases: many(projectVersionKvDatabaseBinding),
         sites: many(sites),
     }),

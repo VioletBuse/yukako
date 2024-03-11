@@ -67,3 +67,25 @@ export const projectVersionDataBindingRelations = relations(
         }),
     }),
 );
+
+export const projectVersionEnvironmentBindings = pgTable(
+    'project_version_environment_bindings',
+    {
+        id: text('id').notNull().primaryKey(),
+        name: text('name').notNull(),
+        envVar: text('env_var').notNull(),
+        projectVersionId: text('project_version_id')
+            .notNull()
+            .references(() => projectVersions.id),
+    },
+);
+
+export const projectVersionEnvironmentBindingRelations = relations(
+    projectVersionEnvironmentBindings,
+    ({ one }) => ({
+        projectVersion: one(projectVersions, {
+            fields: [projectVersionEnvironmentBindings.projectVersionId],
+            references: [projectVersions.id],
+        }),
+    }),
+);
