@@ -8,6 +8,7 @@ import {
     projects,
     projectVersionBlobs,
     projectVersionDataBindings,
+    projectVersionEnvironmentBindings,
     projectVersionJsonBindings,
     projectVersionKvDatabaseBinding,
     projectVersionRoutes,
@@ -71,6 +72,7 @@ projectSpecificVersionsRouter.get(
                     jsonBindings: true,
                     dataBindings: true,
                     kvDatabases: true,
+                    envVarBindings: true,
                     sites: {
                         with: {
                             files: true,
@@ -122,6 +124,14 @@ projectSpecificVersionsRouter.get(
                         }),
                     );
 
+                    const envVarBindings = projectVersion.envVarBindings.map(
+                        (binding) => ({
+                            id: binding.id,
+                            name: binding.name,
+                            envVar: binding.envVar,
+                        }),
+                    );
+
                     const kvBindings = projectVersion.kvDatabases.map((kv) => ({
                         name: kv.name,
                         kvDatabaseId: kv.kvDatabaseId,
@@ -145,6 +155,7 @@ projectSpecificVersionsRouter.get(
                         textBindings,
                         jsonBindings,
                         dataBindings,
+                        envVarBindings,
                         kvBindings,
                         siteBindings,
                     };
@@ -198,6 +209,7 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
+                            envVarBindings: true,
                             sites: {
                                 with: {
                                     files: true,
@@ -257,6 +269,14 @@ projectSpecificVersionsRouter.get(
                 digest: base64Hash(binding.base64),
             }));
 
+            const envVarBindings = projectVersion.envVarBindings.map(
+                (binding) => ({
+                    id: binding.id,
+                    name: binding.name,
+                    envVar: binding.envVar,
+                }),
+            );
+
             const kvBindings = projectVersion.kvDatabases.map((kv) => ({
                 name: kv.name,
                 kvDatabaseId: kv.kvDatabaseId,
@@ -280,6 +300,7 @@ projectSpecificVersionsRouter.get(
                 textBindings,
                 jsonBindings,
                 dataBindings,
+                envVarBindings,
                 kvBindings,
                 siteBindings,
             };
@@ -414,6 +435,21 @@ projectSpecificVersionsRouter.post(
                                       name: binding.name,
                                       base64: binding.base64,
                                       projectVersionId: newProjectVersion[0].id,
+                                  })),
+                              )
+                              .returning()
+                        : [];
+
+                const newEnvVarBindings =
+                    data.environmentBindings &&
+                    data.environmentBindings.length > 0
+                        ? await txn
+                              .insert(projectVersionEnvironmentBindings)
+                              .values(
+                                  data.environmentBindings.map((binding) => ({
+                                      id: nanoid(),
+                                      name: binding.name,
+                                      envVar: binding.envVar,
                                   })),
                               )
                               .returning()
@@ -598,6 +634,12 @@ projectSpecificVersionsRouter.post(
                     digest: base64Hash(binding.base64),
                 }));
 
+                const envVarBindings = newEnvVarBindings.map((binding) => ({
+                    id: binding.id,
+                    name: binding.name,
+                    envVar: binding.envVar,
+                }));
+
                 const kvBindings = newKvBindings.map((kv) => ({
                     name: kv.name,
                     kvDatabaseId: kv.kvDatabaseId,
@@ -625,6 +667,7 @@ projectSpecificVersionsRouter.post(
                     textBindings,
                     jsonBindings,
                     dataBindings,
+                    envVarBindings,
                     kvBindings,
                     siteBindings,
                 };
@@ -685,6 +728,7 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
+                            envVarBindings: true,
                             sites: {
                                 with: {
                                     files: true,
@@ -744,6 +788,14 @@ projectSpecificVersionsRouter.get(
                 digest: base64Hash(binding.base64),
             }));
 
+            const envVarBindings = projectVersion.envVarBindings.map(
+                (binding) => ({
+                    id: binding.id,
+                    name: binding.name,
+                    envVar: binding.envVar,
+                }),
+            );
+
             const kvBindings = projectVersion.kvDatabases.map((kv) => ({
                 name: kv.name,
                 kvDatabaseId: kv.kvDatabaseId,
@@ -767,6 +819,7 @@ projectSpecificVersionsRouter.get(
                 textBindings,
                 jsonBindings,
                 dataBindings,
+                envVarBindings,
                 kvBindings,
                 siteBindings,
             };

@@ -32,6 +32,7 @@ export const loadProjects = async () => {
                     jsonBindings: true,
                     dataBindings: true,
                     kvDatabases: true,
+                    envVarBindings: true,
                     sites: {
                         with: {
                             files: true,
@@ -79,6 +80,17 @@ export const loadProjects = async () => {
                 },
             );
 
+            const environmentBindings =
+                project.projectVersions[0].envVarBindings.map(
+                    (binding): BaseBindingData => {
+                        return {
+                            type: 'from-environment',
+                            name: binding.name,
+                            envVar: binding.envVar,
+                        };
+                    },
+                );
+
             const kvBindings: BaseBindingData[] =
                 project.projectVersions[0].kvDatabases.map((binding) =>
                     generateKvBinding(binding.name, binding.kvDatabaseId),
@@ -93,6 +105,7 @@ export const loadProjects = async () => {
                 ...textBindings,
                 ...jsonBindings,
                 ...dataBindings,
+                ...environmentBindings,
                 ...kvBindings,
                 ...sitesBindings,
             ];

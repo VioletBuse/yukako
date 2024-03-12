@@ -47,6 +47,7 @@ versionsRouter.get('/', async (req, res) => {
                 jsonBindings: true,
                 dataBindings: true,
                 kvDatabases: true,
+                envVarBindings: true,
                 sites: {
                     with: {
                         files: true,
@@ -98,6 +99,13 @@ versionsRouter.get('/', async (req, res) => {
                     }),
                 );
 
+                const envVarBindings = projectVersion.envVarBindings.map(
+                    (binding) => ({
+                        name: binding.name,
+                        envVar: binding.envVar,
+                    }),
+                );
+
                 const kvBindings = projectVersion.kvDatabases.map(
                     (binding) => ({
                         name: binding.name,
@@ -123,6 +131,7 @@ versionsRouter.get('/', async (req, res) => {
                     textBindings,
                     jsonBindings,
                     dataBindings,
+                    envVarBindings,
                     kvBindings,
                     siteBindings,
                 };

@@ -48,6 +48,14 @@ export const NewProjectVersionRequestBodySchema = z.object({
             }),
         )
         .nullish(),
+    environmentBindings: z
+        .array(
+            z.object({
+                name: z.string(),
+                envVar: z.string(),
+            }),
+        )
+        .nullish(),
     kvBindings: z
         .array(z.object({ name: z.string(), kvDatabaseId: z.string() }))
         .nullish(),
@@ -119,6 +127,12 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
         z.object({
             name: z.string(),
             digest: z.string(),
+        }),
+    ),
+    envVarBindings: z.array(
+        z.object({
+            name: z.string(),
+            envVar: z.string(),
         }),
     ),
     kvBindings: z.array(
