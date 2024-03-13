@@ -11,6 +11,9 @@ sites:
 cron_jobs:
   - name: test-cron-job
     cron: "* * * * *"
+environment_bindings:
+  - name: ENVIRONMENT
+    env_var: "PATH"
 deployments:
   - server: http://localhost:8080
     name: test

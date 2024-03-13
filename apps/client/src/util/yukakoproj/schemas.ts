@@ -63,6 +63,15 @@ export const baseConfigSchema = z.object({
         )
         .optional(),
 
+    environment_bindings: z
+        .array(
+            z.object({
+                name: z.string(),
+                env_var: z.string(),
+            }),
+        )
+        .optional(),
+
     kv_bindings: z
         .array(
             z.object({

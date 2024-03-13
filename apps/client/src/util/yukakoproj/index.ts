@@ -39,6 +39,10 @@ const resolveResult = (
         textBindings: resolveTextBindings(input, folder),
         jsonBindings: resolveJsonBindings(input, folder),
         dataBindings: resolveDataBindings(input, folder),
+        environmentBindings: input.environment_bindings?.map((binding) => ({
+            name: binding.name,
+            envVar: binding.env_var,
+        })),
         sites: resolveSites(input, folder),
         cronJobs: input.cron_jobs,
     };
