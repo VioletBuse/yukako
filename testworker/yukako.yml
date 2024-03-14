@@ -16,11 +16,8 @@ environment_bindings:
     env_var: "PATH"
 deployments:
   - server: http://localhost:8080
-    name: test
-    id: qMpwvWEEGagb8djEgjQFD
-    kv_bindings:
-      - name: KV_DATABASE
-        kv_database_id: "PntF9VlSKBqP386sQIrUD"
+    name: testworker
+    id: "GCfutZ3ed84QXeRKDYvY-"
     routes:
       - host: test.localhost:8080
         paths:

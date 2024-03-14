@@ -292,9 +292,9 @@ export class SingleProjectManager {
 
                     if (!nextJobInvocation) return;
 
-                    console.log(util.inspect(nextJobInvocation, true, 4, true));
-                    console.log('cur', Date.now());
-                    console.log('sch', nextJobInvocation.scheduledAt.getTime());
+                    // console.log(util.inspect(nextJobInvocation, true, 4, true));
+                    // console.log('cur', Date.now());
+                    // console.log('sch', nextJobInvocation.scheduledAt.getTime());
 
                     const scheduledTimeIsGreaterThanCurrentTime =
                         nextJobInvocation.scheduledAt.getTime() > Date.now();
@@ -373,8 +373,8 @@ export class SingleProjectManager {
 
                     this.nextJobInvocations[cronJob.name] = null;
 
-                    console.log(util.inspect(newLog, true, 4, true));
-                    console.log(res);
+                    // console.log(util.inspect(newLog, true, 4, true));
+                    // console.log(res);
                 });
             } catch (err) {
                 console.error(err);

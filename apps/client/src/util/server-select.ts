@@ -125,6 +125,10 @@ export const selectServer = async (opts: {
 
             const sessionId = serverObject?.auth?.sessionId;
 
+            if (opts.canSelectWithoutLoggedIn) {
+                return serverChoice;
+            }
+
             if (!sessionId) {
                 if (!opts?.canSelectWithoutLoggedIn) {
                     spinner.fail(`Not logged in to server ${serverChoice}.`);

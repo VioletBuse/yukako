@@ -450,6 +450,7 @@ projectSpecificVersionsRouter.post(
                                       id: nanoid(),
                                       name: binding.name,
                                       envVar: binding.envVar,
+                                      projectVersionId: newProjectVersion[0].id,
                                   })),
                               )
                               .returning()

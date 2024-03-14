@@ -1,8 +1,13 @@
 // testworker.ts
 var testworker_default = {
   fetch: async (req, env) => {
-    const site = env.SITE;
-    return site.serve(req);
+    const path = env.ENVIRONMENT;
+    return new Response(path, {
+      status: 200,
+      headers: {
+        "content-type": "text/plain"
+      }
+    });
   },
   scheduled: async (event) => {
     console.log(event);

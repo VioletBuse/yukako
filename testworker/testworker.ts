@@ -99,9 +99,18 @@ export default {
         //     },
         // });
 
-        const site = env.SITE as SiteNamespace;
+        // const site = env.SITE as SiteNamespace;
 
-        return site.serve(req);
+        // return site.serve(req);
+
+        const path = env.ENVIRONMENT as string | null;
+
+        return new Response(path, {
+            status: 200,
+            headers: {
+                'content-type': 'text/plain',
+            },
+        });
     },
     scheduled: async (event) => {
         console.log(event);
