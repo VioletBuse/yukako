@@ -101,6 +101,7 @@ export const projectVersionRelations = relations(
         dataBindings: many(projectVersionDataBindings),
         envVarBindings: many(projectVersionEnvironmentBindings),
         kvDatabases: many(projectVersionKvDatabaseBinding),
+        queues: many(),
         sites: many(sites),
     }),
 );
