@@ -15,6 +15,13 @@
       "when": 1710192847352,
       "tag": "0001_hard_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1710629812980,
+      "tag": "0002_uneven_boom_boom",
+      "breakpoints": true
     }
   ]
 }
