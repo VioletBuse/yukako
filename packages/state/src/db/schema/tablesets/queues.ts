@@ -21,6 +21,7 @@ export const projectVersionQueueBindings = pgTable(
         projectVersionId: text('project_version_id')
             .notNull()
             .references(() => projectVersions.id),
+        name: text('name').notNull(),
     },
     (table) => ({
         compositePk: primaryKey({

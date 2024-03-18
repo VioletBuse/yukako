@@ -59,6 +59,9 @@ export const NewProjectVersionRequestBodySchema = z.object({
     kvBindings: z
         .array(z.object({ name: z.string(), kvDatabaseId: z.string() }))
         .nullish(),
+    queueBindings: z
+        .array(z.object({ name: z.string(), queueId: z.string() }))
+        .nullish(),
     sites: z
         .array(
             z.object({
@@ -139,6 +142,12 @@ export const ProjectVersionsDataResponseBodySchema = z.object({
         z.object({
             name: z.string(),
             kvDatabaseId: z.string(),
+        }),
+    ),
+    queueBindings: z.array(
+        z.object({
+            name: z.string(),
+            queueId: z.string(),
         }),
     ),
     siteBindings: z.array(

@@ -9,6 +9,7 @@ import {
 } from './basic-bindings';
 import { projectVersionKvDatabaseBinding } from './kv';
 import { sites } from './sites';
+import { projectVersionQueueBindings } from './queues';
 
 export const dataBlobType = pgEnum('data_blob_type', [
     'esmodule',
@@ -101,7 +102,7 @@ export const projectVersionRelations = relations(
         dataBindings: many(projectVersionDataBindings),
         envVarBindings: many(projectVersionEnvironmentBindings),
         kvDatabases: many(projectVersionKvDatabaseBinding),
-        queues: many(),
+        queues: many(projectVersionQueueBindings),
         sites: many(sites),
     }),
 );

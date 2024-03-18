@@ -36,6 +36,10 @@ const resolveResult = (
             name: binding.name,
             kvDatabaseId: binding.kv_database_id,
         })),
+        queueBindings: input.queue_bindings?.map((binding) => ({
+            name: binding.name,
+            queueId: binding.queue_id,
+        })),
         textBindings: resolveTextBindings(input, folder),
         jsonBindings: resolveJsonBindings(input, folder),
         dataBindings: resolveDataBindings(input, folder),

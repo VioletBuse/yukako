@@ -11,6 +11,7 @@ import {
     projectVersionEnvironmentBindings,
     projectVersionJsonBindings,
     projectVersionKvDatabaseBinding,
+    projectVersionQueueBindings,
     projectVersionRoutes,
     projectVersions,
     projectVersionTextBindings,
@@ -72,6 +73,7 @@ projectSpecificVersionsRouter.get(
                     jsonBindings: true,
                     dataBindings: true,
                     kvDatabases: true,
+                    queueBindings: true,
                     envVarBindings: true,
                     sites: {
                         with: {
@@ -137,6 +139,13 @@ projectSpecificVersionsRouter.get(
                         kvDatabaseId: kv.kvDatabaseId,
                     }));
 
+                    const queueBindings = projectVersion.queueBindings.map(
+                        (queue) => ({
+                            name: queue.name,
+                            queueId: queue.queueId,
+                        }),
+                    );
+
                     const siteBindings = projectVersion.sites.map((site) => ({
                         name: site.name,
                         files: site.files.map((file) => ({
@@ -157,6 +166,7 @@ projectSpecificVersionsRouter.get(
                         dataBindings,
                         envVarBindings,
                         kvBindings,
+                        queueBindings,
                         siteBindings,
                     };
                 },
@@ -209,6 +219,7 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
+                            queueBindings: true,
                             envVarBindings: true,
                             sites: {
                                 with: {
@@ -282,6 +293,11 @@ projectSpecificVersionsRouter.get(
                 kvDatabaseId: kv.kvDatabaseId,
             }));
 
+            const queueBindings = projectVersion.queueBindings.map((queue) => ({
+                name: queue.name,
+                queueId: queue.queueId,
+            }));
+
             const siteBindings = projectVersion.sites.map((site) => ({
                 name: site.name,
                 files: site.files.map((file) => ({
@@ -302,6 +318,7 @@ projectSpecificVersionsRouter.get(
                 dataBindings,
                 envVarBindings,
                 kvBindings,
+                queueBindings,
                 siteBindings,
             };
 
@@ -463,6 +480,20 @@ projectSpecificVersionsRouter.post(
                               .values(
                                   data.kvBindings.map((binding) => ({
                                       kvDatabaseId: binding.kvDatabaseId,
+                                      projectVersionId: newProjectVersion[0].id,
+                                      name: binding.name,
+                                  })),
+                              )
+                              .returning()
+                        : [];
+
+                const newQueueBindings =
+                    data.queueBindings && data.queueBindings.length > 0
+                        ? await txn
+                              .insert(projectVersionQueueBindings)
+                              .values(
+                                  data.queueBindings.map((binding) => ({
+                                      queueId: binding.queueId,
                                       projectVersionId: newProjectVersion[0].id,
                                       name: binding.name,
                                   })),
@@ -646,6 +677,11 @@ projectSpecificVersionsRouter.post(
                     kvDatabaseId: kv.kvDatabaseId,
                 }));
 
+                const queueBindings = newQueueBindings.map((queue) => ({
+                    name: queue.name,
+                    queueId: queue.queueId,
+                }));
+
                 const siteBindings = newSites.map((site) => ({
                     name: site.name,
                     files: newSiteFiles
@@ -670,6 +706,7 @@ projectSpecificVersionsRouter.post(
                     dataBindings,
                     envVarBindings,
                     kvBindings,
+                    queueBindings,
                     siteBindings,
                 };
 
@@ -729,6 +766,7 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
+                            queueBindings: true,
                             envVarBindings: true,
                             sites: {
                                 with: {
@@ -802,6 +840,11 @@ projectSpecificVersionsRouter.get(
                 kvDatabaseId: kv.kvDatabaseId,
             }));
 
+            const queueBindings = projectVersion.queueBindings.map((queue) => ({
+                name: queue.name,
+                queueId: queue.queueId,
+            }));
+
             const siteBindings = projectVersion.sites.map((site) => ({
                 name: site.name,
                 files: site.files.map((file) => ({
@@ -822,6 +865,7 @@ projectSpecificVersionsRouter.get(
                 dataBindings,
                 envVarBindings,
                 kvBindings,
+                queueBindings,
                 siteBindings,
             };
 

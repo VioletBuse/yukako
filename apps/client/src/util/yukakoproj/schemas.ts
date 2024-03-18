@@ -81,6 +81,15 @@ export const baseConfigSchema = z.object({
         )
         .optional(),
 
+    queue_bindings: z
+        .array(
+            z.object({
+                name: z.string(),
+                queue_id: z.string(),
+            }),
+        )
+        .optional(),
+
     sites: z
         .array(
             z.object({
