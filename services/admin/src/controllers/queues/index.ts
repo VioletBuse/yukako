@@ -29,9 +29,13 @@ queuesRouter.post('/', async (req, res) => {
             })
             .returning();
 
+        if (result.length !== 1) {
+            respond.status(500).message('Internal Server Error').throw();
+        }
+
         const data: QueueQueueDataResponseBodyType = {
-            id: result.id,
-            name: result.name,
+            id: result[0].id,
+            name: result[0].name,
         };
 
         respond.status(201).message(data).throw();

@@ -47,9 +47,8 @@ versionsRouter.get('/', async (req, res) => {
                 jsonBindings: true,
                 dataBindings: true,
                 kvDatabases: true,
-                queueBindings: true,
                 envVarBindings: true,
-                queueBindings: true,
+                queues: true,
                 sites: {
                     with: {
                         files: true,
@@ -115,12 +114,10 @@ versionsRouter.get('/', async (req, res) => {
                     }),
                 );
 
-                const queueBindings = projectVersion.queueBindings.map(
-                    (binding) => ({
-                        name: binding.name,
-                        queueId: binding.queueId,
-                    }),
-                );
+                const queueBindings = projectVersion.queues.map((binding) => ({
+                    name: binding.name,
+                    queueId: binding.queueId,
+                }));
 
                 const siteBindings = projectVersion.sites.map((site) => ({
                     name: site.name,

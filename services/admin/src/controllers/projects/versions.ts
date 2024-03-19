@@ -73,7 +73,7 @@ projectSpecificVersionsRouter.get(
                     jsonBindings: true,
                     dataBindings: true,
                     kvDatabases: true,
-                    queueBindings: true,
+                    queues: true,
                     envVarBindings: true,
                     sites: {
                         with: {
@@ -139,7 +139,7 @@ projectSpecificVersionsRouter.get(
                         kvDatabaseId: kv.kvDatabaseId,
                     }));
 
-                    const queueBindings = projectVersion.queueBindings.map(
+                    const queueBindings = projectVersion.queues.map(
                         (queue) => ({
                             name: queue.name,
                             queueId: queue.queueId,
@@ -219,7 +219,7 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
-                            queueBindings: true,
+                            queues: true,
                             envVarBindings: true,
                             sites: {
                                 with: {
@@ -293,7 +293,7 @@ projectSpecificVersionsRouter.get(
                 kvDatabaseId: kv.kvDatabaseId,
             }));
 
-            const queueBindings = projectVersion.queueBindings.map((queue) => ({
+            const queueBindings = projectVersion.queues.map((queue) => ({
                 name: queue.name,
                 queueId: queue.queueId,
             }));
@@ -766,7 +766,7 @@ projectSpecificVersionsRouter.get(
                             jsonBindings: true,
                             dataBindings: true,
                             kvDatabases: true,
-                            queueBindings: true,
+                            queues: true,
                             envVarBindings: true,
                             sites: {
                                 with: {
@@ -840,7 +840,7 @@ projectSpecificVersionsRouter.get(
                 kvDatabaseId: kv.kvDatabaseId,
             }));
 
-            const queueBindings = projectVersion.queueBindings.map((queue) => ({
+            const queueBindings = projectVersion.queues.map((queue) => ({
                 name: queue.name,
                 queueId: queue.queueId,
             }));
