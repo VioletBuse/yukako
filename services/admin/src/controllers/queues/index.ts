@@ -52,6 +52,30 @@ queuesRouter.post('/', async (req, res) => {
     }
 });
 
+queuesRouter.get('/', async (req, res) => {
+    try {
+        const db = getDatabase();
+
+        await authenticate(req);
+
+        const result = await db.query.queues.findMany({});
+
+        const data: QueueQueueDataResponseBodyType[] = result.map((queue) => {
+            return {
+                id: queue.id,
+                name: queue.name,
+            };
+        });
+
+        respond.status(200).message(data).throw();
+    } catch (err) {
+        respond.rethrow(err);
+
+        respond.status(500).message('Internal Server Error').throw();
+        throw err;
+    }
+});
+
 queuesRouter.get('/:id', async (req, res) => {
     try {
         const db = getDatabase();
