@@ -1,4 +1,10 @@
-import { pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+    jsonb,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+} from 'drizzle-orm/pg-core';
 import { projectVersions } from './versions';
 import { relations } from 'drizzle-orm';
 
@@ -49,7 +55,7 @@ export const queueJob = pgTable('queue_jobs', {
     queueId: text('queue_id')
         .notNull()
         .references(() => queues.id),
-    data: text('data').notNull(),
+    data: jsonb('data').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     startedAt: timestamp('started_at'),
     completedAt: timestamp('completed_at'),

@@ -1,1 +1,0 @@
-ALTER TABLE "project_version_queue_bindings" ADD COLUMN "name" text NOT NULL;
