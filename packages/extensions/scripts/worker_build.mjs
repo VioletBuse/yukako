@@ -11,7 +11,8 @@ const modules = [
 ];
 const extensions = [
 	{ out: "kv-extension", in: "extensions/kv/index.ts" },
-	{ out: "sites-extension", in: "extensions/sites/index.ts" }
+	{ out: "sites-extension", in: "extensions/sites/index.ts" },
+	{ out: "queues-extension", in: "extensions/queues/index.ts" }
 ];
 
 await esbuild.build({
@@ -30,6 +31,7 @@ const entrypoint = await fs.readFile("dist/entrypoint.js", "utf-8");
 
 const kvExtension = await fs.readFile("dist/kv-extension.js", "utf-8");
 const sitesExtension = await fs.readFile("dist/sites-extension.js", "utf-8");
+const queuesExtension = await fs.readFile("dist/queues-extension.js", "utf-8");
 
 const final = `
 
@@ -50,6 +52,9 @@ export const kvExtension = ${JSON.stringify(kvExtension)};
 
 // Path: packages/extensions/extensions/sites/index.ts
 export const sitesExtension = ${JSON.stringify(sitesExtension)};
+
+// Path: packages/extensions/extensions/queues/index.ts
+export const queuesExtension = ${JSON.stringify(queuesExtension)};
 `;
 
 await fs.writeFile("src/dist.ts", final);

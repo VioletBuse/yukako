@@ -636,9 +636,33 @@ export class Configurator {
         this.config._extensions.push(_sitesExtension);
     }
 
+    private initializeQueuesExtension() {
+        this.artifacts.addFile('__yukako_internal_extensions', {
+            name: 'queues-extension-module.js',
+            content: queuesExtension,
+            meta: {
+                type: 'esmodule',
+            },
+        });
+
+        const _queuesExtension = Extension.new().setModules([
+            ExtensionModule.new()
+                .setName('queues-extension')
+                .setInternal(true)
+                .setEsModule(
+                    CapnpEmbed.new(
+                        'artifacts/__yukako_internal_extensions/queues-extension-module.js',
+                    ),
+                ),
+        ]);
+
+        this.config._extensions.push(_queuesExtension);
+    }
+
     private initializeExtensions() {
         this.initializeKvExtension();
         this.initializeSitesExtension();
+        this.initializeQueuesExtension();
     }
 
     public static new(opts: {
